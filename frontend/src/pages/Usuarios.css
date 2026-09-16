@@ -1,0 +1,849 @@
+/* ========================================
+   ESTADÍSTICAS
+======================================== */
+
+.usuarios-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap: 18px;
+
+  margin-bottom: 23px;
+}
+
+.usuario-stat-card {
+  min-height: 125px;
+
+  padding: 20px 22px;
+
+  border-radius: 15px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.07);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(17, 33, 50, 0.95),
+      rgba(10, 23, 37, 0.95)
+    );
+
+  box-shadow:
+    0 15px 40px
+    rgba(0, 0, 0, 0.14);
+
+  position: relative;
+
+  overflow: hidden;
+}
+
+.usuario-stat-card::after {
+  content: "";
+
+  position: absolute;
+
+  width: 110px;
+  height: 110px;
+
+  top: -55px;
+  right: -55px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(38, 217, 255, 0.08),
+      transparent 65%
+    );
+}
+
+.usuario-stat-top {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 12px;
+}
+
+.usuario-stat-top > span {
+  color: #6f8399;
+
+  font-size: 9px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.4px;
+}
+
+.usuario-stat-icon {
+  width: 31px;
+  height: 31px;
+
+  border-radius: 9px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color: #26d9ff;
+
+  background:
+    rgba(38, 217, 255, 0.1);
+
+  font-size: 13px;
+
+  font-weight: 800;
+}
+
+.usuario-stat-icon.green {
+  color: #2de2a6;
+
+  background:
+    rgba(45, 226, 166, 0.09);
+}
+
+.usuario-stat-icon.purple {
+  color: #a88cff;
+
+  background:
+    rgba(168, 140, 255, 0.09);
+}
+
+.usuario-stat-icon.cyan {
+  color: #26d9ff;
+
+  background:
+    rgba(38, 217, 255, 0.09);
+}
+
+.usuario-stat-card strong {
+  display: block;
+
+  color: white;
+
+  font-size: 29px;
+
+  font-weight: 800;
+
+  margin-bottom: 4px;
+}
+
+.usuario-stat-card small {
+  color: #60778e;
+
+  font-size: 9px;
+}
+
+.green-text {
+  color: #2de2a6 !important;
+}
+
+.purple-text {
+  color: #a88cff !important;
+}
+
+.cyan-text {
+  color: #26d9ff !important;
+}
+
+
+/* ========================================
+   PANEL
+======================================== */
+
+.usuarios-panel {
+  border-radius: 16px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.07);
+
+  background:
+    rgba(12, 27, 43, 0.88);
+
+  overflow: hidden;
+
+  box-shadow:
+    0 20px 50px
+    rgba(0, 0, 0, 0.14);
+}
+
+
+/* ========================================
+   HEADER
+======================================== */
+
+.usuarios-panel-header {
+  min-height: 87px;
+
+  padding: 19px 22px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.07);
+}
+
+.usuarios-panel-header h3 {
+  margin: 4px 0 0 0;
+
+  color: white;
+
+  font-size: 17px;
+
+  font-weight: 600;
+}
+
+
+/* ========================================
+   ACCIONES
+======================================== */
+
+.usuarios-actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+.usuarios-search {
+  width: 230px;
+  height: 40px;
+
+  padding: 0 12px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 9px;
+
+  background:
+    rgba(3, 13, 23, 0.45);
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+}
+
+.usuarios-search > span {
+  color: #63788d;
+
+  font-size: 16px;
+}
+
+.usuarios-search input {
+  width: 100%;
+
+  border: none;
+
+  outline: none;
+
+  background: transparent;
+
+  color: white;
+
+  font-size: 11px;
+}
+
+.usuarios-search input::placeholder {
+  color: #53677a;
+}
+
+.usuarios-filter {
+  min-width: 145px;
+
+  height: 40px;
+
+  padding: 0 11px;
+
+  border-radius: 9px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.08);
+
+  outline: none;
+
+  background: #071522;
+
+  color: #8fa3b8;
+
+  font-size: 10px;
+
+  cursor: pointer;
+}
+
+.new-user-button {
+  height: 40px;
+
+  padding: 0 16px;
+
+  border: none;
+
+  border-radius: 9px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #0b8cff,
+      #26d9ff
+    );
+
+  color: #03111e;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.new-user-button:hover {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 8px 25px
+    rgba(38, 217, 255, 0.18);
+}
+
+
+/* ========================================
+   TABLA
+======================================== */
+
+.usuarios-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.usuarios-table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+.usuarios-table thead {
+  background:
+    rgba(255, 255, 255, 0.015);
+}
+
+.usuarios-table th {
+  padding: 13px 18px;
+
+  color: #536a80;
+
+  text-align: left;
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.1px;
+
+  white-space: nowrap;
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.06);
+}
+
+.usuarios-table td {
+  padding: 17px 18px;
+
+  color: #a9bac9;
+
+  font-size: 10px;
+
+  vertical-align: middle;
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.045);
+}
+
+.usuarios-table tbody tr {
+  transition: 0.2s ease;
+}
+
+.usuarios-table tbody tr:hover {
+  background:
+    rgba(38, 217, 255, 0.025);
+}
+
+
+/* ========================================
+   USUARIO
+======================================== */
+
+.user-table-name {
+  min-width: 190px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+}
+
+.user-table-avatar {
+  width: 39px;
+  height: 39px;
+
+  flex-shrink: 0;
+
+  border-radius: 10px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color: #26d9ff;
+
+  background:
+    rgba(38, 217, 255, 0.09);
+
+  border:
+    1px solid
+    rgba(38, 217, 255, 0.1);
+
+  font-size: 12px;
+
+  font-weight: 800;
+}
+
+.user-table-name strong {
+  display: block;
+
+  color: #e6edf5;
+
+  font-size: 10px;
+
+  margin-bottom: 3px;
+}
+
+.user-table-name span {
+  color: #53697e;
+
+  font-size: 8px;
+
+  letter-spacing: 0.7px;
+}
+
+.user-email {
+  color: #7e95ab;
+
+  font-size: 9px;
+}
+
+
+/* ========================================
+   ROLES
+======================================== */
+
+.user-role {
+  display: inline-flex;
+
+  padding: 5px 9px;
+
+  border-radius: 20px;
+
+  font-size: 8px;
+
+  font-weight: 700;
+}
+
+.role-admin {
+  color: #a88cff;
+
+  background:
+    rgba(168, 140, 255, 0.09);
+}
+
+.role-collaborator {
+  color: #26d9ff;
+
+  background:
+    rgba(38, 217, 255, 0.08);
+}
+
+
+/* ========================================
+   ESTADOS
+======================================== */
+
+.user-status {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 5px 9px;
+
+  border-radius: 20px;
+
+  font-size: 8px;
+
+  font-weight: 600;
+}
+
+.user-status > span {
+  width: 5px;
+  height: 5px;
+
+  border-radius: 50%;
+}
+
+.user-active {
+  color: #2de2a6;
+
+  background:
+    rgba(45, 226, 166, 0.08);
+}
+
+.user-active > span {
+  background: #2de2a6;
+
+  box-shadow:
+    0 0 7px #2de2a6;
+}
+
+.user-inactive {
+  color: #899bab;
+
+  background:
+    rgba(137, 155, 171, 0.08);
+}
+
+.user-inactive > span {
+  background: #718497;
+}
+
+
+/* ========================================
+   ACCESO
+======================================== */
+
+.access-status {
+  display: flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  color: #71879a;
+
+  font-size: 8px;
+}
+
+.access-icon {
+  width: 18px;
+  height: 18px;
+
+  border-radius: 6px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color: #2de2a6;
+
+  background:
+    rgba(45, 226, 166, 0.07);
+
+  font-size: 8px;
+
+  font-weight: 800;
+}
+
+
+/* ========================================
+   OPCIONES
+======================================== */
+
+.user-options {
+  width: 31px;
+  height: 31px;
+
+  border-radius: 8px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.06);
+
+  background:
+    rgba(255, 255, 255, 0.015);
+
+  color: #778ca1;
+
+  cursor: pointer;
+}
+
+.user-options:hover {
+  color: #26d9ff;
+
+  border-color:
+    rgba(38, 217, 255, 0.2);
+}
+
+
+/* ========================================
+   CERRAR SESIÓN
+======================================== */
+
+.sidebar-user-info {
+  min-width: 0;
+
+  flex: 1;
+}
+
+.sidebar-logout {
+  width: 30px;
+  height: 30px;
+
+  flex-shrink: 0;
+
+  border-radius: 8px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.06);
+
+  background:
+    rgba(255, 255, 255, 0.02);
+
+  color: #71879a;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.sidebar-logout:hover {
+  color: #ff7185;
+
+  background:
+    rgba(255, 92, 115, 0.07);
+
+  border-color:
+    rgba(255, 92, 115, 0.15);
+}
+
+
+/* ========================================
+   SEGURIDAD
+======================================== */
+
+.security-panel {
+  margin-top: 18px;
+
+  padding: 18px 20px;
+
+  border-radius: 14px;
+
+  border:
+    1px solid rgba(38, 217, 255, 0.08);
+
+  background:
+    linear-gradient(
+      90deg,
+      rgba(38, 217, 255, 0.035),
+      rgba(38, 217, 255, 0.01)
+    );
+
+  display: flex;
+
+  align-items: flex-start;
+
+  gap: 13px;
+}
+
+.security-panel-icon {
+  width: 36px;
+  height: 36px;
+
+  flex-shrink: 0;
+
+  border-radius: 10px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color: #26d9ff;
+
+  background:
+    rgba(38, 217, 255, 0.08);
+}
+
+.security-panel > div:last-child > span {
+  color: #26d9ff;
+
+  font-size: 7px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.4px;
+}
+
+.security-panel strong {
+  display: block;
+
+  color: #b8c7d4;
+
+  font-size: 10px;
+
+  margin-top: 4px;
+}
+
+.security-panel p {
+  margin:
+    5px 0 0 0;
+
+  color: #60778d;
+
+  font-size: 8px;
+
+  line-height: 1.5;
+}
+
+
+/* ========================================
+   VACÍO
+======================================== */
+
+.usuarios-empty {
+  min-height: 220px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.usuarios-empty > div {
+  width: 45px;
+  height: 45px;
+
+  margin-bottom: 13px;
+
+  border-radius: 12px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  color: #26d9ff;
+
+  background:
+    rgba(38, 217, 255, 0.07);
+
+  font-size: 18px;
+}
+
+.usuarios-empty strong {
+  color: #b8c6d2;
+
+  font-size: 11px;
+
+  margin-bottom: 5px;
+}
+
+.usuarios-empty span {
+  color: #53697e;
+
+  font-size: 9px;
+}
+
+
+/* ========================================
+   FOOTER
+======================================== */
+
+.usuarios-footer {
+  padding: 14px 21px;
+
+  border-top:
+    1px solid rgba(255, 255, 255, 0.05);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  color: #536a7f;
+
+  font-size: 8px;
+}
+
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+@media (max-width: 1200px) {
+
+  .usuarios-stats {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .usuarios-panel-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .usuarios-actions {
+    width: 100%;
+  }
+
+  .usuarios-search {
+    flex: 1;
+  }
+
+}
+
+@media (max-width: 750px) {
+
+  .usuarios-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .usuarios-actions {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .usuarios-search {
+    width: 100%;
+  }
+
+  .usuarios-filter {
+    width: 100%;
+  }
+
+  .new-user-button {
+    width: 100%;
+  }
+
+}

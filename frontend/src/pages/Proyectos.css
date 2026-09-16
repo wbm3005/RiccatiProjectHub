@@ -1,0 +1,844 @@
+/* ========================================
+   ESTADÍSTICAS
+======================================== */
+
+.proyectos-stats {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap: 18px;
+
+  margin-bottom: 23px;
+}
+
+.proyecto-stat-card {
+  min-height: 125px;
+
+  padding: 20px 22px;
+
+  border-radius: 15px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.07);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(17, 33, 50, 0.95),
+      rgba(10, 23, 37, 0.95)
+    );
+
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.14);
+
+  position: relative;
+
+  overflow: hidden;
+}
+
+.proyecto-stat-card::after {
+  content: "";
+
+  position: absolute;
+
+  width: 100px;
+  height: 100px;
+
+  right: -45px;
+  top: -45px;
+
+  border-radius: 50%;
+
+  background:
+    radial-gradient(
+      circle,
+      rgba(38, 217, 255, 0.08),
+      transparent 65%
+    );
+}
+
+.proyecto-stat-header {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 12px;
+}
+
+.proyecto-stat-header > span {
+  color: #6f8399;
+
+  font-size: 9px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.4px;
+}
+
+.proyecto-stat-icon {
+  width: 31px;
+  height: 31px;
+
+  border-radius: 9px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #26d9ff;
+
+  background:
+    rgba(38, 217, 255, 0.10);
+
+  font-size: 12px;
+
+  font-weight: 800;
+}
+
+.proyecto-stat-icon.green {
+  color: #2de2a6;
+
+  background:
+    rgba(45, 226, 166, 0.09);
+}
+
+.proyecto-stat-icon.orange {
+  color: #ffb84d;
+
+  background:
+    rgba(255, 184, 77, 0.09);
+}
+
+.proyecto-stat-card strong {
+  display: block;
+
+  color: #ffffff;
+
+  font-size: 29px;
+
+  font-weight: 800;
+
+  margin-bottom: 4px;
+}
+
+.proyecto-stat-card small {
+  color: #60778e;
+
+  font-size: 9px;
+}
+
+.proyecto-stat-card small.green-text {
+  color: #2de2a6;
+}
+
+.proyecto-stat-card small.orange-text {
+  color: #ffb84d;
+}
+
+
+/* ========================================
+   PANEL PRINCIPAL
+======================================== */
+
+.proyectos-panel {
+  border-radius: 16px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.07);
+
+  background:
+    rgba(12, 27, 43, 0.88);
+
+  overflow: hidden;
+
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.14);
+}
+
+
+/* ========================================
+   HEADER DEL PANEL
+======================================== */
+
+.proyectos-panel-header {
+  min-height: 87px;
+
+  padding: 19px 22px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 20px;
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.07);
+}
+
+.proyectos-panel-header h3 {
+  margin:
+    4px 0 0 0;
+
+  color: white;
+
+  font-size: 17px;
+
+  font-weight: 600;
+}
+
+
+/* ========================================
+   ACCIONES
+======================================== */
+
+.proyectos-actions {
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+
+/* BUSCADOR */
+
+.proyectos-search {
+  width: 235px;
+  height: 40px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 9px;
+
+  background:
+    rgba(3, 13, 23, 0.45);
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 9px;
+
+  padding:
+    0 12px;
+}
+
+.proyectos-search span {
+  color: #63788d;
+
+  font-size: 16px;
+}
+
+.proyectos-search input {
+  width: 100%;
+
+  border: none;
+
+  outline: none;
+
+  background: transparent;
+
+  color: white;
+
+  font-size: 11px;
+}
+
+.proyectos-search input::placeholder {
+  color: #53677a;
+}
+
+
+/* FILTRO */
+
+.proyectos-filter {
+  height: 40px;
+
+  min-width: 145px;
+
+  padding:
+    0 11px;
+
+  outline: none;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.08);
+
+  border-radius: 9px;
+
+  background: #071522;
+
+  color: #8fa3b8;
+
+  font-size: 10px;
+
+  cursor: pointer;
+}
+
+.proyectos-filter:focus {
+  border-color:
+    rgba(38, 217, 255, 0.30);
+}
+
+
+/* BOTÓN */
+
+.new-project-button {
+  height: 40px;
+
+  padding:
+    0 16px;
+
+  border: none;
+
+  border-radius: 9px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #0b8cff,
+      #26d9ff
+    );
+
+  color: #03111e;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition: 0.2s ease;
+}
+
+.new-project-button:hover {
+  transform:
+    translateY(-1px);
+
+  box-shadow:
+    0 8px 25px rgba(38, 217, 255, 0.18);
+}
+
+
+/* ========================================
+   TABLA
+======================================== */
+
+.proyectos-table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+}
+
+.proyectos-table {
+  width: 100%;
+
+  border-collapse: collapse;
+}
+
+.proyectos-table thead {
+  background:
+    rgba(255, 255, 255, 0.015);
+}
+
+.proyectos-table th {
+  padding:
+    13px 18px;
+
+  color: #536a80;
+
+  text-align: left;
+
+  font-size: 8px;
+
+  font-weight: 700;
+
+  letter-spacing: 1.15px;
+
+  white-space: nowrap;
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.06);
+}
+
+.proyectos-table td {
+  padding:
+    16px 18px;
+
+  color: #a9bac9;
+
+  font-size: 10px;
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.045);
+}
+
+.proyectos-table tbody tr {
+  transition:
+    0.2s ease;
+}
+
+.proyectos-table tbody tr:hover {
+  background:
+    rgba(38, 217, 255, 0.025);
+}
+
+.proyectos-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+/* ========================================
+   NOMBRE PROYECTO
+======================================== */
+
+.project-table-name {
+  min-width: 215px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+}
+
+.project-table-icon {
+  width: 38px;
+  height: 38px;
+
+  flex-shrink: 0;
+
+  border-radius: 10px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background:
+    rgba(38, 217, 255, 0.10);
+
+  border:
+    1px solid rgba(38, 217, 255, 0.10);
+
+  color: #26d9ff;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.4px;
+}
+
+.project-table-name strong {
+  display: block;
+
+  color: #e6edf5;
+
+  font-size: 11px;
+
+  font-weight: 600;
+
+  margin-bottom: 4px;
+}
+
+.project-table-name span {
+  display: block;
+
+  color: #53697e;
+
+  font-size: 8px;
+
+  letter-spacing: 0.8px;
+}
+
+.project-client {
+  color: #7e95ab !important;
+}
+
+
+/* ========================================
+   RESPONSABLE
+======================================== */
+
+.responsable-container {
+  min-width: 140px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+.responsable-avatar {
+  width: 27px;
+  height: 27px;
+
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 8px;
+
+  background:
+    rgba(255, 255, 255, 0.04);
+
+  color: #8ea5ba;
+
+  font-size: 9px;
+
+  font-weight: 800;
+}
+
+.responsable-container span {
+  color: #9aabba;
+
+  font-size: 9px;
+}
+
+
+/* ========================================
+   PRIORIDADES
+======================================== */
+
+.priority-badge {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-width: 50px;
+
+  padding:
+    5px 9px;
+
+  border-radius: 20px;
+
+  font-size: 8px;
+
+  font-weight: 700;
+}
+
+.priority-high {
+  color: #ff7185;
+
+  background:
+    rgba(255, 92, 115, 0.09);
+}
+
+.priority-medium {
+  color: #ffb84d;
+
+  background:
+    rgba(255, 184, 77, 0.09);
+}
+
+.priority-low {
+  color: #5ed8ff;
+
+  background:
+    rgba(38, 217, 255, 0.08);
+}
+
+
+/* ========================================
+   ESTADOS
+======================================== */
+
+.project-status {
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 6px;
+
+  padding:
+    5px 9px;
+
+  border-radius: 20px;
+
+  font-size: 8px;
+
+  font-weight: 600;
+
+  white-space: nowrap;
+}
+
+.project-status > span {
+  width: 5px;
+  height: 5px;
+
+  border-radius: 50%;
+}
+
+
+/* EN CURSO */
+
+.project-status-progress {
+  color: #2de2a6;
+
+  background:
+    rgba(45, 226, 166, 0.08);
+}
+
+.project-status-progress > span {
+  background: #2de2a6;
+
+  box-shadow:
+    0 0 7px #2de2a6;
+}
+
+
+/* REGISTRADO */
+
+.project-status-registered {
+  color: #26d9ff;
+
+  background:
+    rgba(38, 217, 255, 0.08);
+}
+
+.project-status-registered > span {
+  background: #26d9ff;
+
+  box-shadow:
+    0 0 7px #26d9ff;
+}
+
+
+/* SUSPENDIDO */
+
+.project-status-paused {
+  color: #ffb84d;
+
+  background:
+    rgba(255, 184, 77, 0.08);
+}
+
+.project-status-paused > span {
+  background: #ffb84d;
+
+  box-shadow:
+    0 0 7px rgba(255, 184, 77, 0.5);
+}
+
+
+/* FINALIZADO */
+
+.project-status-finished {
+  color: #a88cff;
+
+  background:
+    rgba(168, 140, 255, 0.09);
+}
+
+.project-status-finished > span {
+  background: #a88cff;
+
+  box-shadow:
+    0 0 7px rgba(168, 140, 255, 0.5);
+}
+
+
+/* ARCHIVADO */
+
+.project-status-archived {
+  color: #899bab;
+
+  background:
+    rgba(137, 155, 171, 0.08);
+}
+
+.project-status-archived > span {
+  background: #718497;
+}
+
+
+/* ========================================
+   FECHAS
+======================================== */
+
+.project-date {
+  min-width: 90px;
+}
+
+.project-date strong {
+  display: block;
+
+  color: #b0c0ce;
+
+  font-size: 9px;
+
+  font-weight: 600;
+
+  margin-bottom: 3px;
+}
+
+.project-date span {
+  color: #53697e;
+
+  font-size: 7px;
+}
+
+
+/* ========================================
+   OPCIONES
+======================================== */
+
+.project-options {
+  width: 31px;
+  height: 31px;
+
+  border-radius: 8px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.06);
+
+  background:
+    rgba(255, 255, 255, 0.015);
+
+  color: #778ca1;
+
+  cursor: pointer;
+}
+
+.project-options:hover {
+  color: #26d9ff;
+
+  border-color:
+    rgba(38, 217, 255, 0.20);
+}
+
+
+/* ========================================
+   SIN RESULTADOS
+======================================== */
+
+.projects-empty {
+  min-height: 220px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.projects-empty div {
+  width: 45px;
+  height: 45px;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+
+  margin-bottom: 13px;
+
+  color: #26d9ff;
+
+  background:
+    rgba(38, 217, 255, 0.07);
+
+  font-size: 20px;
+}
+
+.projects-empty strong {
+  color: #b8c6d2;
+
+  font-size: 11px;
+
+  margin-bottom: 5px;
+}
+
+.projects-empty span {
+  color: #53697e;
+
+  font-size: 9px;
+}
+
+
+/* ========================================
+   FOOTER
+======================================== */
+
+.proyectos-table-footer {
+  padding:
+    14px 21px;
+
+  border-top:
+    1px solid rgba(255, 255, 255, 0.05);
+
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  color: #536a7f;
+
+  font-size: 8px;
+}
+
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+@media (max-width: 1200px) {
+
+  .proyectos-stats {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .proyectos-panel-header {
+    flex-direction: column;
+
+    align-items: flex-start;
+  }
+
+  .proyectos-actions {
+    width: 100%;
+  }
+
+  .proyectos-search {
+    flex: 1;
+  }
+
+}
+
+@media (max-width: 750px) {
+
+  .proyectos-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .proyectos-actions {
+    flex-direction: column;
+
+    align-items: stretch;
+  }
+
+  .proyectos-search {
+    width: 100%;
+  }
+
+  .proyectos-filter {
+    width: 100%;
+  }
+
+  .new-project-button {
+    width: 100%;
+  }
+
+}
