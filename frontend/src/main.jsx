@@ -3,7 +3,9 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 
 import "bootstrap/dist/css/bootstrap.min.css";
-import "./index.css";
+
+import "./styles/riccati.css";
+import "./styles/animations.css";
 
 import App from "./App.jsx";
 

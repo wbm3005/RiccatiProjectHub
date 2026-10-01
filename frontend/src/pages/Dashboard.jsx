@@ -1,854 +1,634 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import { useNavigate } from "react-router-dom";
 
-import "./Dashboard.css";
+import RiccatiLayout from "../components/RiccatiLayout";
+import PageHeader from "../components/PageHeader";
+import StatCard from "../components/StatCard";
+
+import {
+  obtenerClientes,
+} from "../services/clientesService";
+
+import {
+  obtenerProyectos,
+} from "../services/proyectosService";
+
 
 function Dashboard() {
   const navigate = useNavigate();
 
-  const usuario = JSON.parse(
-    localStorage.getItem("usuarioRiccati")
-  );
 
-  const [clientes, setClientes] = useState([]);
-  const [proyectos, setProyectos] = useState([]);
-  const [pagos, setPagos] = useState([]);
-  const [cargando, setCargando] = useState(true);
+  // =====================================================
+  // USUARIO ACTUAL
+  // =====================================================
 
-  /* ========================================
-     CARGAR DATOS DEL BACKEND
-  ======================================== */
+  const usuario = useMemo(() => {
+    try {
+      return JSON.parse(
+        localStorage.getItem(
+          "usuarioRiccati"
+        )
+      );
+    } catch {
+      return null;
+    }
+  }, []);
+
+
+  // =====================================================
+  // ESTADOS
+  // =====================================================
+
+  const [
+    clientes,
+    setClientes,
+  ] = useState([]);
+
+  const [
+    proyectos,
+    setProyectos,
+  ] = useState([]);
+
+  const [
+    cargando,
+    setCargando,
+  ] = useState(true);
+
+  const [
+    error,
+    setError,
+  ] = useState("");
+
+
+  // =====================================================
+  // CARGA INICIAL
+  // =====================================================
 
   useEffect(() => {
-    const cargarDashboard = async () => {
-      try {
-        const [
-          respuestaClientes,
-          respuestaProyectos,
-          respuestaPagos,
-        ] = await Promise.all([
-          fetch("http://localhost:3000/api/clientes"),
-          fetch("http://localhost:3000/api/proyectos"),
-          fetch("http://localhost:3000/api/pagos"),
-        ]);
-
-        const [
-          datosClientes,
-          datosProyectos,
-          datosPagos,
-        ] = await Promise.all([
-          respuestaClientes.json(),
-          respuestaProyectos.json(),
-          respuestaPagos.json(),
-        ]);
-
-        setClientes(datosClientes);
-        setProyectos(datosProyectos);
-        setPagos(datosPagos);
-      } catch (error) {
-        console.error(
-          "Error al cargar el dashboard:",
-          error
-        );
-      } finally {
-        setCargando(false);
-      }
-    };
-
     cargarDashboard();
   }, []);
 
-  /* ========================================
-     PROYECTOS
-  ======================================== */
 
-  const proyectosEnCurso = proyectos.filter(
-    (proyecto) => proyecto.estado === "En curso"
-  ).length;
+  const cargarDashboard = async () => {
+    setCargando(true);
+    setError("");
 
-  const proyectosRegistrados = proyectos.filter(
-    (proyecto) => proyecto.estado === "Registrado"
-  ).length;
+    try {
+      const [
+        datosClientes,
+        datosProyectos,
+      ] = await Promise.all([
+        obtenerClientes(),
+        obtenerProyectos(),
+      ]);
 
-  const proyectosSuspendidos = proyectos.filter(
-    (proyecto) => proyecto.estado === "Suspendido"
-  ).length;
-
-  const proyectosFinalizados = proyectos.filter(
-    (proyecto) => proyecto.estado === "Finalizado"
-  ).length;
-
-  /* ========================================
-     PRÓXIMOS A VENCER
-  ======================================== */
-
-  const hoy = new Date();
-
-  const fechaLimite = new Date();
-  fechaLimite.setDate(fechaLimite.getDate() + 45);
-
-  const proyectosProximos = proyectos.filter(
-    (proyecto) => {
-      if (!proyecto.fechaCompromiso) {
-        return false;
-      }
-
-      if (
-        proyecto.estado === "Finalizado" ||
-        proyecto.estado === "Archivado"
-      ) {
-        return false;
-      }
-
-      const fechaCompromiso = new Date(
-        `${proyecto.fechaCompromiso}T23:59:59`
+      setClientes(
+        Array.isArray(datosClientes)
+          ? datosClientes
+          : []
       );
 
-      return (
-        fechaCompromiso >= hoy &&
-        fechaCompromiso <= fechaLimite
-      );
-    }
-  ).length;
-
-  /* ========================================
-     FINANZAS
-  ======================================== */
-
-  const proyectosFinancieros = pagos.reduce(
-    (resultado, pago) => {
-      const proyectoExistente = resultado.find(
-        (proyecto) =>
-          proyecto.projectId === pago.projectId
+      setProyectos(
+        Array.isArray(datosProyectos)
+          ? datosProyectos
+          : []
       );
 
-      if (!proyectoExistente) {
-        resultado.push({
-          projectId: pago.projectId,
-          montoAcordado:
-            Number(pago.montoAcordado) || 0,
-        });
-      }
+    } catch (error) {
+      setError(
+        error.message ||
+          "No fue posible cargar la información del Dashboard."
+      );
 
-      return resultado;
-    },
-    []
-  );
-
-  const totalAcordado =
-    proyectosFinancieros.reduce(
-      (total, proyecto) =>
-        total + proyecto.montoAcordado,
-      0
-    );
-
-  const totalPagado = pagos
-    .filter(
-      (pago) => pago.estado === "Válido"
-    )
-    .reduce(
-      (total, pago) =>
-        total + Number(pago.monto || 0),
-      0
-    );
-
-  const saldoPendiente =
-    totalAcordado - totalPagado;
-
-  /* ========================================
-     FUNCIONES
-  ======================================== */
-
-  const formatearColones = (monto) => {
-    return `₡${Number(monto || 0).toLocaleString(
-      "es-CR"
-    )}`;
-  };
-
-  const calcularPorcentaje = (cantidad) => {
-    if (proyectos.length === 0) {
-      return 0;
-    }
-
-    return Math.round(
-      (cantidad / proyectos.length) * 100
-    );
-  };
-
-  /* ========================================
-     PROYECTOS RECIENTES
-  ======================================== */
-
-  const proyectosRecientes = [...proyectos]
-    .sort((a, b) => b.id - a.id)
-    .slice(0, 3);
-
-  /* ========================================
-     ESTADOS
-  ======================================== */
-
-  const obtenerClaseEstado = (estado) => {
-    switch (estado) {
-      case "En curso":
-        return "badge-status status-progress";
-
-      case "Registrado":
-        return "badge-status status-registered";
-
-      case "Suspendido":
-        return "badge-status status-paused";
-
-      case "Finalizado":
-        return "badge-status status-finished";
-
-      default:
-        return "badge-status status-registered";
+    } finally {
+      setCargando(false);
     }
   };
 
-  /* ========================================
-     CERRAR SESIÓN
-  ======================================== */
 
-  const cerrarSesion = () => {
-    localStorage.removeItem("usuarioRiccati");
-    navigate("/");
-  };
+  // =====================================================
+  // ESTADÍSTICAS
+  // =====================================================
 
-  /* ========================================
-     CARGANDO
-  ======================================== */
+  const clientesActivos =
+    clientes.filter(
+      (cliente) =>
+        cliente.estado === "ACTIVO"
+    ).length;
+
+
+  const proyectosEnCurso =
+    proyectos.filter(
+      (proyecto) =>
+        proyecto.estado === "En curso"
+    ).length;
+
+
+  const proyectosSuspendidos =
+    proyectos.filter(
+      (proyecto) =>
+        proyecto.estado === "Suspendido"
+    ).length;
+
+
+  const proyectosFinalizados =
+    proyectos.filter(
+      (proyecto) =>
+        proyecto.estado === "Finalizado"
+    ).length;
+
+
+  const proyectosRegistrados =
+    proyectos.filter(
+      (proyecto) =>
+        proyecto.estado === "Registrado"
+    ).length;
+
+
+  // =====================================================
+  // PROYECTOS RECIENTES
+  // =====================================================
+
+  const proyectosRecientes =
+    useMemo(() => {
+      return [...proyectos]
+        .sort(
+          (a, b) =>
+            Number(b.id_proyecto) -
+            Number(a.id_proyecto)
+        )
+        .slice(0, 5);
+    }, [proyectos]);
+
+
+  // =====================================================
+  // PANTALLA DE CARGA
+  // =====================================================
 
   if (cargando) {
     return (
-      <div className="riccati-app">
-        <main
-          className="riccati-main"
-          style={{
-            marginLeft: 0,
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <div
-            style={{
-              textAlign: "center",
-            }}
-          >
-            <div
-              className="brand-icon"
-              style={{
-                margin: "0 auto 15px",
-              }}
-            >
-              R
-            </div>
+      <RiccatiLayout
+        paginaActiva="dashboard"
+      >
+        <div className="riccati-loader-wrapper">
 
-            <strong>
-              Cargando Riccati Project Hub...
-            </strong>
+          <div className="riccati-loader">
           </div>
-        </main>
-      </div>
+
+          <span className="riccati-loader-text">
+            Cargando Dashboard...
+          </span>
+
+        </div>
+      </RiccatiLayout>
     );
   }
 
+
+  // =====================================================
+  // INTERFAZ
+  // =====================================================
+
   return (
-    <div className="riccati-app">
+    <RiccatiLayout
+      paginaActiva="dashboard"
+    >
 
-      {/* ========================================
-          SIDEBAR
-      ======================================== */}
+      {/* =================================================
+          HEADER
+      ================================================= */}
 
-      <aside className="riccati-sidebar">
+      <PageHeader
+        modulo="RICCATI PROJECT HUB"
+        titulo="Dashboard"
+        descripcion={
+          `Bienvenido de nuevo, ${
+            usuario?.nombre ||
+            "Usuario"
+          }. Aquí tienes el estado general de tus proyectos.`
+        }
+        estado="Sistema operativo"
+      />
 
-        {/* LOGO */}
-        <div>
 
-          <div className="brand">
+      {/* =================================================
+          ERROR
+      ================================================= */}
 
-            <div className="brand-icon">
-              R
-            </div>
+      {error && (
+        <div
+          className="login-error animate-up"
+          style={{
+            marginBottom: "16px",
+          }}
+        >
+          {error}
+        </div>
+      )}
+
+
+      {/* =================================================
+          TARJETAS PRINCIPALES
+      ================================================= */}
+
+      <section className="riccati-stats-grid">
+
+        <StatCard
+          etiqueta="CLIENTES ACTIVOS"
+          valor={clientesActivos}
+          icono="◎"
+          pie={`${clientes.length} clientes registrados`}
+          clasePie="text-riccati-cyan"
+        />
+
+        <StatCard
+          etiqueta="TOTAL PROYECTOS"
+          valor={proyectos.length}
+          icono="◉"
+          pie="Proyectos registrados"
+        />
+
+        <StatCard
+          etiqueta="EN CURSO"
+          valor={proyectosEnCurso}
+          icono="▶"
+          pie="Actualmente en desarrollo"
+          clasePie="text-riccati-green"
+        />
+
+        <StatCard
+          etiqueta="FINALIZADOS"
+          valor={proyectosFinalizados}
+          icono="✓"
+          pie="Proyectos completados"
+          clasePie="text-riccati-cyan"
+        />
+
+      </section>
+
+
+      {/* =================================================
+          CONTENIDO PRINCIPAL
+      ================================================= */}
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns:
+            "minmax(0, 2fr) minmax(280px, 0.8fr)",
+          gap: "16px",
+          marginTop: "16px",
+        }}
+      >
+
+        {/* ===============================================
+            PROYECTOS RECIENTES
+        =============================================== */}
+
+        <section className="riccati-panel animate-up delay-2">
+
+          <div className="riccati-panel-header">
 
             <div>
-              <h2>Riccati</h2>
-              <span>PROJECT HUB</span>
-            </div>
 
-          </div>
-
-          {/* ========================================
-              MENÚ PRINCIPAL
-          ======================================== */}
-
-          <div className="sidebar-section">
-
-            <span className="sidebar-title">
-              MENÚ PRINCIPAL
-            </span>
-
-            {/* DASHBOARD */}
-            <button
-              className="menu-item active"
-              onClick={() =>
-                navigate("/dashboard")
-              }
-            >
-              <span className="menu-icon">
-                ◈
+              <span className="riccati-panel-label">
+                PORTAFOLIO
               </span>
 
-              Dashboard
-            </button>
+              <h3>
+                Proyectos recientes
+              </h3>
 
-            {/* PROYECTOS */}
+            </div>
+
+
             <button
-              className="menu-item"
+              type="button"
+              className="riccati-button-secondary"
               onClick={() =>
                 navigate("/proyectos")
               }
             >
-              <span className="menu-icon">
-                ◉
-              </span>
-
-              Proyectos
-            </button>
-
-            {/* CLIENTES */}
-            <button
-              className="menu-item"
-              onClick={() =>
-                navigate("/clientes")
-              }
-            >
-              <span className="menu-icon">
-                ◎
-              </span>
-
-              Clientes
-            </button>
-
-            {/* BITÁCORA */}
-            <button
-              className="menu-item"
-              onClick={() =>
-                navigate("/bitacora")
-              }
-            >
-              <span className="menu-icon">
-                ◫
-              </span>
-
-              Bitácora
-            </button>
-
-            {/* DOCUMENTOS */}
-            <button
-              className="menu-item"
-              onClick={() =>
-                navigate("/documentos")
-              }
-            >
-              <span className="menu-icon">
-                ▱
-              </span>
-
-              Documentos
-            </button>
-
-            {/* FINANZAS */}
-            <button
-              className="menu-item"
-              onClick={() =>
-                navigate("/finanzas")
-              }
-            >
-              <span className="menu-icon">
-                ₡
-              </span>
-
-              Finanzas
-            </button>
-
-            {/* INDICADORES */}
-            <button
-              className="menu-item"
-              onClick={() =>
-                navigate("/indicadores")
-              }
-            >
-              <span className="menu-icon">
-                ◬
-              </span>
-
-              Indicadores
+              Ver proyectos
             </button>
 
           </div>
 
-          {/* ========================================
-              ADMINISTRACIÓN
-          ======================================== */}
 
-          {usuario?.rol === "Administrador" && (
+          {/* SIN PROYECTOS */}
 
-            <div className="sidebar-section">
+          {proyectosRecientes.length ===
+          0 ? (
 
-              <span className="sidebar-title">
-                ADMINISTRACIÓN
+            <div className="riccati-empty">
+
+              <div className="riccati-empty-icon">
+                ◉
+              </div>
+
+              <strong>
+                No hay proyectos registrados
+              </strong>
+
+              <span>
+                Crea tu primer proyecto
+                para comenzar.
               </span>
 
-              {/* USUARIOS */}
               <button
-                className="menu-item"
+                type="button"
+                className="riccati-button-primary"
                 onClick={() =>
-                  navigate("/usuarios")
+                  navigate("/proyectos")
                 }
+                style={{
+                  marginTop: "14px",
+                }}
               >
-                <span className="menu-icon">
-                  ◇
-                </span>
-
-                Usuarios
+                Ir a proyectos
               </button>
+
+            </div>
+
+          ) : (
+
+            <div className="riccati-table-wrapper">
+
+              <table className="riccati-table">
+
+                <thead>
+
+                  <tr>
+
+                    <th>
+                      PROYECTO
+                    </th>
+
+                    <th>
+                      CLIENTE
+                    </th>
+
+                    <th>
+                      RESPONSABLE
+                    </th>
+
+                    <th>
+                      ESTADO
+                    </th>
+
+                    <th>
+                      COMPROMISO
+                    </th>
+
+                  </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                  {proyectosRecientes.map(
+                    (proyecto) => (
+
+                      <tr
+                        key={
+                          proyecto.id_proyecto
+                        }
+                      >
+
+                        {/* PROYECTO */}
+
+                        <td>
+
+                          <strong
+                            style={{
+                              display:
+                                "block",
+
+                              color:
+                                "#e8f0f7",
+
+                              fontSize:
+                                "9px",
+                            }}
+                          >
+                            {
+                              proyecto.nombre
+                            }
+                          </strong>
+
+
+                          <span
+                            style={{
+                              display:
+                                "block",
+
+                              marginTop:
+                                "4px",
+
+                              color:
+                                "#26d9ff",
+
+                              fontSize:
+                                "7px",
+                            }}
+                          >
+                            {
+                              proyecto.codigo
+                            }
+                          </span>
+
+                        </td>
+
+
+                        {/* CLIENTE */}
+
+                        <td>
+                          {proyecto.cliente ||
+                            "Sin cliente"}
+                        </td>
+
+
+                        {/* RESPONSABLE */}
+
+                        <td>
+                          {proyecto.responsable ||
+                            "Sin asignar"}
+                        </td>
+
+
+                        {/* ESTADO */}
+
+                        <td>
+
+                          <EstadoBadge
+                            estado={
+                              proyecto.estado
+                            }
+                          />
+
+                        </td>
+
+
+                        {/* FECHA */}
+
+                        <td>
+                          {formatearFecha(
+                            proyecto
+                              .fecha_compromiso
+                          )}
+                        </td>
+
+                      </tr>
+
+                    )
+                  )}
+
+                </tbody>
+
+              </table>
 
             </div>
 
           )}
 
-        </div>
+        </section>
 
-        {/* ========================================
-            USUARIO ACTUAL
-        ======================================== */}
 
-        <div className="sidebar-user">
+        {/* ===============================================
+            RESUMEN OPERATIVO
+        =============================================== */}
 
-          <div className="user-avatar">
-            {usuario?.nombre?.charAt(0) || "A"}
+        <section className="riccati-panel animate-up delay-3">
+
+          <div className="riccati-panel-header">
+
+            <div>
+
+              <span className="riccati-panel-label">
+                RESUMEN
+              </span>
+
+              <h3>
+                Estado de proyectos
+              </h3>
+
+            </div>
+
           </div>
+
 
           <div
             style={{
-              flex: 1,
-              minWidth: 0,
+              padding: "18px",
+              display: "flex",
+              flexDirection: "column",
+              gap: "12px",
             }}
           >
-            <strong>
-              {usuario?.nombre || "Administrador"}
-            </strong>
 
-            <span>
-              {usuario?.rol || "Administrador"}
-            </span>
-          </div>
+            {/* REGISTRADOS */}
 
-          <button
-            onClick={cerrarSesion}
-            title="Cerrar sesión"
-            style={{
-              width: "31px",
-              height: "31px",
-              flexShrink: 0,
-              borderRadius: "8px",
-              border:
-                "1px solid rgba(255,255,255,0.06)",
-              background:
-                "rgba(255,255,255,0.02)",
-              color: "#778ca1",
-              cursor: "pointer",
-            }}
-          >
-            ↪
-          </button>
-
-        </div>
-
-      </aside>
-
-      {/* ========================================
-          CONTENIDO PRINCIPAL
-      ======================================== */}
-
-      <main className="riccati-main">
-
-        {/* ========================================
-            HEADER
-        ======================================== */}
-
-        <header className="topbar">
-
-          <div>
-
-            <span className="page-label">
-              OVERVIEW
-            </span>
-
-            <h1>
-              Dashboard
-            </h1>
-
-            <p>
-              Bienvenido de nuevo,{" "}
-              {usuario?.nombre || "Administrador"}.
-            </p>
-
-          </div>
-
-          <div className="topbar-actions">
-
-            <div className="system-status">
-
-              <span className="status-dot"></span>
-
-              Sistema operativo
-
-            </div>
-
-            <button
-              className="notification-button"
-              onClick={() =>
-                navigate("/indicadores")
+            <ResumenEstado
+              etiqueta="Registrados"
+              valor={
+                proyectosRegistrados
               }
-              title="Ver indicadores"
+              total={
+                proyectos.length
+              }
+              tipo="cyan"
+            />
+
+
+            {/* EN CURSO */}
+
+            <ResumenEstado
+              etiqueta="En curso"
+              valor={
+                proyectosEnCurso
+              }
+              total={
+                proyectos.length
+              }
+              tipo="green"
+            />
+
+
+            {/* SUSPENDIDOS */}
+
+            <ResumenEstado
+              etiqueta="Suspendidos"
+              valor={
+                proyectosSuspendidos
+              }
+              total={
+                proyectos.length
+              }
+              tipo="orange"
+            />
+
+
+            {/* FINALIZADOS */}
+
+            <ResumenEstado
+              etiqueta="Finalizados"
+              valor={
+                proyectosFinalizados
+              }
+              total={
+                proyectos.length
+              }
+              tipo="cyan"
+            />
+
+
+            {/* ACCIONES */}
+
+            <div
+              style={{
+                marginTop: "8px",
+                paddingTop: "16px",
+
+                borderTop:
+                  "1px solid rgba(255,255,255,0.05)",
+
+                display: "grid",
+                gap: "8px",
+              }}
             >
-              ◬
-            </button>
-
-          </div>
-
-        </header>
-
-        {/* ========================================
-            ESTADÍSTICAS
-        ======================================== */}
-
-        <section className="stats-grid">
-
-          {/* PROYECTOS */}
-          <div className="stat-card">
-
-            <div className="stat-top">
-
-              <span className="stat-label">
-                PROYECTOS
-              </span>
-
-              <div className="stat-icon">
-                ◈
-              </div>
-
-            </div>
-
-            <div className="stat-number">
-              {proyectos.length}
-            </div>
-
-            <div className="stat-footer positive">
-              {proyectosEnCurso} en curso
-            </div>
-
-          </div>
-
-          {/* CLIENTES */}
-          <div className="stat-card">
-
-            <div className="stat-top">
-
-              <span className="stat-label">
-                CLIENTES
-              </span>
-
-              <div className="stat-icon">
-                ◎
-              </div>
-
-            </div>
-
-            <div className="stat-number">
-              {clientes.length}
-            </div>
-
-            <div className="stat-footer">
-              Registro total
-            </div>
-
-          </div>
-
-          {/* PRÓXIMOS A VENCER */}
-          <div className="stat-card warning-card">
-
-            <div className="stat-top">
-
-              <span className="stat-label">
-                PRÓXIMOS A VENCER
-              </span>
-
-              <div className="stat-icon warning-icon">
-                !
-              </div>
-
-            </div>
-
-            <div className="stat-number">
-              {proyectosProximos}
-            </div>
-
-            <div className="stat-footer warning-text">
-              Próximos 45 días
-            </div>
-
-          </div>
-
-          {/* SALDO PENDIENTE */}
-          <div className="stat-card">
-
-            <div className="stat-top">
-
-              <span className="stat-label">
-                SALDO PENDIENTE
-              </span>
-
-              <div className="stat-icon">
-                ₡
-              </div>
-
-            </div>
-
-            <div className="stat-number money">
-              {formatearColones(
-                saldoPendiente
-              )}
-            </div>
-
-            <div className="stat-footer">
-              Pendiente de cobro
-            </div>
-
-          </div>
-
-        </section>
-
-        {/* ========================================
-            CONTENIDO INFERIOR
-        ======================================== */}
-
-        <section className="dashboard-grid">
-
-          {/* ========================================
-              PROYECTOS RECIENTES
-          ======================================== */}
-
-          <div className="dashboard-panel">
-
-            <div className="panel-header">
-
-              <div>
-
-                <span className="panel-label">
-                  ACTIVIDAD
-                </span>
-
-                <h3>
-                  Proyectos recientes
-                </h3>
-
-              </div>
 
               <button
-                className="panel-button"
+                type="button"
+                className="riccati-button-primary"
                 onClick={() =>
                   navigate("/proyectos")
                 }
+                style={{
+                  width: "100%",
+                }}
               >
-                Ver todos
+                Gestionar proyectos
               </button>
 
-            </div>
-
-            <div className="project-list">
-
-              {proyectosRecientes.map(
-                (proyecto) => (
-
-                  <div
-                    className="project-row"
-                    key={proyecto.id}
-                  >
-
-                    <div className="project-code">
-                      {proyecto.projectId}
-                    </div>
-
-                    <div className="project-info">
-
-                      <strong>
-                        {proyecto.nombre}
-                      </strong>
-
-                      <span>
-                        {proyecto.cliente}
-                      </span>
-
-                    </div>
-
-                    <span
-                      className={obtenerClaseEstado(
-                        proyecto.estado
-                      )}
-                    >
-                      {proyecto.estado}
-                    </span>
-
-                  </div>
-
-                )
-              )}
-
-            </div>
-
-          </div>
-
-          {/* ========================================
-              ESTADO GENERAL
-          ======================================== */}
-
-          <div className="dashboard-panel">
-
-            <div className="panel-header">
-
-              <div>
-
-                <span className="panel-label">
-                  RESUMEN
-                </span>
-
-                <h3>
-                  Estado general
-                </h3>
-
-              </div>
 
               <button
-                className="panel-button"
+                type="button"
+                className="riccati-button-secondary"
                 onClick={() =>
-                  navigate("/indicadores")
+                  navigate("/clientes")
                 }
+                style={{
+                  width: "100%",
+                }}
               >
-                Detalles
+                Ver clientes
               </button>
-
-            </div>
-
-            <div className="summary-container">
-
-              {/* EN CURSO */}
-              <div className="summary-row">
-
-                <span>
-                  En curso
-                </span>
-
-                <div className="progress-track">
-
-                  <div
-                    className="progress-fill"
-                    style={{
-                      width: `${calcularPorcentaje(
-                        proyectosEnCurso
-                      )}%`,
-                    }}
-                  ></div>
-
-                </div>
-
-                <strong>
-                  {proyectosEnCurso}
-                </strong>
-
-              </div>
-
-              {/* REGISTRADOS */}
-              <div className="summary-row">
-
-                <span>
-                  Registrados
-                </span>
-
-                <div className="progress-track">
-
-                  <div
-                    className="progress-fill"
-                    style={{
-                      width: `${calcularPorcentaje(
-                        proyectosRegistrados
-                      )}%`,
-                    }}
-                  ></div>
-
-                </div>
-
-                <strong>
-                  {proyectosRegistrados}
-                </strong>
-
-              </div>
-
-              {/* SUSPENDIDOS */}
-              <div className="summary-row">
-
-                <span>
-                  Suspendidos
-                </span>
-
-                <div className="progress-track">
-
-                  <div
-                    className="progress-fill warning-fill"
-                    style={{
-                      width: `${calcularPorcentaje(
-                        proyectosSuspendidos
-                      )}%`,
-                    }}
-                  ></div>
-
-                </div>
-
-                <strong>
-                  {proyectosSuspendidos}
-                </strong>
-
-              </div>
-
-              {/* FINALIZADOS */}
-              <div className="summary-row">
-
-                <span>
-                  Finalizados
-                </span>
-
-                <div className="progress-track">
-
-                  <div
-                    className="progress-fill"
-                    style={{
-                      width: `${calcularPorcentaje(
-                        proyectosFinalizados
-                      )}%`,
-                    }}
-                  ></div>
-
-                </div>
-
-                <strong>
-                  {proyectosFinalizados}
-                </strong>
-
-              </div>
 
             </div>
 
@@ -856,10 +636,223 @@ function Dashboard() {
 
         </section>
 
-      </main>
+      </div>
+
+    </RiccatiLayout>
+  );
+}
+
+
+/* =====================================================
+   RESUMEN DE ESTADO
+===================================================== */
+
+function ResumenEstado({
+  etiqueta,
+  valor,
+  total,
+  tipo,
+}) {
+  const porcentaje =
+    total > 0
+      ? Math.round(
+          (valor / total) * 100
+        )
+      : 0;
+
+
+  const colores = {
+    cyan: "#26d9ff",
+    green: "#2de2a6",
+    orange: "#ffb84d",
+    red: "#ff7185",
+  };
+
+
+  const color =
+    colores[tipo] ||
+    colores.cyan;
+
+
+  return (
+    <div
+      style={{
+        padding: "14px",
+
+        border:
+          "1px solid rgba(255,255,255,0.05)",
+
+        borderRadius: "12px",
+
+        background:
+          "rgba(255,255,255,0.015)",
+      }}
+    >
+
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent:
+            "space-between",
+          gap: "12px",
+          marginBottom: "10px",
+        }}
+      >
+
+        <span
+          style={{
+            color: "#8ba0b5",
+            fontSize: "8px",
+            fontWeight: "600",
+          }}
+        >
+          {etiqueta}
+        </span>
+
+
+        <strong
+          style={{
+            color,
+            fontSize: "12px",
+          }}
+        >
+          {valor}
+        </strong>
+
+      </div>
+
+
+      {/* BARRA */}
+
+      <div
+        style={{
+          height: "4px",
+
+          borderRadius: "10px",
+
+          background:
+            "rgba(255,255,255,0.05)",
+
+          overflow: "hidden",
+        }}
+      >
+
+        <div
+          style={{
+            width:
+              `${porcentaje}%`,
+
+            height: "100%",
+
+            background: color,
+
+            borderRadius: "10px",
+
+            transition:
+              "width 0.8s ease",
+          }}
+        />
+
+      </div>
+
+
+      <span
+        style={{
+          display: "block",
+
+          marginTop: "7px",
+
+          color: "#50677e",
+
+          fontSize: "7px",
+        }}
+      >
+        {porcentaje}% del total
+      </span>
 
     </div>
   );
 }
+
+
+/* =====================================================
+   BADGE DE ESTADO
+===================================================== */
+
+function EstadoBadge({
+  estado,
+}) {
+  if (estado === "En curso") {
+    return (
+      <span className="riccati-badge riccati-badge-green">
+        En curso
+      </span>
+    );
+  }
+
+
+  if (estado === "Suspendido") {
+    return (
+      <span className="riccati-badge riccati-badge-orange">
+        Suspendido
+      </span>
+    );
+  }
+
+
+  if (estado === "Finalizado") {
+    return (
+      <span className="riccati-badge riccati-badge-cyan">
+        Finalizado
+      </span>
+    );
+  }
+
+
+  if (estado === "Archivado") {
+    return (
+      <span className="riccati-badge riccati-badge-purple">
+        Archivado
+      </span>
+    );
+  }
+
+
+  return (
+    <span className="riccati-badge riccati-badge-cyan">
+      {estado || "Registrado"}
+    </span>
+  );
+}
+
+
+/* =====================================================
+   FORMATEAR FECHA
+===================================================== */
+
+function formatearFecha(fecha) {
+  if (!fecha) {
+    return "No definida";
+  }
+
+
+  const valor =
+    String(fecha)
+      .split("T")[0];
+
+
+  const partes =
+    valor.split("-");
+
+
+  if (partes.length !== 3) {
+    return valor;
+  }
+
+
+  return `${partes[2]}/${partes[1]}/${partes[0]}`;
+}
+
 
 export default Dashboard;

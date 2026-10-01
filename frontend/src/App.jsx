@@ -1,69 +1,86 @@
-import { Routes, Route, Navigate } from "react-router-dom";
+import {
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
 
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
+import Usuarios from "./pages/Usuarios";
 import Clientes from "./pages/Clientes";
 import Proyectos from "./pages/Proyectos";
-import Bitacora from "./pages/Bitacora";
-import Documentos from "./pages/Documentos";
-import Finanzas from "./pages/Finanzas";
-import Usuarios from "./pages/Usuarios";
-import Indicadores from "./pages/Indicadores";
+
+import RutaProtegida from "./components/RutaProtegida";
 
 function App() {
   return (
     <Routes>
+
+      {/* LOGIN */}
 
       <Route
         path="/"
         element={<Login />}
       />
 
+
+      {/* DASHBOARD */}
+
       <Route
         path="/dashboard"
-        element={<Dashboard />}
+        element={
+          <RutaProtegida>
+            <Dashboard />
+          </RutaProtegida>
+        }
       />
 
-      <Route
-        path="/clientes"
-        element={<Clientes />}
-      />
 
-      <Route
-        path="/proyectos"
-        element={<Proyectos />}
-      />
-
-      <Route
-        path="/bitacora"
-        element={<Bitacora />}
-      />
-
-      <Route
-        path="/documentos"
-        element={<Documentos />}
-      />
-
-      <Route
-        path="/finanzas"
-        element={<Finanzas />}
-      />
+      {/* USUARIOS - SOLO ADMIN */}
 
       <Route
         path="/usuarios"
-        element={<Usuarios />}
+        element={
+          <RutaProtegida
+            soloAdministrador={true}
+          >
+            <Usuarios />
+          </RutaProtegida>
+        }
       />
 
+
+      {/* CLIENTES */}
+
       <Route
-        path="/indicadores"
-        element={<Indicadores />}
+        path="/clientes"
+        element={
+          <RutaProtegida>
+            <Clientes />
+          </RutaProtegida>
+        }
       />
+
+
+      {/* PROYECTOS */}
+
+      <Route
+        path="/proyectos"
+        element={
+          <RutaProtegida>
+            <Proyectos />
+          </RutaProtegida>
+        }
+      />
+
+
+      {/* CUALQUIER OTRA RUTA */}
 
       <Route
         path="*"
         element={
           <Navigate
-            to="/"
+            to="/dashboard"
             replace
           />
         }
