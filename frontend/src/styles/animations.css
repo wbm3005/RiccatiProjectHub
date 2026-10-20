@@ -1,0 +1,463 @@
+/* =========================================================
+   RICCATI PROJECT HUB
+   GLOBAL ANIMATION SYSTEM
+========================================================= */
+
+
+/* =========================================================
+   ENTRADAS
+========================================================= */
+
+@keyframes riccatiFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes riccatiFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes riccatiFadeDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes riccatiFadeLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes riccatiFadeRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes riccatiScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes riccatiPageEnter {
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(14px)
+      scale(0.99);
+
+    filter: blur(6px);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+
+    filter: blur(0);
+  }
+}
+
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+@keyframes riccatiLogoPulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 18px rgba(38, 217, 255, 0.20),
+      0 10px 35px rgba(11, 140, 255, 0.16);
+  }
+
+  50% {
+    box-shadow:
+      0 0 35px rgba(38, 217, 255, 0.45),
+      0 12px 50px rgba(11, 140, 255, 0.28);
+  }
+}
+
+@keyframes riccatiLogoFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+
+/* =========================================================
+   GLOW
+========================================================= */
+
+@keyframes riccatiGlowBreath {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes riccatiGlowMoveOne {
+  from {
+    transform:
+      translate(0, 0)
+      scale(1);
+  }
+
+  to {
+    transform:
+      translate(-100px, 90px)
+      scale(1.15);
+  }
+}
+
+@keyframes riccatiGlowMoveTwo {
+  from {
+    transform:
+      translate(0, 0)
+      scale(1);
+  }
+
+  to {
+    transform:
+      translate(110px, -80px)
+      scale(1.2);
+  }
+}
+
+
+/* =========================================================
+   GRID FUTURISTA
+========================================================= */
+
+@keyframes riccatiGridMove {
+  from {
+    background-position:
+      0 0,
+      0 0;
+  }
+
+  to {
+    background-position:
+      45px 45px,
+      45px 45px;
+  }
+}
+
+
+/* =========================================================
+   SHIMMER
+========================================================= */
+
+@keyframes riccatiShimmer {
+  from {
+    left: -120%;
+  }
+
+  to {
+    left: 160%;
+  }
+}
+
+
+/* =========================================================
+   PUNTO ONLINE
+========================================================= */
+
+@keyframes riccatiStatusPulse {
+  0%,
+  100% {
+    transform: scale(1);
+
+    box-shadow:
+      0 0 5px #2de2a6,
+      0 0 10px rgba(45, 226, 166, 0.25);
+  }
+
+  50% {
+    transform: scale(1.35);
+
+    box-shadow:
+      0 0 12px #2de2a6,
+      0 0 25px rgba(45, 226, 166, 0.4);
+  }
+}
+
+
+/* =========================================================
+   BORDES
+========================================================= */
+
+@keyframes riccatiBorderGlow {
+  0%,
+  100% {
+    border-color:
+      rgba(38, 217, 255, 0.08);
+  }
+
+  50% {
+    border-color:
+      rgba(38, 217, 255, 0.25);
+  }
+}
+
+
+/* =========================================================
+   BARRAS
+========================================================= */
+
+@keyframes riccatiProgressShine {
+  0% {
+    transform: translateX(-150%);
+  }
+
+  60%,
+  100% {
+    transform: translateX(250%);
+  }
+}
+
+@keyframes riccatiProgressGrow {
+  from {
+    width: 0;
+  }
+}
+
+
+/* =========================================================
+   ERROR
+========================================================= */
+
+@keyframes riccatiShake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  20% {
+    transform: translateX(-5px);
+  }
+
+  40% {
+    transform: translateX(5px);
+  }
+
+  60% {
+    transform: translateX(-3px);
+  }
+
+  80% {
+    transform: translateX(3px);
+  }
+}
+
+
+/* =========================================================
+   LOADER
+========================================================= */
+
+@keyframes riccatiSpin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes riccatiLoadingPulse {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+
+  50% {
+    opacity: 1;
+  }
+}
+
+
+/* =========================================================
+   PARTICULAS
+========================================================= */
+
+@keyframes riccatiParticleFloat {
+  0% {
+    transform:
+      translateY(0)
+      translateX(0);
+
+    opacity: 0;
+  }
+
+  15% {
+    opacity: 0.4;
+  }
+
+  80% {
+    opacity: 0.2;
+  }
+
+  100% {
+    transform:
+      translateY(-120px)
+      translateX(30px);
+
+    opacity: 0;
+  }
+}
+
+
+/* =========================================================
+   ANIMACIONES UTILITARIAS
+========================================================= */
+
+.animate-page {
+  animation:
+    riccatiPageEnter
+    0.65s
+    cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+}
+
+.animate-fade {
+  animation:
+    riccatiFadeIn
+    0.5s ease both;
+}
+
+.animate-up {
+  animation:
+    riccatiFadeUp
+    0.6s
+    cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+}
+
+.animate-left {
+  animation:
+    riccatiFadeLeft
+    0.6s
+    cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+}
+
+.animate-right {
+  animation:
+    riccatiFadeRight
+    0.6s
+    cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+}
+
+.animate-scale {
+  animation:
+    riccatiScaleIn
+    0.5s
+    cubic-bezier(0.22, 1, 0.36, 1)
+    both;
+}
+
+
+/* =========================================================
+   DELAYS PARA ENTRADAS ESCALONADAS
+========================================================= */
+
+.delay-1 {
+  animation-delay: 0.06s;
+}
+
+.delay-2 {
+  animation-delay: 0.12s;
+}
+
+.delay-3 {
+  animation-delay: 0.18s;
+}
+
+.delay-4 {
+  animation-delay: 0.24s;
+}
+
+.delay-5 {
+  animation-delay: 0.30s;
+}
+
+.delay-6 {
+  animation-delay: 0.36s;
+}
+
+
+/* =========================================================
+   ACCESIBILIDAD
+========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration:
+      0.01ms !important;
+
+    animation-iteration-count:
+      1 !important;
+
+    transition-duration:
+      0.01ms !important;
+  }
+
+}

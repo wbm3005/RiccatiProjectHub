@@ -1,662 +1,643 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 
-import "./Dashboard.css";
-import "./Usuarios.css";
+import RiccatiLayout from "../components/RiccatiLayout";
+import PageHeader from "../components/PageHeader";
+import StatCard from "../components/StatCard";
+import UsuarioModal from "../components/UsuarioModal";
+
+import {
+  obtenerUsuarios,
+  obtenerRoles,
+  crearUsuario,
+  actualizarUsuario,
+} from "../services/usuariosService";
+
 
 function Usuarios() {
-  const [usuarios, setUsuarios] = useState([]);
-  const [busqueda, setBusqueda] = useState("");
-  const [filtroRol, setFiltroRol] = useState("Todos");
+  const [usuarios, setUsuarios] =
+    useState([]);
 
-  const navigate = useNavigate();
+  const [roles, setRoles] =
+    useState([]);
 
-  const usuarioActual = JSON.parse(
-    localStorage.getItem("usuarioRiccati")
-  );
+  const [busqueda, setBusqueda] =
+    useState("");
+
+  const [mostrarModal, setMostrarModal] =
+    useState(false);
+
+  const [usuarioEditando, setUsuarioEditando] =
+    useState(null);
+
+  const [cargando, setCargando] =
+    useState(true);
+
+  const [guardando, setGuardando] =
+    useState(false);
+
+  const [error, setError] =
+    useState("");
+
+  const [mensaje, setMensaje] =
+    useState("");
+
+  const [formulario, setFormulario] =
+    useState({
+      nombre: "",
+      apellidos: "",
+      correo: "",
+      password: "",
+      rol: "Colaborador",
+      estado: "ACTIVO",
+    });
+
+
+  // =====================================================
+  // CARGAR DATOS
+  // =====================================================
 
   useEffect(() => {
-    if (usuarioActual?.rol !== "Administrador") {
-      navigate("/dashboard");
+    cargarDatos();
+  }, []);
+
+
+  const cargarDatos = async () => {
+    setCargando(true);
+    setError("");
+
+    try {
+      const [
+        datosUsuarios,
+        datosRoles,
+      ] = await Promise.all([
+        obtenerUsuarios(),
+        obtenerRoles(),
+      ]);
+
+      setUsuarios(datosUsuarios);
+      setRoles(datosRoles);
+
+    } catch (error) {
+      setError(error.message);
+
+    } finally {
+      setCargando(false);
+    }
+  };
+
+
+  // =====================================================
+  // BUSCADOR
+  // =====================================================
+
+  const usuariosFiltrados =
+    useMemo(() => {
+      const texto =
+        busqueda
+          .trim()
+          .toLowerCase();
+
+      if (!texto) {
+        return usuarios;
+      }
+
+      return usuarios.filter(
+        (usuario) =>
+          usuario.nombre
+            .toLowerCase()
+            .includes(texto) ||
+
+          usuario.apellidos
+            .toLowerCase()
+            .includes(texto) ||
+
+          usuario.correo
+            .toLowerCase()
+            .includes(texto) ||
+
+          usuario.rol
+            .toLowerCase()
+            .includes(texto)
+      );
+
+    }, [usuarios, busqueda]);
+
+
+  // =====================================================
+  // ESTADÍSTICAS
+  // =====================================================
+
+  const activos =
+    usuarios.filter(
+      (usuario) =>
+        usuario.estado === "ACTIVO"
+    ).length;
+
+  const administradores =
+    usuarios.filter(
+      (usuario) =>
+        usuario.rol === "Administrador"
+    ).length;
+
+  const colaboradores =
+    usuarios.filter(
+      (usuario) =>
+        usuario.rol === "Colaborador"
+    ).length;
+
+
+  // =====================================================
+  // FORMULARIO
+  // =====================================================
+
+  const manejarCambio = (e) => {
+    const {
+      name,
+      value,
+    } = e.target;
+
+    setFormulario(
+      (anterior) => ({
+        ...anterior,
+        [name]: value,
+      })
+    );
+  };
+
+
+  const abrirNuevoUsuario = () => {
+    setUsuarioEditando(null);
+    setError("");
+
+    setFormulario({
+      nombre: "",
+      apellidos: "",
+      correo: "",
+      password: "",
+      rol: "Colaborador",
+      estado: "ACTIVO",
+    });
+
+    setMostrarModal(true);
+  };
+
+
+  const abrirEditarUsuario = (
+    usuario
+  ) => {
+    setUsuarioEditando(usuario);
+    setError("");
+
+    setFormulario({
+      nombre: usuario.nombre,
+      apellidos: usuario.apellidos,
+      correo: usuario.correo,
+      password: "",
+      rol: usuario.rol,
+      estado: usuario.estado,
+    });
+
+    setMostrarModal(true);
+  };
+
+
+  const cerrarModal = () => {
+    if (guardando) {
       return;
     }
 
-    fetch("http://localhost:3000/api/usuarios")
-      .then((respuesta) => respuesta.json())
-      .then((datos) => setUsuarios(datos))
-      .catch((error) =>
-        console.error(
-          "Error al cargar usuarios:",
-          error
-        )
-      );
-  }, []);
-
-  const usuariosFiltrados = usuarios.filter(
-    (usuario) => {
-      const texto = busqueda.toLowerCase();
-
-      const coincideBusqueda =
-        usuario.nombre
-          .toLowerCase()
-          .includes(texto) ||
-        usuario.correo
-          .toLowerCase()
-          .includes(texto) ||
-        usuario.rol
-          .toLowerCase()
-          .includes(texto);
-
-      const coincideRol =
-        filtroRol === "Todos" ||
-        usuario.rol === filtroRol;
-
-      return coincideBusqueda && coincideRol;
-    }
-  );
-
-  const administradores = usuarios.filter(
-    (usuario) =>
-      usuario.rol === "Administrador"
-  ).length;
-
-  const colaboradores = usuarios.filter(
-    (usuario) =>
-      usuario.rol === "Colaborador"
-  ).length;
-
-  const usuariosActivos = usuarios.filter(
-    (usuario) =>
-      usuario.estado === "Activo"
-  ).length;
-
-  const cerrarSesion = () => {
-    localStorage.removeItem("usuarioRiccati");
-    navigate("/");
+    setMostrarModal(false);
+    setUsuarioEditando(null);
+    setError("");
   };
 
+
+  // =====================================================
+  // GUARDAR
+  // =====================================================
+
+  const guardarUsuario = async (e) => {
+    e.preventDefault();
+
+    setGuardando(true);
+    setError("");
+    setMensaje("");
+
+    try {
+      let resultado;
+
+      if (usuarioEditando) {
+        resultado =
+          await actualizarUsuario(
+            usuarioEditando.id_usuario,
+            formulario
+          );
+
+      } else {
+        resultado =
+          await crearUsuario(
+            formulario
+          );
+      }
+
+      setMensaje(
+        resultado.mensaje
+      );
+
+      setMostrarModal(false);
+      setUsuarioEditando(null);
+
+      await cargarDatos();
+
+      setTimeout(() => {
+        setMensaje("");
+      }, 3500);
+
+    } catch (error) {
+      setError(error.message);
+
+    } finally {
+      setGuardando(false);
+    }
+  };
+
+
+  // =====================================================
+  // CARGANDO
+  // =====================================================
+
+  if (cargando) {
+    return (
+      <RiccatiLayout paginaActiva="usuarios">
+
+        <div className="riccati-loader-wrapper">
+
+          <div className="riccati-loader">
+          </div>
+
+          <span className="riccati-loader-text">
+            Cargando usuarios...
+          </span>
+
+        </div>
+
+      </RiccatiLayout>
+    );
+  }
+
+
   return (
-    <div className="riccati-app">
+    <RiccatiLayout paginaActiva="usuarios">
 
-      {/* SIDEBAR */}
-      <aside className="riccati-sidebar">
+      <PageHeader
+        modulo="MÓDULO M01 · ADMINISTRACIÓN"
+        titulo="Usuarios"
+        descripcion="Administración de usuarios, roles y permisos de acceso al sistema."
+        estado="PostgreSQL conectado"
+      />
 
-        <div className="brand">
 
-          <div className="brand-icon">
-            R
-          </div>
+      {/* MENSAJE EXITOSO */}
 
-          <div>
-            <h2>Riccati</h2>
-            <span>PROJECT HUB</span>
-          </div>
-
+      {mensaje && (
+        <div
+          className="animate-up"
+          style={{
+            marginBottom: "16px",
+            padding: "12px 15px",
+            borderRadius: "10px",
+            border:
+              "1px solid rgba(45,226,166,0.15)",
+            background:
+              "rgba(45,226,166,0.06)",
+            color: "#2de2a6",
+            fontSize: "9px",
+          }}
+        >
+          ✓ {mensaje}
         </div>
+      )}
 
-        <div className="sidebar-section">
 
-          <span className="sidebar-title">
-            MENÚ PRINCIPAL
-          </span>
+      {/* ERROR GENERAL */}
 
-          <button
-            className="menu-item"
-            onClick={() =>
-              navigate("/dashboard")
-            }
-          >
-            <span className="menu-icon">
-              ◈
-            </span>
-
-            Dashboard
-          </button>
-
-          <button
-            className="menu-item"
-            onClick={() =>
-              navigate("/proyectos")
-            }
-          >
-            <span className="menu-icon">
-              ◉
-            </span>
-
-            Proyectos
-          </button>
-
-          <button
-            className="menu-item"
-            onClick={() =>
-              navigate("/clientes")
-            }
-          >
-            <span className="menu-icon">
-              ◎
-            </span>
-
-            Clientes
-          </button>
-
-          <button
-            className="menu-item"
-            onClick={() =>
-              navigate("/bitacora")
-            }
-          >
-            <span className="menu-icon">
-              ◫
-            </span>
-
-            Bitácora
-          </button>
-
-          <button
-            className="menu-item"
-            onClick={() =>
-              navigate("/documentos")
-            }
-          >
-            <span className="menu-icon">
-              ▱
-            </span>
-
-            Documentos
-          </button>
-
-          <button
-            className="menu-item"
-            onClick={() =>
-              navigate("/finanzas")
-            }
-          >
-            <span className="menu-icon">
-              ₡
-            </span>
-
-            Finanzas
-          </button>
-
+      {error && !mostrarModal && (
+        <div className="login-error animate-up">
+          {error}
         </div>
+      )}
 
-        <div className="sidebar-section">
 
-          <span className="sidebar-title">
-            ADMINISTRACIÓN
-          </span>
+      {/* ESTADÍSTICAS */}
 
-          <button
-            className="menu-item active"
-            onClick={() =>
-              navigate("/usuarios")
-            }
-          >
-            <span className="menu-icon">
-              ◇
-            </span>
+      <section className="riccati-stats-grid">
 
-            Usuarios
-          </button>
+        <StatCard
+          etiqueta="TOTAL USUARIOS"
+          valor={usuarios.length}
+          icono="◇"
+          pie="Usuarios registrados"
+        />
 
-        </div>
+        <StatCard
+          etiqueta="USUARIOS ACTIVOS"
+          valor={activos}
+          icono="✓"
+          pie="Con acceso habilitado"
+          clasePie="text-riccati-green"
+        />
 
-        {/* USUARIO ACTUAL */}
-        <div className="sidebar-user">
+        <StatCard
+          etiqueta="ADMINISTRADORES"
+          valor={administradores}
+          icono="A"
+          pie="Acceso administrativo"
+          clasePie="text-riccati-cyan"
+        />
 
-          <div className="user-avatar">
-            {usuarioActual?.nombre?.charAt(0) ||
-              "A"}
-          </div>
+        <StatCard
+          etiqueta="COLABORADORES"
+          valor={colaboradores}
+          icono="C"
+          pie="Acceso operativo"
+        />
 
-          <div className="sidebar-user-info">
+      </section>
 
-            <strong>
-              {usuarioActual?.nombre ||
-                "Administrador"}
-            </strong>
 
-            <span>
-              {usuarioActual?.rol ||
-                "Administrador"}
-            </span>
+      {/* PANEL */}
 
-          </div>
+      <section className="riccati-panel animate-up delay-2">
 
-          <button
-            className="sidebar-logout"
-            onClick={cerrarSesion}
-            title="Cerrar sesión"
-          >
-            ↪
-          </button>
-
-        </div>
-
-      </aside>
-
-      {/* CONTENIDO */}
-      <main className="riccati-main">
-
-        {/* HEADER */}
-        <header className="topbar">
+        <div className="riccati-panel-header">
 
           <div>
 
-            <span className="page-label">
-              MÓDULO M01
+            <span className="riccati-panel-label">
+              DIRECTORIO
             </span>
 
-            <h1>
-              Usuarios
-            </h1>
-
-            <p>
-              Administración de usuarios,
-              roles y estados de acceso al
-              Riccati Project Hub.
-            </p>
+            <h3>
+              Usuarios registrados
+            </h3>
 
           </div>
 
-          <div className="topbar-actions">
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "10px",
+            }}
+          >
 
-            <div className="system-status">
+            <div className="riccati-search">
 
-              <span className="status-dot">
+              <span className="riccati-search-icon">
+                ⌕
               </span>
 
-              Acceso administrativo
+              <input
+                type="text"
+                placeholder="Buscar usuario..."
+                value={busqueda}
+                onChange={(e) =>
+                  setBusqueda(
+                    e.target.value
+                  )
+                }
+              />
 
             </div>
 
-            <button className="notification-button">
-              ◇
+            <button
+              className="riccati-button-primary"
+              onClick={abrirNuevoUsuario}
+            >
+              + Nuevo usuario
             </button>
 
           </div>
 
-        </header>
+        </div>
 
-        {/* ESTADÍSTICAS */}
-        <section className="usuarios-stats">
 
-          <div className="usuario-stat-card">
+        {/* TABLA */}
 
-            <div className="usuario-stat-top">
+        <div className="riccati-table-wrapper">
 
-              <span>
-                TOTAL USUARIOS
-              </span>
+          <table className="riccati-table">
 
-              <div className="usuario-stat-icon">
-                ◎
-              </div>
+            <thead>
 
-            </div>
+              <tr>
+                <th>USUARIO</th>
+                <th>CORREO</th>
+                <th>ROL</th>
+                <th>ESTADO</th>
+                <th>ÚLTIMO ACCESO</th>
+                <th>ACCIONES</th>
+              </tr>
 
-            <strong>
-              {usuarios.length}
-            </strong>
+            </thead>
 
-            <small>
-              Usuarios registrados
-            </small>
+            <tbody>
 
-          </div>
+              {usuariosFiltrados.map(
+                (usuario) => (
 
-          <div className="usuario-stat-card">
+                  <tr key={usuario.id_usuario}>
 
-            <div className="usuario-stat-top">
+                    <td>
 
-              <span>
-                ADMINISTRADORES
-              </span>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "11px",
+                        }}
+                      >
 
-              <div className="usuario-stat-icon purple">
-                ◇
-              </div>
-
-            </div>
-
-            <strong>
-              {administradores}
-            </strong>
-
-            <small className="purple-text">
-              Acceso administrativo
-            </small>
-
-          </div>
-
-          <div className="usuario-stat-card">
-
-            <div className="usuario-stat-top">
-
-              <span>
-                COLABORADORES
-              </span>
-
-              <div className="usuario-stat-icon cyan">
-                ◉
-              </div>
-
-            </div>
-
-            <strong>
-              {colaboradores}
-            </strong>
-
-            <small className="cyan-text">
-              Usuarios operativos
-            </small>
-
-          </div>
-
-          <div className="usuario-stat-card">
-
-            <div className="usuario-stat-top">
-
-              <span>
-                USUARIOS ACTIVOS
-              </span>
-
-              <div className="usuario-stat-icon green">
-                ✓
-              </div>
-
-            </div>
-
-            <strong>
-              {usuariosActivos}
-            </strong>
-
-            <small className="green-text">
-              Acceso habilitado
-            </small>
-
-          </div>
-
-        </section>
-
-        {/* PANEL */}
-        <section className="usuarios-panel">
-
-          <div className="usuarios-panel-header">
-
-            <div>
-
-              <span className="panel-label">
-                ADMINISTRACIÓN
-              </span>
-
-              <h3>
-                Usuarios registrados
-              </h3>
-
-            </div>
-
-            <div className="usuarios-actions">
-
-              {/* BUSCADOR */}
-              <div className="usuarios-search">
-
-                <span>
-                  ⌕
-                </span>
-
-                <input
-                  type="text"
-                  placeholder="Buscar usuario..."
-                  value={busqueda}
-                  onChange={(e) =>
-                    setBusqueda(
-                      e.target.value
-                    )
-                  }
-                />
-
-              </div>
-
-              {/* FILTRO */}
-              <select
-                className="usuarios-filter"
-                value={filtroRol}
-                onChange={(e) =>
-                  setFiltroRol(
-                    e.target.value
-                  )
-                }
-              >
-
-                <option value="Todos">
-                  Todos los roles
-                </option>
-
-                <option value="Administrador">
-                  Administradores
-                </option>
-
-                <option value="Colaborador">
-                  Colaboradores
-                </option>
-
-              </select>
-
-              <button className="new-user-button">
-                + Nuevo usuario
-              </button>
-
-            </div>
-
-          </div>
-
-          {/* TABLA */}
-          <div className="usuarios-table-wrapper">
-
-            <table className="usuarios-table">
-
-              <thead>
-
-                <tr>
-                  <th>USUARIO</th>
-                  <th>CORREO</th>
-                  <th>ROL</th>
-                  <th>ESTADO</th>
-                  <th>ACCESO</th>
-                  <th></th>
-                </tr>
-
-              </thead>
-
-              <tbody>
-
-                {usuariosFiltrados.map(
-                  (usuario) => (
-
-                    <tr key={usuario.id}>
-
-                      {/* USUARIO */}
-                      <td>
-
-                        <div className="user-table-name">
-
-                          <div className="user-table-avatar">
-                            {usuario.nombre.charAt(0)}
-                          </div>
-
-                          <div>
-
-                            <strong>
-                              {usuario.nombre}
-                            </strong>
-
-                            <span>
-                              USR-
-                              {String(
-                                usuario.id
-                              ).padStart(
-                                3,
-                                "0"
-                              )}
-                            </span>
-
-                          </div>
-
+                        <div
+                          className="riccati-user-avatar"
+                          style={{
+                            width: "32px",
+                            height: "32px",
+                          }}
+                        >
+                          {usuario.nombre.charAt(0)}
                         </div>
 
-                      </td>
+                        <div>
 
-                      {/* CORREO */}
-                      <td>
+                          <strong
+                            style={{
+                              display: "block",
+                              color: "#e8f0f7",
+                              fontSize: "9px",
+                            }}
+                          >
+                            {usuario.nombre}{" "}
+                            {usuario.apellidos}
+                          </strong>
 
-                        <span className="user-email">
-                          {usuario.correo}
-                        </span>
-
-                      </td>
-
-                      {/* ROL */}
-                      <td>
-
-                        <span
-                          className={
-                            usuario.rol ===
-                            "Administrador"
-                              ? "user-role role-admin"
-                              : "user-role role-collaborator"
-                          }
-                        >
-
-                          {usuario.rol}
-
-                        </span>
-
-                      </td>
-
-                      {/* ESTADO */}
-                      <td>
-
-                        <span
-                          className={
-                            usuario.estado ===
-                            "Activo"
-                              ? "user-status user-active"
-                              : "user-status user-inactive"
-                          }
-                        >
-
-                          <span></span>
-
-                          {usuario.estado}
-
-                        </span>
-
-                      </td>
-
-                      {/* ACCESO */}
-                      <td>
-
-                        <div className="access-status">
-
-                          <span className="access-icon">
-                            ✓
+                          <span
+                            style={{
+                              display: "block",
+                              marginTop: "3px",
+                              color: "#50677e",
+                              fontSize: "7px",
+                            }}
+                          >
+                            USR-
+                            {String(
+                              usuario.id_usuario
+                            ).padStart(
+                              3,
+                              "0"
+                            )}
                           </span>
 
-                          Habilitado
-
                         </div>
 
-                      </td>
+                      </div>
 
-                      {/* OPCIONES */}
-                      <td>
+                    </td>
 
-                        <button className="user-options">
-                          ···
-                        </button>
+                    <td>
+                      {usuario.correo}
+                    </td>
 
-                      </td>
+                    <td>
 
-                    </tr>
+                      <span
+                        className={
+                          usuario.rol ===
+                          "Administrador"
+                            ? "riccati-badge riccati-badge-purple"
+                            : "riccati-badge riccati-badge-cyan"
+                        }
+                      >
+                        {usuario.rol}
+                      </span>
 
-                  )
-                )}
+                    </td>
 
-              </tbody>
+                    <td>
+                      <EstadoUsuario
+                        estado={usuario.estado}
+                      />
+                    </td>
 
-            </table>
+                    <td>
 
-          </div>
+                      {usuario.ultimo_acceso
+                        ? new Date(
+                            usuario.ultimo_acceso
+                          ).toLocaleString(
+                            "es-CR"
+                          )
+                        : "Sin acceso"}
 
-          {usuariosFiltrados.length === 0 && (
+                    </td>
 
-            <div className="usuarios-empty">
+                    <td>
 
-              <div>
-                ◇
-              </div>
+                      <button
+                        className="riccati-button-secondary"
+                        onClick={() =>
+                          abrirEditarUsuario(
+                            usuario
+                          )
+                        }
+                      >
+                        Editar
+                      </button>
 
-              <strong>
-                No se encontraron usuarios
-              </strong>
+                    </td>
 
-              <span>
-                Intenta cambiar la búsqueda
-                o el filtro seleccionado.
-              </span>
+                  </tr>
 
-            </div>
+                )
+              )}
 
-          )}
+            </tbody>
 
-          <div className="usuarios-footer">
+          </table>
 
-            <span>
-              Mostrando{" "}
-              {usuariosFiltrados.length} de{" "}
-              {usuarios.length} usuarios
-            </span>
+        </div>
 
-            <span>
-              Control de acceso · M01
-            </span>
 
-          </div>
+        <div
+          style={{
+            padding: "12px 16px",
+            color: "#50677e",
+            fontSize: "7px",
+          }}
+        >
+          Mostrando{" "}
+          {usuariosFiltrados.length} de{" "}
+          {usuarios.length} usuarios
+        </div>
 
-        </section>
+      </section>
 
-        {/* AVISO SEGURIDAD */}
-        <section className="security-panel">
 
-          <div className="security-panel-icon">
-            ◇
-          </div>
+      {/* MODAL */}
 
-          <div>
+      <UsuarioModal
+        mostrar={mostrarModal}
+        usuarioEditando={usuarioEditando}
+        formulario={formulario}
+        roles={roles}
+        error={
+          mostrarModal
+            ? error
+            : ""
+        }
+        guardando={guardando}
+        onChange={manejarCambio}
+        onSubmit={guardarUsuario}
+        onClose={cerrarModal}
+      />
 
-            <span>
-              SEGURIDAD DEL SISTEMA
-            </span>
+    </RiccatiLayout>
+  );
+}
 
-            <strong>
-              Gestión de acceso protegida
-            </strong>
 
-            <p>
-              Las credenciales de los usuarios
-              no se muestran desde esta interfaz.
-              Esta sección está disponible
-              únicamente para administradores.
-            </p>
+function EstadoUsuario({
+  estado,
+}) {
+  if (estado === "ACTIVO") {
+    return (
+      <span className="riccati-badge riccati-badge-green">
 
-          </div>
+        <span className="riccati-badge-dot">
+        </span>
 
-        </section>
+        Activo
 
-      </main>
+      </span>
+    );
+  }
 
-    </div>
+  if (estado === "BLOQUEADO") {
+    return (
+      <span className="riccati-badge riccati-badge-red">
+        Bloqueado
+      </span>
+    );
+  }
+
+  return (
+    <span className="riccati-badge riccati-badge-orange">
+      Inactivo
+    </span>
   );
 }
 
