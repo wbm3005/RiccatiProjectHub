@@ -25,6 +25,7 @@ function RiccatiLayout({ children, paginaActiva }) {
     usuarios: "Usuarios",
     clientes: "Clientes",
     proyectos: "Proyectos",
+    perfil: "Mi cuenta",
   };
 
   const tituloActual =

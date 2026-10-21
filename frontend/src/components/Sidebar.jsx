@@ -6,6 +6,7 @@ import {
   Building2,
   FolderKanban,
   LogOut,
+  UserRound,
 } from "lucide-react";
 
 function Sidebar({ paginaActiva }) {
@@ -111,6 +112,13 @@ function Sidebar({ paginaActiva }) {
                 />
               </span>
               Proyectos
+            </NavLink>
+          </div>
+          <div className="riccati-sidebar-section">
+            <span className="riccati-sidebar-title">CUENTA</span>
+            <NavLink to="/perfil" className={claseMenu("perfil")}>
+              <span className="riccati-menu-icon"><UserRound size={19} strokeWidth={2.2} /></span>
+              Mi cuenta
             </NavLink>
           </div>
         </nav>

@@ -9,6 +9,7 @@ import Dashboard from "./pages/Dashboard";
 import Usuarios from "./pages/Usuarios";
 import Clientes from "./pages/Clientes";
 import Proyectos from "./pages/Proyectos";
+import Perfil from "./pages/Perfil";
 
 import RutaProtegida from "./components/RutaProtegida";
 
@@ -73,6 +74,11 @@ function App() {
         }
       />
 
+
+      {/* MI CUENTA - ambos roles */}
+      <Route path="/perfil" element={
+        <RutaProtegida><Perfil /></RutaProtegida>
+      } />
 
       {/* CUALQUIER OTRA RUTA */}
 

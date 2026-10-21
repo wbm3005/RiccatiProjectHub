@@ -174,3 +174,13 @@ export const actualizarUsuario =
       respuesta
     );
   };
+
+/* HU-M01-06: INACTIVAR / REACTIVAR */
+export async function cambiarEstadoUsuario(idUsuario, estado) {
+  const respuesta = await fetch(`${API_URL}/${idUsuario}/estado`, {
+    method: "PATCH",
+    headers: obtenerHeaders(true),
+    body: JSON.stringify({ estado }),
+  });
+  return procesarRespuesta(respuesta);
+}
