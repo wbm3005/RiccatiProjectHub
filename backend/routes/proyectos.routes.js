@@ -723,6 +723,8 @@ router.post("/", async (req, res) => {
 // =====================================================
 
 router.put("/:id", async (req, res) => {
+  let conexion;
+  let enTransaccion = false;
   try {
     const { id } = req.params;
 
@@ -781,8 +783,45 @@ router.put("/:id", async (req, res) => {
     }
 
 
+    conexion = await pool.connect();
+    await conexion.query("BEGIN");
+    enTransaccion = true;
+
+    // Permite conservar el cliente histórico si fue inactivado, pero no
+    // reasignar el proyecto a un cliente inactivo. El bloqueo evita carreras
+    // con el cambio de estado del cliente durante esta actualización.
+    const cliente = await conexion.query(
+      "SELECT id_cliente, estado FROM clientes WHERE id_cliente = $1 FOR SHARE",
+      [id_cliente]
+    );
+    const proyectoActual = await conexion.query(
+      "SELECT id_cliente, id_contacto_principal FROM proyectos WHERE id_proyecto = $1 FOR UPDATE",
+      [id]
+    );
+    if (!proyectoActual.rows.length) {
+      return res.status(404).json({ mensaje: "Proyecto no encontrado." });
+    }
+    const conservaCliente = Number(proyectoActual.rows[0].id_cliente) === Number(id_cliente);
+    if (!cliente.rows.length || (cliente.rows[0].estado !== "ACTIVO" && !conservaCliente)) {
+      return res.status(400).json({
+        mensaje: "El cliente seleccionado no existe o se encuentra inactivo.",
+      });
+    }
+    if (id_contacto_principal) {
+      const contacto = await conexion.query(
+        `SELECT id_contacto, estado FROM contactos_cliente
+          WHERE id_contacto = $1 AND id_cliente = $2`,
+        [id_contacto_principal, id_cliente]
+      );
+      const conservaContacto = conservaCliente &&
+        Number(proyectoActual.rows[0].id_contacto_principal) === Number(id_contacto_principal);
+      if (!contacto.rows.length || (contacto.rows[0].estado !== "ACTIVO" && !conservaContacto)) {
+        return res.status(400).json({ mensaje: "El contacto seleccionado no pertenece al cliente o se encuentra inactivo." });
+      }
+    }
+
     const resultado =
-      await pool.query(
+      await conexion.query(
         `
         UPDATE proyectos
 
@@ -841,6 +880,8 @@ router.put("/:id", async (req, res) => {
     }
 
 
+    await conexion.query("COMMIT");
+    enTransaccion = false;
     return res.json({
       mensaje:
         "Proyecto actualizado correctamente.",
@@ -859,6 +900,12 @@ router.put("/:id", async (req, res) => {
       mensaje:
         "No fue posible actualizar el proyecto.",
     });
+  } finally {
+    if (enTransaccion) {
+      try { await conexion.query("ROLLBACK"); }
+      catch (error) { console.error("Error al revertir actualización de proyecto:", error); }
+    }
+    if (conexion) conexion.release();
   }
 });
 

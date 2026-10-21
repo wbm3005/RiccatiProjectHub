@@ -184,7 +184,8 @@ function ProyectoModal({
                     Seleccionar cliente
                   </option>
 
-                  {clientes.map(
+                  {clientes.filter(cliente => cliente.estado === "ACTIVO" ||
+                    (esEdicion && Number(cliente.id_cliente) === Number(proyectoEditando.id_cliente))).map(
                     (cliente) => (
 
                       <option
@@ -236,7 +237,8 @@ function ProyectoModal({
                       : "Primero selecciona un cliente"}
                   </option>
 
-                  {contactos.map(
+                  {contactos.filter(contacto => contacto.estado === "ACTIVO" ||
+                    (esEdicion && Number(contacto.id_contacto) === Number(proyectoEditando.id_contacto_principal))).map(
                     (contacto) => (
 
                       <option

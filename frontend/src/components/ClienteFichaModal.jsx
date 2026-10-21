@@ -1,460 +1,60 @@
-function ClienteFichaModal({
-  mostrar,
-  cliente,
-  contactos,
-  cargando,
-  error,
-  onAgregarContacto,
-  onClose,
-}) {
-  if (!mostrar) {
-    return null;
-  }
+import { createPortal } from "react-dom";
+import { Building2, ContactRound, FolderKanban, Pencil, UserPlus, X } from "lucide-react";
 
-  return (
-    <div
-      className="riccati-modal-backdrop"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
-    >
-      <div
-        className="riccati-modal"
-        style={{
-          maxWidth: "760px",
-        }}
-      >
-        <div className="riccati-modal-header">
-
-          <span className="riccati-page-label">
-            M02 · FICHA DEL CLIENTE
-          </span>
-
-          <h3>
-            {cliente?.nombre_razon_social ||
-              "Cliente"}
-          </h3>
-
-          <p
-            style={{
-              marginTop: "5px",
-              color: "#60788d",
-              fontSize: "8px",
-            }}
-          >
-            Información general y contactos asociados.
-          </p>
-
+function ClienteFichaModal({ mostrar, cliente, contactos = [], proyectos = [], cargando, error, esAdministrador,
+  onEditar, onAgregarContacto, onEditarContacto, onCambiarEstado, onClose }) {
+  if (!mostrar) return null;
+  return createPortal(
+    <div className="riccati-modal-backdrop" onMouseDown={e => e.target === e.currentTarget && onClose()}>
+      <div className="riccati-modal riccati-s2-modal riccati-s2-ficha" role="dialog" aria-modal="true" aria-label="Ficha del cliente">
+        <div className="riccati-modal-header riccati-s2-modal-heading">
+          <div><span className="riccati-panel-label">EXPEDIENTE DE CLIENTE</span><h3><Building2 size={22}/>{cliente?.nombre_razon_social || "Ficha del cliente"}</h3><p>Información, contactos y proyectos vinculados.</p></div>
+          <button type="button" className="riccati-button-secondary" onClick={onClose} aria-label="Cerrar"><X size={18}/></button>
         </div>
-
         <div className="riccati-modal-body">
-
-          {cargando && (
-            <div className="riccati-loader-wrapper">
-
-              <div className="riccati-loader">
+          {cargando && <div className="riccati-loader-wrapper"><span className="riccati-loader"/>Cargando ficha...</div>}
+          {error && !cargando && <div className="login-error" role="alert">{error}</div>}
+          {!cargando && cliente && !error && (
+            <>
+              <div className="riccati-s2-ficha-grid">
+                <Dato etiqueta="Código" valor={`CLI-${String(cliente.id_cliente).padStart(3, "0")}`} />
+                <Dato etiqueta="Estado" valor={cliente.estado === "ACTIVO" ? "Activo" : "Inactivo"} />
+                <Dato etiqueta="Identificación" valor={cliente.identificacion}/>
+                <Dato etiqueta="Correo general" valor={cliente.correo_general}/>
+                <Dato etiqueta="Teléfono" valor={cliente.telefono_general}/>
+                <Dato etiqueta="Dirección" valor={cliente.direccion}/>
               </div>
-
-              <span className="riccati-loader-text">
-                Cargando ficha...
-              </span>
-
-            </div>
-          )}
-
-          {error && !cargando && (
-            <div className="login-error">
-              {error}
-            </div>
-          )}
-
-          {!cargando &&
-            !error &&
-            cliente && (
-              <>
-                <span className="riccati-panel-label">
-                  INFORMACIÓN GENERAL
-                </span>
-
-                <div
-                  style={{
-                    display: "grid",
-                    gridTemplateColumns:
-                      "repeat(2, minmax(0, 1fr))",
-                    gap: "12px",
-                    marginTop: "14px",
-                  }}
-                >
-                  <DatoFicha
-                    titulo="Identificación"
-                    valor={
-                      cliente.identificacion ||
-                      "No registrada"
-                    }
-                  />
-
-                  <DatoFicha
-                    titulo="Estado"
-                    valor={cliente.estado}
-                    estado
-                  />
-
-                  <DatoFicha
-                    titulo="Correo general"
-                    valor={
-                      cliente.correo_general ||
-                      "No registrado"
-                    }
-                  />
-
-                  <DatoFicha
-                    titulo="Teléfono"
-                    valor={
-                      cliente.telefono_general ||
-                      "No registrado"
-                    }
-                  />
-
-                </div>
-
-                <div
-                  style={{
-                    marginTop: "12px",
-                  }}
-                >
-                  <DatoFicha
-                    titulo="Dirección"
-                    valor={
-                      cliente.direccion ||
-                      "No registrada"
-                    }
-                  />
-                </div>
-
-                <div
-                  style={{
-                    marginTop: "12px",
-                  }}
-                >
-                  <DatoFicha
-                    titulo="Observaciones"
-                    valor={
-                      cliente.observaciones ||
-                      "Sin observaciones"
-                    }
-                  />
-                </div>
-
-
-                {/* CONTACTOS */}
-
-                <div
-                  style={{
-                    marginTop: "24px",
-                    paddingTop: "18px",
-                    borderTop:
-                      "1px solid rgba(255,255,255,0.05)",
-                  }}
-                >
-
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent:
-                        "space-between",
-                      alignItems: "center",
-                      gap: "15px",
-                      marginBottom: "14px",
-                    }}
-                  >
-
-                    <span className="riccati-panel-label">
-                      CONTACTOS ASOCIADOS
-                    </span>
-
-                    <button
-                      type="button"
-                      className="riccati-button-primary"
-                      onClick={
-                        onAgregarContacto
-                      }
-                    >
-                      + Agregar contacto
-                    </button>
-
+              {cliente.observaciones && <div className="riccati-s2-nota"><strong>Observaciones</strong><p>{cliente.observaciones}</p></div>}
+              <div className="riccati-s2-section-head"><div><ContactRound size={17}/><strong>Contactos ({contactos.length})</strong></div>{esAdministrador && <button type="button" className="riccati-button-secondary" onClick={onAgregarContacto}><UserPlus size={16}/> Agregar</button>}</div>
+              {contactos.length === 0 ? <p className="riccati-s2-muted">Sin contactos registrados.</p> : (
+                <div className="riccati-s2-contactos">{contactos.map(c => (
+                  <div className="riccati-s2-contacto" key={c.id_contacto}>
+                    <div><strong>{c.nombre}</strong>{c.es_principal && <span className="riccati-badge riccati-badge-cyan">Principal</span>} {c.estado === "INACTIVO" && <span className="riccati-badge riccati-badge-orange">Inactivo</span>}
+                      <p>{c.puesto || "Sin puesto"} · {c.correo || "Sin correo"} · {c.telefono || "Sin teléfono"}</p></div>
+                    {esAdministrador && <button type="button" className="riccati-button-secondary" onClick={() => onEditarContacto(c)}><Pencil size={15}/> Editar</button>}
                   </div>
-
-
-                  {contactos.length === 0 ? (
-
-                    <div className="riccati-empty">
-
-                      <div className="riccati-empty-icon">
-                        ◇
-                      </div>
-
-                      <strong>
-                        Sin contactos registrados
-                      </strong>
-
-                      <span>
-                        Este cliente todavía no tiene
-                        contactos asociados.
-                      </span>
-
-                    </div>
-
-                  ) : (
-
-                    contactos.map(
-                      (contacto) => (
-
-                        <ContactoCard
-                          key={
-                            contacto.id_contacto
-                          }
-                          contacto={
-                            contacto
-                          }
-                        />
-
-                      )
-                    )
-
-                  )}
-
-                </div>
-              </>
-            )}
-
+                ))}</div>
+              )}
+              <div className="riccati-s2-section-head"><div><FolderKanban size={17}/><strong>Historial de proyectos ({proyectos.length})</strong></div></div>
+              {proyectos.length === 0 ? <p className="riccati-s2-muted">No hay proyectos asociados que puedas consultar.</p> : (
+                <div className="riccati-s2-projects">{proyectos.map(p => <div className="riccati-s2-project-row" key={p.id_proyecto}>
+                  <div><strong>{p.nombre}</strong><small>{p.codigo}</small></div><span className={"riccati-badge " + (p.estado === "Finalizado" ? "riccati-badge-green" : p.estado === "Archivado" ? "riccati-badge-purple" : "riccati-badge-cyan")}>{p.estado}</span>
+                  <span className="riccati-s2-muted">{p.fecha_compromiso ? String(p.fecha_compromiso).slice(0, 10) : "Sin fecha"}</span>
+                </div>)}</div>
+              )}
+            </>
+          )}
         </div>
-
-
         <div className="riccati-modal-footer">
-
-          <button
-            type="button"
-            className="riccati-button-secondary"
-            onClick={onClose}
-          >
-            Cerrar
-          </button>
-
+          {esAdministrador && cliente && !cargando && !error && <>
+            <button type="button" className="riccati-button-secondary" onClick={onEditar}><Pencil size={16}/> Editar cliente</button>
+            <button type="button" className={cliente.estado === "ACTIVO" ? "riccati-button-danger" : "riccati-button-primary"} onClick={onCambiarEstado}>{cliente.estado === "ACTIVO" ? "Inactivar" : "Reactivar"}</button>
+          </>}
+          <button type="button" className="riccati-button-secondary" onClick={onClose}>Cerrar</button>
         </div>
-
       </div>
-    </div>
+    </div>, document.body
   );
 }
-
-
-function DatoFicha({
-  titulo,
-  valor,
-  estado = false,
-}) {
-  return (
-    <div
-      className="riccati-card"
-      style={{
-        padding: "13px",
-      }}
-    >
-
-      <span
-        style={{
-          display: "block",
-          marginBottom: "6px",
-          color: "#526b81",
-          fontSize: "7px",
-          letterSpacing: "0.8px",
-          textTransform: "uppercase",
-        }}
-      >
-        {titulo}
-      </span>
-
-      {estado ? (
-
-        <span
-          className={
-            valor === "ACTIVO"
-              ? "riccati-badge riccati-badge-green"
-              : "riccati-badge riccati-badge-orange"
-          }
-        >
-          {valor}
-        </span>
-
-      ) : (
-
-        <strong
-          style={{
-            display: "block",
-            color: "#e7eef5",
-            fontSize: "9px",
-            fontWeight: "500",
-            lineHeight: "1.6",
-          }}
-        >
-          {valor}
-        </strong>
-
-      )}
-
-    </div>
-  );
-}
-
-
-function ContactoCard({
-  contacto,
-}) {
-  return (
-    <div
-      className="riccati-card"
-      style={{
-        padding: "15px",
-        marginBottom: "10px",
-      }}
-    >
-
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent:
-            "space-between",
-          gap: "15px",
-        }}
-      >
-
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "11px",
-          }}
-        >
-
-          <div
-            className="riccati-user-avatar"
-            style={{
-              width: "34px",
-              height: "34px",
-            }}
-          >
-            {contacto.nombre
-              ?.charAt(0)
-              ?.toUpperCase() || "C"}
-          </div>
-
-          <div>
-
-            <strong
-              style={{
-                display: "block",
-                color: "#e7eef5",
-                fontSize: "9px",
-              }}
-            >
-              {contacto.nombre}
-            </strong>
-
-            <span
-              style={{
-                display: "block",
-                marginTop: "4px",
-                color: "#60788d",
-                fontSize: "7px",
-              }}
-            >
-              {contacto.puesto ||
-                "Sin puesto registrado"}
-            </span>
-
-          </div>
-
-        </div>
-
-
-        {contacto.es_principal && (
-          <span className="riccati-badge riccati-badge-cyan">
-            Principal
-          </span>
-        )}
-
-      </div>
-
-
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns:
-            "repeat(2, minmax(0, 1fr))",
-          gap: "10px",
-          marginTop: "14px",
-        }}
-      >
-
-        <DatoContacto
-          titulo="Correo"
-          valor={
-            contacto.correo ||
-            "No registrado"
-          }
-        />
-
-        <DatoContacto
-          titulo="Teléfono"
-          valor={
-            contacto.telefono ||
-            "No registrado"
-          }
-        />
-
-      </div>
-
-    </div>
-  );
-}
-
-
-function DatoContacto({
-  titulo,
-  valor,
-}) {
-  return (
-    <div>
-
-      <span
-        style={{
-          display: "block",
-          color: "#4f667c",
-          fontSize: "7px",
-          textTransform: "uppercase",
-          letterSpacing: "0.7px",
-        }}
-      >
-        {titulo}
-      </span>
-
-      <span
-        style={{
-          display: "block",
-          marginTop: "4px",
-          color: "#9aabba",
-          fontSize: "8px",
-        }}
-      >
-        {valor}
-      </span>
-
-    </div>
-  );
-}
-
-
+function Dato({ etiqueta, valor }) { return <div className="riccati-s2-dato"><span>{etiqueta}</span><strong>{valor || "No registrado"}</strong></div>; }
 export default ClienteFichaModal;
