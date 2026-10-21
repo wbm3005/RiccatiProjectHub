@@ -315,7 +315,7 @@ function Usuarios() {
             background:
               "rgba(45,226,166,0.06)",
             color: "#2de2a6",
-            fontSize: "9px",
+            fontSize: "12px",
           }}
         >
           ✓ {mensaje}
@@ -478,7 +478,7 @@ function Usuarios() {
                             style={{
                               display: "block",
                               color: "#e8f0f7",
-                              fontSize: "9px",
+                              fontSize: "12px",
                             }}
                           >
                             {usuario.nombre}{" "}
@@ -489,8 +489,8 @@ function Usuarios() {
                             style={{
                               display: "block",
                               marginTop: "3px",
-                              color: "#50677e",
-                              fontSize: "7px",
+                              color: "#a3b9cc",
+                              fontSize: "11px",
                             }}
                           >
                             USR-
@@ -575,8 +575,8 @@ function Usuarios() {
         <div
           style={{
             padding: "12px 16px",
-            color: "#50677e",
-            fontSize: "7px",
+            color: "#a3b9cc",
+            fontSize: "11px",
           }}
         >
           Mostrando{" "}

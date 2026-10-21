@@ -276,15 +276,7 @@ function Dashboard() {
           CONTENIDO PRINCIPAL
       ================================================= */}
 
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns:
-            "minmax(0, 2fr) minmax(280px, 0.8fr)",
-          gap: "16px",
-          marginTop: "16px",
-        }}
-      >
+      <div className="riccati-dashboard-grid">
 
         {/* ===============================================
             PROYECTOS RECIENTES
@@ -702,8 +694,8 @@ function ResumenEstado({
 
         <span
           style={{
-            color: "#8ba0b5",
-            fontSize: "8px",
+            color: "#b5cadd",
+            fontSize: "12px",
             fontWeight: "600",
           }}
         >
@@ -763,9 +755,9 @@ function ResumenEstado({
 
           marginTop: "7px",
 
-          color: "#50677e",
+          color: "#a3b9cc",
 
-          fontSize: "7px",
+          fontSize: "11px",
         }}
       >
         {porcentaje}% del total

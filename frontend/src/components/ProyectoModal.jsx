@@ -1,3 +1,5 @@
+import { createPortal } from "react-dom";
+
 function ProyectoModal({
   mostrar,
   proyectoEditando,
@@ -19,7 +21,7 @@ function ProyectoModal({
   const esEdicion =
     Boolean(proyectoEditando);
 
-  return (
+  return createPortal(
     <div
       className="riccati-modal-backdrop"
       onMouseDown={(e) => {
@@ -60,8 +62,8 @@ function ProyectoModal({
           <p
             style={{
               marginTop: "5px",
-              color: "#60788d",
-              fontSize: "8px",
+              color: "#afc4d7",
+              fontSize: "12px",
             }}
           >
             {esEdicion
@@ -398,8 +400,8 @@ function ProyectoModal({
               <p
                 style={{
                   marginTop: "5px",
-                  color: "#60788d",
-                  fontSize: "8px",
+                  color: "#afc4d7",
+                  fontSize: "12px",
                 }}
               >
                 Información descriptiva
@@ -504,8 +506,8 @@ function ProyectoModal({
               <p
                 style={{
                   marginTop: "5px",
-                  color: "#60788d",
-                  fontSize: "8px",
+                  color: "#afc4d7",
+                  fontSize: "12px",
                 }}
               >
                 Define las fechas
@@ -613,7 +615,7 @@ function ProyectoModal({
                   style={{
                     display: "block",
                     color: "#26d9ff",
-                    fontSize: "8px",
+                    fontSize: "12px",
                     fontWeight: "600",
                     marginBottom: "5px",
                   }}
@@ -623,8 +625,8 @@ function ProyectoModal({
 
                 <span
                   style={{
-                    color: "#60788d",
-                    fontSize: "8px",
+                    color: "#afc4d7",
+                    fontSize: "12px",
                     lineHeight: "1.6",
                   }}
                 >
@@ -682,7 +684,8 @@ function ProyectoModal({
         </form>
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

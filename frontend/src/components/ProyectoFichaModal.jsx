@@ -1,3 +1,5 @@
+import { createPortal } from "react-dom";
+
 function ProyectoFichaModal({
   mostrar,
   proyecto,
@@ -26,7 +28,7 @@ function ProyectoFichaModal({
     return null;
   }
 
-  return (
+  return createPortal(
     <div
       className="riccati-modal-backdrop"
       onMouseDown={(e) => {
@@ -65,8 +67,8 @@ function ProyectoFichaModal({
               <p
                 style={{
                   marginTop: "5px",
-                  color: "#60788d",
-                  fontSize: "8px",
+                  color: "#afc4d7",
+                  fontSize: "12px",
                 }}
               >
                 {proyecto?.codigo ||
@@ -343,7 +345,7 @@ function ProyectoFichaModal({
                                   marginTop:
                                     "4px",
                                   color:
-                                    "#60788d",
+                                    "#afc4d7",
                                   fontSize:
                                     "7px",
                                 }}
@@ -366,8 +368,8 @@ function ProyectoFichaModal({
 
                     <span
                       style={{
-                        color: "#60788d",
-                        fontSize: "8px",
+                        color: "#afc4d7",
+                        fontSize: "12px",
                       }}
                     >
                       Sin responsable asignado.
@@ -453,8 +455,8 @@ function ProyectoFichaModal({
                   <p
                     style={{
                       marginTop: "5px",
-                      color: "#60788d",
-                      fontSize: "8px",
+                      color: "#afc4d7",
+                      fontSize: "12px",
                     }}
                   >
                     Estado actual:{" "}
@@ -557,7 +559,8 @@ function ProyectoFichaModal({
         </div>
 
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -585,7 +588,7 @@ function DatoProyecto({
           display: "block",
           marginBottom: "6px",
           color: "#526b81",
-          fontSize: "7px",
+          fontSize: "11px",
           letterSpacing: "0.8px",
           textTransform: "uppercase",
         }}

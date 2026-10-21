@@ -1,3 +1,5 @@
+import { createPortal } from "react-dom";
+
 function UsuarioModal({
   mostrar,
   usuarioEditando,
@@ -13,7 +15,7 @@ function UsuarioModal({
     return null;
   }
 
-  return (
+  return createPortal(
     <div
       className="riccati-modal-backdrop"
       onMouseDown={(e) => {
@@ -142,7 +144,7 @@ function UsuarioModal({
                   display: "block",
                   marginTop: "7px",
                   color: "#526a80",
-                  fontSize: "7px",
+                  fontSize: "11px",
                 }}
               >
                 Mínimo 8 caracteres, mayúscula,
@@ -251,7 +253,8 @@ function UsuarioModal({
 
       </div>
 
-    </div>
+    </div>,
+    document.body
   );
 }
 
