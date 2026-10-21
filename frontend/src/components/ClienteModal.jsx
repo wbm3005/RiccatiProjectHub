@@ -1,3 +1,4 @@
+import FormField from "./FormField";
 import { createPortal } from "react-dom";
 import { Building2, X } from "lucide-react";
 
@@ -19,44 +20,44 @@ function ClienteModal({ mostrar, formulario, contacto, esEdicion = false, error,
           <div className="riccati-modal-body">
             {error && <div className="login-error" role="alert">{error}</div>}
             <span className="riccati-panel-label">DATOS GENERALES</span>
-            <div className="riccati-form-group">
+            <FormField className="riccati-form-group">
               <label htmlFor="cliente-nombre">Nombre o razón social *</label>
               <input id="cliente-nombre" className="riccati-input" name="nombre_razon_social" value={formulario.nombre_razon_social} onChange={onChangeCliente} required maxLength={160} placeholder="Ej. Constructora Horizonte S.A." />
-            </div>
+            </FormField>
             <div className="riccati-s2-form-grid">
-              <div className="riccati-form-group">
+              <FormField className="riccati-form-group">
                 <label htmlFor="cliente-id">Identificación</label>
                 <input id="cliente-id" className="riccati-input" name="identificacion" value={formulario.identificacion} onChange={onChangeCliente} maxLength={30}/>
-              </div>
-              <div className="riccati-form-group">
+              </FormField>
+              <FormField className="riccati-form-group">
                 <label htmlFor="cliente-correo">Correo general</label>
                 <input id="cliente-correo" type="email" className="riccati-input" name="correo_general" value={formulario.correo_general} onChange={onChangeCliente} maxLength={150}/>
-              </div>
-              <div className="riccati-form-group">
+              </FormField>
+              <FormField className="riccati-form-group">
                 <label htmlFor="cliente-telefono">Teléfono</label>
                 <input id="cliente-telefono" className="riccati-input" name="telefono_general" value={formulario.telefono_general} onChange={onChangeCliente} maxLength={30}/>
-              </div>
-              <div className="riccati-form-group">
+              </FormField>
+              <FormField className="riccati-form-group">
                 <label>Estado</label>
                 <div className="riccati-s2-estado-lectura">{esEdicion ? formulario.estado === "ACTIVO" ? "Activo (cambia desde la ficha)" : "Inactivo (cambia desde la ficha)" : "Activo"}</div>
-              </div>
+              </FormField>
             </div>
-            <div className="riccati-form-group">
+            <FormField className="riccati-form-group">
               <label htmlFor="cliente-direccion">Dirección</label>
               <input id="cliente-direccion" className="riccati-input" name="direccion" value={formulario.direccion} onChange={onChangeCliente}/>
-            </div>
-            <div className="riccati-form-group">
+            </FormField>
+            <FormField className="riccati-form-group">
               <label htmlFor="cliente-obs">Observaciones</label>
               <textarea id="cliente-obs" className="riccati-input" rows={3} name="observaciones" value={formulario.observaciones} onChange={onChangeCliente}/>
-            </div>
+            </FormField>
             {!esEdicion && (
               <>
                 <div className="riccati-s2-form-divider"><span className="riccati-panel-label">CONTACTO PRINCIPAL · OPCIONAL</span></div>
                 <div className="riccati-s2-form-grid">
-                  <div className="riccati-form-group"><label htmlFor="cp-nombre">Nombre</label><input id="cp-nombre" className="riccati-input" name="nombre" value={contacto.nombre} onChange={onChangeContacto} maxLength={100}/></div>
-                  <div className="riccati-form-group"><label htmlFor="cp-puesto">Puesto</label><input id="cp-puesto" className="riccati-input" name="puesto" value={contacto.puesto} onChange={onChangeContacto} maxLength={100}/></div>
-                  <div className="riccati-form-group"><label htmlFor="cp-correo">Correo</label><input id="cp-correo" type="email" className="riccati-input" name="correo" value={contacto.correo} onChange={onChangeContacto} maxLength={150}/></div>
-                  <div className="riccati-form-group"><label htmlFor="cp-telefono">Teléfono</label><input id="cp-telefono" className="riccati-input" name="telefono" value={contacto.telefono} onChange={onChangeContacto} maxLength={30}/></div>
+                  <FormField className="riccati-form-group"><label htmlFor="cp-nombre">Nombre</label><input id="cp-nombre" className="riccati-input" name="nombre" value={contacto.nombre} onChange={onChangeContacto} maxLength={100}/></FormField>
+                  <FormField className="riccati-form-group"><label htmlFor="cp-puesto">Puesto</label><input id="cp-puesto" className="riccati-input" name="puesto" value={contacto.puesto} onChange={onChangeContacto} maxLength={100}/></FormField>
+                  <FormField className="riccati-form-group"><label htmlFor="cp-correo">Correo</label><input id="cp-correo" type="email" className="riccati-input" name="correo" value={contacto.correo} onChange={onChangeContacto} maxLength={150}/></FormField>
+                  <FormField className="riccati-form-group"><label htmlFor="cp-telefono">Teléfono</label><input id="cp-telefono" className="riccati-input" name="telefono" value={contacto.telefono} onChange={onChangeContacto} maxLength={30}/></FormField>
                 </div>
               </>
             )}

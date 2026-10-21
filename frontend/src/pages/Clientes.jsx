@@ -1,3 +1,4 @@
+import FormField from "../components/FormField";
 import { useEffect, useMemo, useState } from "react";
 import { Building2, CheckCircle2, ChevronLeft, ChevronRight, CircleAlert, Pencil, Plus, Search, SlidersHorizontal, UserRoundCheck, Users, X } from "lucide-react";
 import { createPortal } from "react-dom";
@@ -163,7 +164,7 @@ function Clientes() {
                 <td><div className="riccati-s2-cliente-identidad"><span className="riccati-user-avatar">{c.nombre_razon_social?.charAt(0).toUpperCase()}</span><div><strong>{c.nombre_razon_social}</strong><small>CLI-{String(c.id_cliente).padStart(3,"0")}</small></div></div></td>
                 <td>{c.identificacion || "No registrada"}</td>
                 <td><div className="riccati-s2-doble"><span>{c.correo_general || "Sin correo"}</span><small>{c.telefono_general || "Sin teléfono"}</small></div></td>
-                <td><span className="riccati-badge riccati-badge-cyan">{c.cantidad_contactos || 0} contacto(s)</span></td>
+                <td><span>{c.cantidad_contactos || 0} contacto(s)</span></td>
                 <td><span className={"riccati-badge " + (c.estado === "ACTIVO" ? "riccati-badge-green" : "riccati-badge-orange")}>{c.estado === "ACTIVO" ? "Activo" : "Inactivo"}</span></td>
                 <td><div className="riccati-s2-actions"><button type="button" className="riccati-button-secondary" onClick={() => abrirFicha(c.id_cliente)}>Ver ficha</button>{esAdministrador && <button type="button" className="riccati-s2-icon-action" aria-label={`Editar ${c.nombre_razon_social}`} title="Editar" onClick={() => abrirEditar(c)}><Pencil size={17}/></button>}</div></td>
               </tr>)}</tbody></table></div>}
@@ -179,7 +180,7 @@ function Clientes() {
           <form className="riccati-s2-modal-form" onSubmit={guardarEstado}><div className="riccati-modal-body">
             {errorEstado && <div className="login-error" role="alert">{errorEstado}</div>}
             <div className="riccati-s2-advertencia"><CircleAlert size={22}/><div><strong>Esta acción no elimina ningún dato.</strong><p>Los clientes inactivos no podrán asociarse a proyectos nuevos. Si hay proyectos activos, debes ingresar una justificación obligatoria.</p></div></div>
-            <div className="riccati-form-group"><label htmlFor="justificacion-estado">Justificación {confirmacion.estado === "ACTIVO" ? "(obligatoria si tiene proyectos activos)" : "(opcional)"}</label><textarea id="justificacion-estado" rows={3} className="riccati-input" value={justificacion} onChange={e=>setJustificacion(e.target.value)} placeholder="Motivo del cambio..."/></div>
+            <FormField className="riccati-form-group"><label htmlFor="justificacion-estado">Justificación {confirmacion.estado === "ACTIVO" ? "(obligatoria si tiene proyectos activos)" : "(opcional)"}</label><textarea id="justificacion-estado" rows={3} className="riccati-input" value={justificacion} onChange={e=>setJustificacion(e.target.value)} placeholder="Motivo del cambio..."/></FormField>
           </div><div className="riccati-modal-footer"><button type="button" className="riccati-button-secondary" disabled={guardandoEstado} onClick={() => setConfirmacion(null)}>Cancelar</button><button type="submit" className={confirmacion.estado === "ACTIVO" ? "riccati-button-danger" : "riccati-button-primary"} disabled={guardandoEstado}>{guardandoEstado ? "Guardando..." : confirmacion.estado === "ACTIVO" ? "Confirmar inactivación" : "Confirmar reactivación"}</button></div></form>
         </div>
       </div>,document.body)}

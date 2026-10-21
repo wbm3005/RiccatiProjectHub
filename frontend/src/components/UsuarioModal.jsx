@@ -1,3 +1,4 @@
+import FormField from "./FormField";
 import { createPortal } from "react-dom";
 
 function UsuarioModal({
@@ -50,14 +51,14 @@ function UsuarioModal({
           <div className="riccati-modal-body">
 
             {error && (
-              <div className="login-error">
+              <div className="login-error" role="alert">
                 {error}
               </div>
             )}
 
             {/* NOMBRE */}
 
-            <div className="riccati-form-group">
+            <FormField className="riccati-form-group">
 
               <label>
                 Nombre
@@ -73,11 +74,11 @@ function UsuarioModal({
                 required
               />
 
-            </div>
+            </FormField>
 
             {/* APELLIDOS */}
 
-            <div className="riccati-form-group">
+            <FormField className="riccati-form-group">
 
               <label>
                 Apellidos
@@ -93,11 +94,11 @@ function UsuarioModal({
                 required
               />
 
-            </div>
+            </FormField>
 
             {/* CORREO */}
 
-            <div className="riccati-form-group">
+            <FormField className="riccati-form-group">
 
               <label>
                 Correo electrónico
@@ -113,11 +114,11 @@ function UsuarioModal({
                 required
               />
 
-            </div>
+            </FormField>
 
             {/* CONTRASEÑA */}
 
-            <div className="riccati-form-group">
+            <FormField className="riccati-form-group">
 
               <label>
                 {usuarioEditando
@@ -143,15 +144,15 @@ function UsuarioModal({
                 style={{
                   display: "block",
                   marginTop: "7px",
-                  color: "#526a80",
-                  fontSize: "11px",
+                  color: "var(--rp-ink)",
+                  fontSize: "13px",
                 }}
               >
                 Mínimo 8 caracteres, mayúscula,
                 minúscula, número y carácter especial.
               </span>
 
-            </div>
+            </FormField>
 
             {/* ROL + ESTADO */}
 
@@ -163,7 +164,7 @@ function UsuarioModal({
               }}
             >
 
-              <div className="riccati-form-group">
+              <FormField className="riccati-form-group">
 
                 <label>
                   Rol
@@ -187,9 +188,9 @@ function UsuarioModal({
 
                 </select>
 
-              </div>
+              </FormField>
 
-              <div className="riccati-form-group">
+              <FormField className="riccati-form-group">
 
                 <label>
                   Estado
@@ -216,7 +217,7 @@ function UsuarioModal({
 
                 </select>
 
-              </div>
+              </FormField>
 
             </div>
 

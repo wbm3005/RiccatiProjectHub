@@ -1,23 +1,23 @@
-/* Módulo Clientes · Sprint 2 · Riccati Horizon Dark
+/* Módulo Clientes · Sprint 2 · Riccati Sneat
    Selectores encapsulados para no modificar la plantilla existente. */
 .riccati-clientes-s2 .riccati-panel { overflow: hidden; }
 .riccati-clientes-s2 .riccati-s2-clientes-head { flex-wrap: wrap; }
 .riccati-s2-clientes-filtros { display:flex; flex-wrap:wrap; align-items:center; gap:12px; }
-.riccati-clientes-s2 .riccati-search { display:flex;align-items:center;gap:9px;min-width:255px;color:#8bdff4; }
+.riccati-clientes-s2 .riccati-search { display:flex;align-items:center;gap:9px;min-width:255px;color: var(--rp-accent); }
 .riccati-clientes-s2 .riccati-search input { min-width:0;width:100%; }
-.riccati-s2-select-wrap { display:flex;align-items:center;gap:8px;background:#0d1c33;border:1px solid #354767;border-radius:12px;padding:0 12px;color:#8bdff4;min-height:43px; }
-.riccati-s2-select-wrap select { background:transparent;border:0;color:#d9e9ff;outline:none;min-width:145px;cursor:pointer;font-size:13px; }
-.riccati-s2-select-wrap option { background:#12213d; }
+.riccati-s2-select-wrap { display:flex;align-items:center;gap:8px;background: var(--rp-hover);border:1px solid var(--rp-line);border-radius:12px;padding:0 12px;color: var(--rp-accent);min-height:43px; }
+.riccati-s2-select-wrap select { background: transparent;border:0;color: var(--rp-muted);outline:none;min-width:145px;cursor:pointer;font-size:13px; }
+.riccati-s2-select-wrap option { background: var(--rp-hover); }
 .riccati-clientes-s2 .riccati-table td {vertical-align:middle;}
 .riccati-s2-cliente-identidad {display:flex;align-items:center;gap:12px;min-width:180px;}
 .riccati-s2-cliente-identidad .riccati-user-avatar {flex-shrink:0;display:flex;align-items:center;justify-content:center;}
-.riccati-s2-cliente-identidad strong {display:block;font-size:13px;color:#f5f8ff;line-height:1.5;}
-.riccati-s2-cliente-identidad small,.riccati-s2-doble small {display:block;color:#94b4ce;font-size:11px;margin-top:4px;}
+.riccati-s2-cliente-identidad strong {display:block;font-size:13px;color: var(--rp-ink);line-height:1.5;}
+.riccati-s2-cliente-identidad small,.riccati-s2-doble small {display:block;color: var(--rp-muted);font-size:11px;margin-top:4px;}
 .riccati-s2-doble span {font-size:13px;}
 .riccati-s2-actions {display:flex;align-items:center;gap:7px;}
-.riccati-s2-icon-action {height:38px;width:38px;display:inline-grid;place-items:center;border-radius:10px;border:1px solid #4a6285;background:#1a3251;color:#bfefff;cursor:pointer;}
-.riccati-s2-icon-action:hover {border-color:#5bdcff;background:#294a6c;}
-.riccati-s2-paginacion {display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;padding:16px 20px;color:#aac3d8;font-size:12px;border-top:1px solid #304262;}
+.riccati-s2-icon-action {height:38px;width:38px;display:inline-grid;place-items:center;border-radius:10px;border:1px solid var(--rp-line);background: var(--rp-hover);color: var(--rp-muted);cursor:pointer;}
+.riccati-s2-icon-action:hover {border-color: var(--rp-line);background: var(--rp-hover);}
+.riccati-s2-paginacion {display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;padding:16px 20px;color: var(--rp-muted);font-size:12px;border-top:1px solid var(--rp-line);}
 .riccati-s2-paginacion>div {display:flex;align-items:center;gap:12px;}
 .riccati-s2-paginacion .riccati-button-secondary {padding:7px 11px;min-height:34px;}
 .riccati-s2-modal {display:flex;flex-direction:column;width:min(800px,100%);height:min(880px,calc(100dvh - 36px));max-height:calc(100dvh - 36px);overflow:hidden;}
@@ -29,29 +29,29 @@
 .riccati-s2-modal .riccati-modal-body {min-height:0;flex:1 1 auto;overflow-y:auto;}
 .riccati-s2-modal .riccati-modal-footer {flex:0 0 auto;display:flex;align-items:center;justify-content:flex-end;gap:10px;flex-wrap:wrap;}
 .riccati-s2-form-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 15px;}
-.riccati-s2-form-divider {margin:22px 0 18px;padding-top:20px;border-top:1px solid #334566;}
-.riccati-s2-estado-lectura {padding:12px;border-radius:10px;background:#101d33;border:1px solid #334a64;color:#c8e3f7;font-size:13px;min-height:44px;}
-.riccati-s2-checkbox {display:flex;align-items:center;gap:11px;color:#d1e0ef;font-size:13px;margin:14px 0;cursor:pointer;}
-.riccati-s2-checkbox input {accent-color:#2fb6fa;width:17px;height:17px;}
+.riccati-s2-form-divider {margin:22px 0 18px;padding-top:20px;border-top:1px solid var(--rp-line);}
+.riccati-s2-estado-lectura {padding:12px;border-radius:10px;background: var(--rp-hover);border:1px solid var(--rp-line);color: var(--rp-muted);font-size:13px;min-height:44px;}
+.riccati-s2-checkbox {display:flex;align-items:center;gap:11px;color: var(--rp-ink);font-size:13px;margin:14px 0;cursor:pointer;}
+.riccati-s2-checkbox input {accent-color: var(--rp-accent);width:17px;height:17px;}
 .riccati-s2-ficha-grid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
-.riccati-s2-dato {display:flex;flex-direction:column;gap:8px;min-width:0;padding:14px;background:#11213a;border:1px solid #314865;border-radius:12px;}
-.riccati-s2-dato span {font-size:10px;color:#9fb9d1;text-transform:uppercase;letter-spacing:.08em;}
-.riccati-s2-dato strong {font-size:13px;color:#f4f9ff;overflow-wrap:anywhere;}
-.riccati-s2-nota {padding:15px;margin-top:16px;border-radius:12px;background:#122540;border:1px solid #314865;}
-.riccati-s2-nota strong {font-size:12px;color:#8bdff4;}
-.riccati-s2-nota p {font-size:13px;color:#d0e4f6;white-space:pre-wrap;margin:7px 0 0;}
-.riccati-s2-section-head {display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid #344463;padding-top:18px;margin:22px 0 14px;}
-.riccati-s2-section-head>div {display:flex;align-items:center;gap:9px;color:#72dfff;}
-.riccati-s2-section-head strong {font-size:15px;color:#f5f8ff;}
+.riccati-s2-dato {display:flex;flex-direction:column;gap:8px;min-width:0;padding:14px;background: var(--rp-hover);border:1px solid var(--rp-line);border-radius:12px;}
+.riccati-s2-dato span {font-size:10px;color: var(--rp-muted);text-transform:uppercase;letter-spacing:.08em;}
+.riccati-s2-dato strong {font-size:13px;color: var(--rp-ink);overflow-wrap:anywhere;}
+.riccati-s2-nota {padding:15px;margin-top:16px;border-radius:12px;background: var(--rp-hover);border:1px solid var(--rp-line);}
+.riccati-s2-nota strong {font-size:12px;color: var(--rp-accent);}
+.riccati-s2-nota p {font-size:13px;color: var(--rp-muted);white-space:pre-wrap;margin:7px 0 0;}
+.riccati-s2-section-head {display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--rp-line);padding-top:18px;margin:22px 0 14px;}
+.riccati-s2-section-head>div {display:flex;align-items:center;gap:9px;color: var(--rp-accent);}
+.riccati-s2-section-head strong {font-size:15px;color: var(--rp-ink);}
 .riccati-s2-contactos,.riccati-s2-projects {display:grid;gap:10px;}
-.riccati-s2-contacto,.riccati-s2-project-row {display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 15px;border:1px solid #334763;border-radius:12px;background:#101f35;}
-.riccati-s2-contacto strong,.riccati-s2-project-row strong {font-size:13px;color:#f4f9ff;}
-.riccati-s2-contacto p {font-size:12px;color:#b5c9e1;margin:6px 0 0;overflow-wrap:anywhere;}
-.riccati-s2-project-row small {display:block;color:#54d9ff;font-size:11px;margin-top:4px;}
-.riccati-s2-muted {color:#a9bfd1;font-size:12px;}
-.riccati-s2-advertencia {display:flex;gap:12px;border:1px solid #916a37;border-radius:12px;background:#32271e;padding:14px;color:#ffd891;}
+.riccati-s2-contacto,.riccati-s2-project-row {display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px 15px;border:1px solid var(--rp-line);border-radius:12px;background: var(--rp-hover);}
+.riccati-s2-contacto strong,.riccati-s2-project-row strong {font-size:13px;color: var(--rp-ink);}
+.riccati-s2-contacto p {font-size:12px;color: var(--rp-muted);margin:6px 0 0;overflow-wrap:anywhere;}
+.riccati-s2-project-row small {display:block;color: var(--rp-accent);font-size:11px;margin-top:4px;}
+.riccati-s2-muted {color: var(--rp-muted);font-size:12px;}
+.riccati-s2-advertencia {display:flex;gap:12px;border:1px solid var(--rp-line);border-radius:12px;background: var(--rp-hover);padding:14px;color: var(--ui-warning);}
 .riccati-s2-advertencia svg {flex-shrink:0;}
 .riccati-s2-advertencia strong {display:block;font-size:13px;}
-.riccati-s2-advertencia p {margin:6px 0 0;font-size:12px;color:#f0d1ae;}
+.riccati-s2-advertencia p {margin:6px 0 0;font-size:12px;color: var(--rp-muted);}
 @media(max-width:900px) {.riccati-s2-clientes-head {align-items:stretch!important;} .riccati-s2-clientes-filtros {width:100%;} }
 @media(max-width:600px) {.riccati-s2-form-grid,.riccati-s2-ficha-grid {grid-template-columns:1fr;} .riccati-clientes-s2 .riccati-search {width:100%;min-width:0;} .riccati-s2-select-wrap {flex:1;} .riccati-s2-contacto,.riccati-s2-project-row {align-items:flex-start;flex-wrap:wrap;} .riccati-s2-modal {height:calc(100dvh - 16px);max-height:calc(100dvh - 16px);} }

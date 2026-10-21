@@ -1,0 +1,281 @@
+/* Riccati adaptation of Sneat Free. Dark palette is maintained by Riccati.
+   Legacy module styles are intentionally isolated until the next UI stage. */
+:root, [data-bs-theme="light"] {
+  --rp-bg: #f6f8fa; --rp-surface: #fff; --rp-ink: #263344;
+  --rp-muted: #586b80; --rp-line: #aebaca; --rp-accent: #2563eb;
+  --rp-active-bg: #e8f0fc; --rp-hover: #eef2f6;
+  --rp-shadow: none;
+}
+[data-bs-theme="dark"] {
+  --rp-bg: #202936; --rp-surface: #222d3b; --rp-ink: #edf1f7;
+  --rp-muted: #a7b6c9; --rp-line: #49586b; --rp-accent: #9dbefb;
+  --rp-active-bg: #293e5b; --rp-hover: #293544;
+  --rp-shadow: none;
+}
+body:has(.rp-shell), body:has(.rp-auth) { background: var(--rp-bg); }
+.rp-shell, .rp-auth { font-family: "Public Sans", "Segoe UI", sans-serif; color: var(--rp-ink); background: var(--rp-bg); line-height: 1.5; }
+.rp-shell h1, .rp-auth h1 { letter-spacing: -.025em; }
+.rp-shell a:hover, .rp-auth a:hover { color: var(--rp-accent); }
+.rp-shell :focus-visible, .rp-auth :focus-visible { outline: 3px solid var(--rp-accent); outline-offset: 3px; }
+.rp-shell { min-height: 100vh; }
+.rp-drawer { position: fixed; inset: 0 auto 0 0; width: 260px; z-index: 1040; }
+.rp-sidebar { border-right: 1px solid var(--rp-line); display: flex; flex-direction: column; height: 100%; background: var(--rp-surface); box-shadow: var(--rp-shadow); padding: 26px 16px 16px; overflow-y: auto; }
+.rp-brand-row { display: flex; justify-content: space-between; align-items: center; margin: 0 10px 20px; }
+.rp-brand { display: flex; align-items: center; gap: 12px; color: var(--rp-ink); font-size: 26px; font-weight: 700; letter-spacing: -.6px; }
+.rp-brand small { display: block; color: var(--rp-muted); font-size: 9px; font-weight: 600; letter-spacing: 2.2px; margin-top: 1px; }
+.rp-logo { display: grid; place-items: center; width: 38px; height: 42px; border-radius: 9px; background: transparent; color: var(--rp-accent); border: 1px solid var(--rp-line); font-size: 23px; font-weight: 700; }
+.rp-nav-section { color: var(--rp-muted); font-size: 10px; font-weight: 600; letter-spacing: 1.2px; padding: 22px 14px 8px; }
+.rp-nav-link { position: relative; display: flex; width: 100%; align-items: center; gap: 12px; padding: 12px 16px; margin: 3px 0; border: 0; border-radius: 7px; background: transparent; color: var(--rp-ink); font-size: 14px; text-align: left; transition: background .15s; }
+.rp-nav-link:hover { background: var(--rp-hover); }
+.rp-nav-link.active { color: var(--rp-accent); background: var(--rp-active-bg); font-weight: 600; }
+.rp-nav-link.active::after { content: ""; width: 4px; position: absolute; right: -16px; top: 0; bottom: 0; background: var(--rp-accent); border-radius: 4px 0 0 4px; }
+.rp-sidebar-bottom { margin-top: auto; padding-top: 32px; }
+.rp-session-user { display: flex; gap: 12px; align-items: center; padding: 16px 8px; border-top: 1px solid var(--rp-line); }
+.rp-session-user strong, .rp-account strong { display: block; max-width: 145px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 600; }
+.rp-session-user small, .rp-account small { display: block; color: var(--rp-muted); font-size: 11px; margin-top: 3px; }
+.rp-avatar { display: grid; place-items: center; width: 38px; height: 38px; flex-shrink: 0; border-radius: 50%; background: var(--rp-active-bg); color: var(--rp-accent); font-weight: 600; }
+.rp-logout { color: var(--rp-muted); }
+.rp-workspace { margin-left: 260px; min-width: 0; }
+.rp-topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin: 0; padding: 14px 32px; min-height: 76px; background: var(--rp-bg); border-radius: 0; border-bottom: 1px solid var(--rp-line); box-shadow: none; }
+.rp-topbar-left, .rp-topbar-right, .rp-account { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.rp-topbar-divider { height: 28px; border-left: 1px solid var(--rp-line); }
+.rp-breadcrumb span { display: block; font-size: 11px; color: var(--rp-muted); }
+.rp-breadcrumb strong { display: block; font-size: 15px; font-weight: 600; margin-top: 2px; }
+.rp-icon-button { display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; width: 42px; height: 42px; padding: 0; border: none; border-radius: 50%; background: transparent; color: var(--rp-ink); cursor: pointer; }
+.rp-icon-button:hover { background: var(--rp-hover); }
+.rp-content { padding: 28px; min-height: calc(100vh - 165px); }
+/* All modules share the selected theme. */
+.rp-module-content { color: var(--rp-ink); min-width: 0; }
+.rp-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; padding: 0 28px 20px; font-size: 11px; color: var(--rp-muted); }
+.rp-skip { position: fixed; left: 16px; top: -100px; z-index: 1100; padding: 12px; background: var(--rp-surface); color: var(--rp-ink); border-radius: 6px; }
+.rp-skip:focus { top: 12px; }
+.rp-overlay { position: fixed; inset: 0; background: #16182980; border: 0; z-index: 1030; }
+.rp-mobile-only { display: none; }
+/* Sneat authentication layout, React form behavior, Riccati theme tokens. */
+.rp-auth { min-height: 100vh; padding: 48px 24px; position: relative; display: flex; align-items: center; justify-content: center; }
+.rp-auth-theme { position: absolute; top: 20px; right: 24px; z-index: 1; }
+.rp-auth .authentication-wrapper { min-block-size: auto; }
+.rp-auth .authentication-inner::before, .rp-auth .authentication-inner::after { display: none; }
+.rp-auth .rp-auth-card { background: var(--rp-surface); border: 1px solid var(--rp-line); border-radius: 10px; box-shadow: var(--rp-shadow); }
+.rp-auth .card-body { padding: 38px; }
+.rp-auth-brand { justify-content: center; margin-bottom: 36px; }
+.rp-auth h1 { font-family: inherit; font-size: 21px; font-weight: 600; color: var(--rp-ink); margin-bottom: 8px; }
+.rp-auth-description { color: var(--rp-muted); font-size: 14px; margin-bottom: 26px; }
+.rp-required-note { color: var(--rp-muted); font-size: 11px; margin: 0 0 18px; }
+.rp-auth .form-label { color: var(--rp-ink); font-weight: 500; font-size: 13px; }
+.rp-auth .form-control { background-color: var(--rp-surface); color: var(--rp-ink); border: 1px solid var(--rp-line); min-height: 44px; font-family: inherit; font-size: 14px; border-radius: 6px; }
+.rp-auth .form-control::placeholder { color: var(--rp-muted); opacity: .85; }
+.rp-auth .form-control:focus { border-color: var(--rp-accent); box-shadow: 0 0 0 2px var(--rp-active-bg); }
+.rp-password { position: relative; }
+.rp-password .form-control { padding-right: 48px; }
+.rp-password .rp-icon-button { position: absolute; top: 1px; right: 2px; }
+.rp-auth .rp-auth-submit { background: #2563eb; border-color: #2563eb; color: white; min-height: 44px; font-weight: 500; box-shadow: none; }
+.rp-auth .rp-auth-submit:hover:not(:disabled) { background: #1d4ed8; border-color: #1d4ed8; }
+.rp-auth-error { padding: 12px; border-radius: 6px; background: #ffe8e6; color: #9e2420; margin-bottom: 20px; font-size: 13px; }
+[data-bs-theme="dark"] .rp-auth-error { background: #4f2e38; color: #ffbbb5; }
+.rp-auth-caption { text-align: center; color: var(--rp-muted); font-size: 12px; margin: 22px 0 0; }
+@media (max-width: 1199.98px) {
+ .rp-mobile-only { display: inline-flex; }
+ .rp-drawer { transform: translateX(-100%); visibility: hidden; }
+ .rp-menu-open .rp-drawer { transform: translateX(0); visibility: visible; }
+ .rp-workspace { margin-left: 0; }
+}
+@media (max-width: 575.98px) {
+ .rp-topbar { margin: 0; padding: 10px 12px; gap: 8px; }
+ .rp-topbar-left, .rp-topbar-right { gap: 6px; }
+ .rp-account-text, .rp-topbar-divider { display: none; }
+ .rp-content { padding: 16px 12px; }
+
+ .rp-footer { padding: 0 16px 16px; }
+ .rp-footer span { display: none; }
+ .rp-auth { padding: 76px 16px 32px; }
+ .rp-auth .card-body { padding: 28px 22px; }
+}
+@media (prefers-reduced-motion: reduce) {
+ .rp-shell *, .rp-auth * { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}
+/* Shared component geometry and semantic colors for all Sprint 2 screens. */
+:root, [data-bs-theme="light"] {
+ --ui-success:#197347; --ui-success-bg:#e6f4ec; --ui-warning:#895000; --ui-warning-bg:#fff1d6;
+ --ui-danger:#af2836; --ui-danger-bg:#fde9ec; --ui-info:#17687a; --ui-info-bg:#e3f3f7;
+}
+[data-bs-theme="dark"] {
+ --ui-success:#80dbac; --ui-success-bg:#233e37; --ui-warning:#ffd087; --ui-warning-bg:#463d30;
+ --ui-danger:#ffabb5; --ui-danger-bg:#49303c; --ui-info:#8cd8ed; --ui-info-bg:#273f50;
+}
+.rp-module-content { font-family:var(--riccati-font); }
+.riccati-topbar { min-height:0; padding:4px 0 24px; margin:0; border:0; border-radius:0; background:none; box-shadow:none; overflow:visible; }
+.riccati-topbar::before, .riccati-page-label::before, .riccati-stat-card::before, .riccati-stat-card::after { display:none; }
+.riccati-topbar h1 {font-size:28px;font-weight:600;letter-spacing:-.6px;}
+.riccati-topbar p {font-size:14px;color:var(--rp-muted);}
+.riccati-page-label {font-size:10px;letter-spacing:1px;font-weight:600;color:var(--rp-muted);margin-bottom:8px;}
+.riccati-status {color:var(--rp-muted);background:var(--rp-surface);border:1px solid var(--rp-line);font-weight:500;font-size:11px;}
+.riccati-status-dot {background:var(--ui-success);box-shadow:none;}
+.riccati-card, .riccati-panel, .riccati-dashboard-grid > .riccati-panel:last-child {background:var(--rp-surface);border:1px solid var(--rp-line);border-radius:6px;box-shadow:none;}
+.riccati-stats-grid {gap:16px;border:0;border-radius:0;background:none;overflow:visible;}
+.riccati-stat-card {min-height:158px;padding:20px 22px;border:1px solid var(--rp-line);border-radius:9px;box-shadow:0 2px 6px #18263606;background:var(--rp-surface);display:flex;flex-direction:column;gap:0;}
+
+.riccati-stat-card:hover {transform:none;box-shadow:var(--rp-shadow);}
+.riccati-stat-header {align-items:center;margin-bottom:12px;gap:12px;}
+.riccati-stat-label {color:var(--rp-muted);font-weight:400;font-size:13px;letter-spacing:0;text-transform:none;}
+.riccati-stat-number {color:var(--rp-ink);font-size:30px;font-weight:500;letter-spacing:-.5px;}
+.riccati-stat-icon {width:42px;height:42px;flex-basis:42px;border:0;border-radius:7px;color:var(--rp-accent);background:var(--rp-active-bg);}
+.riccati-stat-footer {color:var(--rp-muted);font-weight:400;font-size:12px;margin-top:12px;line-height:1.5;}
+.rp-stat-success .riccati-stat-icon {color:var(--ui-success);background:var(--ui-success-bg);}
+.rp-stat-warning .riccati-stat-icon {color:var(--ui-warning);background:var(--ui-warning-bg);}
+.riccati-panel-header {min-height:80px;padding:20px 24px;background:none;border-bottom:1px solid var(--rp-line);flex-wrap:wrap;}
+.riccati-panel-label {color:var(--rp-muted);font-size:10px;font-weight:600;}
+.riccati-panel-header h3 {font-size:17px;font-weight:600;letter-spacing:0;}
+.riccati-dashboard-grid > .riccati-panel:last-child .riccati-panel-header {background:none;}
+.riccati-dashboard-grid > .riccati-panel:last-child > div[style] > div[style] {background:var(--rp-hover)!important;border-color:var(--rp-line)!important;border-radius:6px!important;}
+.riccati-table th {font-size:11px;font-weight:600;color:var(--rp-muted);padding:14px 20px;letter-spacing:.5px;}
+.riccati-table thead {background:var(--rp-hover);}
+.riccati-table td {font-size:13px;padding:16px 20px;color:var(--rp-ink);border-color:var(--rp-line);}
+.riccati-table td strong {color:var(--rp-ink);font-weight:600;}
+.riccati-table tbody tr:nth-child(even) {background:transparent;}
+.riccati-table tbody tr:hover {background:var(--rp-hover);}
+.riccati-search {min-height:42px;background:var(--rp-surface);border:1px solid var(--rp-line);border-radius:6px;}
+.riccati-search input {font-size:13px;color:var(--rp-ink);}
+.riccati-search input::placeholder {color:var(--rp-muted);}
+.riccati-search-icon {color:var(--rp-muted);}
+.riccati-button, .riccati-button-primary, .riccati-button-secondary, .riccati-button-danger {min-height:40px;padding:9px 14px;font-size:13px;font-weight:500;border-radius:6px;box-shadow:none;}
+.riccati-button, .riccati-button-primary {background:#2563eb;border:1px solid #2563eb;color:#fff;}
+.riccati-button:hover:not(:disabled), .riccati-button-primary:hover:not(:disabled) {background:#1d4ed8;color:#fff;transform:none;box-shadow:none;}
+.riccati-button-secondary {color:var(--rp-ink);background:var(--rp-surface);border:1px solid var(--rp-line);}
+.riccati-button-secondary:hover:not(:disabled) {color:var(--rp-ink);background:var(--rp-hover);border-color:var(--rp-muted);}
+.riccati-button-danger {color:var(--ui-danger);background:var(--ui-danger-bg);border:1px solid transparent;}
+.riccati-button-danger:hover:not(:disabled) {color:var(--ui-danger);background:var(--ui-danger-bg);border-color:var(--ui-danger);}
+.riccati-badge {font-size:11px;font-weight:500;border:0;border-radius:5px;padding:5px 9px;}
+.riccati-badge-green {color:var(--ui-success);background:var(--ui-success-bg);}
+.riccati-badge-orange {color:var(--ui-warning);background:var(--ui-warning-bg);}
+.riccati-badge-red {color:var(--ui-danger);background:var(--ui-danger-bg);}
+.riccati-badge-cyan {color:var(--ui-info);background:var(--ui-info-bg);}
+.riccati-badge-purple {color:var(--rp-accent);background:var(--rp-active-bg);}
+.riccati-progress {background:var(--rp-hover);height:6px;}
+.riccati-progress-bar {background:#2563eb;}
+.riccati-form-group label, .riccati-label {font-size:13px;font-weight:500;color:var(--rp-ink);margin-bottom:6px;}
+.riccati-input, .riccati-select, .riccati-textarea {border:1px solid var(--rp-line);background:var(--rp-surface);color:var(--rp-ink);border-radius:6px;min-height:43px;padding:10px 12px;font-size:13px;}
+.riccati-input:focus, .riccati-select:focus, .riccati-textarea:focus {background:var(--rp-surface);color:var(--rp-ink);border-color:var(--rp-accent);box-shadow:0 0 0 2px var(--rp-active-bg);}
+.riccati-select option {background:var(--rp-surface);color:var(--rp-ink);}
+input[type="date"],input[type="datetime-local"],input[type="time"] {color-scheme:inherit;}
+input[type="date"]::-webkit-calendar-picker-indicator {filter:none;}
+.rp-field-error {display:block;font-size:12px;color:var(--ui-danger);margin-top:6px;}
+[aria-invalid="true"] {border-color:var(--ui-danger);}
+.login-error, .riccati-error {background:var(--ui-danger-bg);color:var(--ui-danger);border:0;border-radius:6px;font-size:13px;}
+.riccati-modal-backdrop {z-index:1100;background:#16182980;backdrop-filter:none;}
+.riccati-modal {background:var(--rp-surface);color:var(--rp-ink);border:0;border-radius:10px;box-shadow:0 8px 40px #0003;}
+.riccati-modal-header {background:var(--rp-surface);border-color:var(--rp-line);padding:22px 26px;}
+.riccati-modal-header h3 {color:var(--rp-ink);font-size:20px;font-weight:500;}
+.riccati-modal-header p {color:var(--rp-muted);}
+.riccati-modal-footer {background:var(--rp-surface);border-color:var(--rp-line);}
+.riccati-modal .riccati-card {background:var(--rp-hover);}
+.riccati-empty {gap:8px;color:var(--rp-muted);}
+.riccati-empty strong {color:var(--rp-ink);font-size:16px;font-weight:600;}
+.riccati-empty-icon {border-radius:50%;background:var(--rp-active-bg);color:var(--rp-accent);}
+.rp-pagination {display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;border-top:1px solid var(--rp-line);padding:16px 20px;font-size:12px;color:var(--rp-muted);}
+.rp-pagination>div {display:flex;align-items:center;gap:12px;}
+.riccati-s2-icon-action {background:var(--rp-surface);color:var(--rp-accent);border-color:var(--rp-line);border-radius:6px;}
+.riccati-s2-icon-action:hover {background:var(--rp-hover);border-color:var(--rp-accent);}
+.riccati-s2-select-wrap {background:var(--rp-surface);border-color:var(--rp-line);border-radius:6px;}
+.riccati-s2-select-wrap select, .riccati-s2-select-wrap option {color:var(--rp-ink);background:var(--rp-surface);}
+.riccati-s2-advertencia, .bitacora-alert {color:var(--ui-warning);background:var(--ui-warning-bg);border-color:var(--ui-warning);}
+.riccati-s2-advertencia p {color:var(--ui-warning);}
+.bitacora-estadisticas {gap:16px;border:0;border-radius:0;background:none;overflow:visible;}
+.bitacora-kpi {background:var(--rp-surface);border:1px solid var(--rp-line);box-shadow:none;border-radius:9px;min-height:132px;}
+
+.bitacora-kpi-icono {display:grid;}
+.bitacora-kpi strong {color:var(--rp-ink);font-weight:600;}
+.bitacora-kpi-icono {border-radius:7px;}
+.bitacora-kpi-icono.morado, .bitacora-chip.chip-violeta {color:var(--rp-accent);background:var(--rp-active-bg);}
+.bitacora-kpi-icono.celeste, .bitacora-chip.chip-cyan {color:var(--ui-info);background:var(--ui-info-bg);}
+.bitacora-kpi-icono.verde {color:var(--ui-success);background:var(--ui-success-bg);}
+.bitacora-kpi-icono.naranja, .bitacora-chip.chip-naranja {color:var(--ui-warning);background:var(--ui-warning-bg);}
+.bitacora-evento-info {background:var(--rp-surface);border-color:var(--rp-line);border-radius:8px;}
+.bitacora-evento h3 {color:var(--rp-ink);font-weight:600;}
+.bitacora-selector-icono {background:var(--rp-active-bg);color:var(--rp-accent);border:0;border-radius:7px;}
+.bitacora-filtro-barra {background:var(--rp-hover);border-color:var(--rp-line);}
+.bitacora-selector-acciones select,.bitacora-filtro-barra select {background:var(--rp-surface);color:var(--rp-ink);}
+.bitacora-diferencias>div {background:var(--rp-hover);}
+
+@media(max-width:680px) {
+ .riccati-topbar {padding:0 0 20px;}
+ .riccati-topbar h1 {font-size:25px;}
+ .riccati-panel-header {padding:18px;}
+ .riccati-panel-header>div {min-width:0;max-width:100%;}
+ .rp-pagination {padding:14px;}
+ .rp-pagination>div {gap:8px;flex-wrap:wrap;}
+ .riccati-modal-header,.riccati-modal-body,.riccati-modal-footer {padding-left:18px;padding-right:18px;}
+}
+
+/* Quiet workspace: structure and state take precedence over decoration. */
+.rp-sidebar {background:var(--rp-bg);padding-top:24px;}
+.rp-brand {font-size:23px;font-weight:600;letter-spacing:-.4px;}
+.rp-logo {width:34px;height:38px;border-radius:5px;}
+.rp-account {color:var(--rp-ink);}
+.rp-nav-link {font-weight:400;font-size:14px;padding:11px 14px;}
+.rp-nav-link svg {stroke-width:1.5;}
+.rp-nav-link.active {font-weight:500;}
+.rp-nav-link.active::after {display:none;}
+.rp-nav-section {letter-spacing:.6px;font-size:10px;font-weight:500;padding-top:26px;}
+.rp-sidebar-bottom {border-top:1px solid var(--rp-line);padding-top:12px;}
+.rp-content {padding:32px;}
+.riccati-topbar h1 {font-size:25px;font-weight:500;letter-spacing:-.5px;}
+.riccati-topbar p {font-size:13px;line-height:1.6;max-width:720px;}
+.riccati-panel-header h3 {margin-top:0;font-size:16px;font-weight:500;}
+.riccati-panel-header .riccati-panel-label {display:block;margin-bottom:7px;color:var(--rp-muted);font-size:10px;}
+.riccati-panel-header {min-height:72px;}
+.riccati-panel-label {letter-spacing:.5px;font-weight:500;}
+.riccati-table th {font-size:11px;font-weight:500;letter-spacing:.2px;}
+.riccati-table td strong {font-size:13px!important;font-weight:500;}
+.riccati-table td {padding-top:14px;padding-bottom:14px;}
+.riccati-table tbody tr:hover {background:var(--rp-hover);}
+.riccati-dashboard-grid .riccati-table {min-width:540px;}
+.riccati-badge {font-size:11px;border-radius:4px;}
+.riccati-button-primary, .riccati-button, .riccati-button-secondary {white-space:nowrap;}
+.riccati-user-avatar {width:32px;height:32px;flex-basis:32px;border-radius:5px;font-size:12px;background:var(--rp-hover);color:var(--rp-muted);}
+.bitacora-selector {padding:20px 24px;}
+.bitacora-selector-icono {display:grid;}
+.bitacora-selector h3 {font-size:16px;font-weight:500;}
+.bitacora-kpi {padding:18px 24px;}
+.bitacora-kpi span {font-size:11px;font-weight:400;letter-spacing:.3px;}
+.bitacora-kpi strong {font-size:26px;font-weight:500;}
+.bitacora-kpi small {display:block;font-size:11px;color:var(--rp-muted);}
+.bitacora-evento-info {background:var(--rp-surface);border-radius:5px;}
+.bitacora-evento-simbolo {box-shadow:none;border-radius:50%;}
+.bitacora-chip {border-radius:4px;font-weight:500;}
+.rp-shell .animate-up, .rp-shell .animate-right, .rp-shell .animate-left,
+.rp-shell .animate-fade, .rp-shell .animate-scale {animation:none;opacity:1;transform:none;filter:none;}
+.riccati-stat-card:hover, .riccati-card:hover {transform:none;border-color:var(--rp-line);}
+
+@media(max-width:680px){
+ .rp-content {padding:24px 16px;}
+ .riccati-stats-grid,.bitacora-estadisticas {grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+ .riccati-stat-card,.bitacora-kpi {min-height:0;padding:16px;}
+ .riccati-stat-number,.bitacora-kpi strong {font-size:24px;}
+ .riccati-stat-label {font-size:12px;}
+ .riccati-topbar h1 {font-size:23px;}
+ .riccati-search {width:100%;}
+}
+/* Original Riccati artwork. The viewport only frames the supplied square canvas. */
+.rp-official-logo {display:block;position:relative;overflow:hidden;width:160px;aspect-ratio:169 / 48;flex-shrink:0;}
+.rp-official-logo img {display:block;position:absolute;max-width:none;width:113.609467%;height:auto;left:-7.100592%;top:-150%;mix-blend-mode:multiply;filter:invert(1);}
+[data-bs-theme="dark"] .rp-official-logo img {mix-blend-mode:screen;filter:none;}
+.rp-official-logo-full {width:260px;max-width:100%;aspect-ratio:353 / 135;}
+.rp-official-logo-full img {width:126.628895%;left:-13.314448%;top:-115.555556%;}
+.rp-brand-lockup {display:flex;flex-direction:column;gap:12px;}
+.rp-brand .rp-brand-lockup small {font-size:11px;font-weight:400;letter-spacing:1.2px;text-transform:uppercase;color:var(--rp-muted);}
+.rp-auth-brand {display:flex;align-items:center;flex-direction:column;gap:22px;margin-bottom:32px;}
+.rp-product-name {font-size:12px;letter-spacing:1.4px;text-transform:uppercase;color:var(--rp-muted);}
+.rp-brand-row {margin-bottom:12px;}
+@media(max-width:575.98px){.rp-official-logo-full {width:230px;}}
+
+/* Header identity uses the same supplied wordmark as the navigation. */
+.rp-header-brand {display:inline-flex;align-items:center;flex-shrink:0;}
+.rp-header-brand .rp-official-logo {width:118px;}
+@media(max-width:575.98px){.rp-header-brand .rp-official-logo {width:104px;}}
+
+/* Keep the restored visual cues readable in narrow cards and both themes. */
+.rp-session-user {color:var(--rp-ink);border-top:0;padding:10px 8px 16px;}
+.rp-session-user .rp-avatar {width:36px;height:36px;color:var(--rp-accent);}
+[data-bs-theme="dark"] .riccati-stat-card {box-shadow:none;}
+@media(max-width:680px){.riccati-stat-header {align-items:flex-start;}.riccati-stat-icon {width:34px;height:34px;flex-basis:34px;}.riccati-stat-icon svg {width:20px;height:20px;}.bitacora-kpi {flex-wrap:wrap;gap:10px;}}

@@ -1,3 +1,4 @@
+import FormField from "../components/FormField";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Eye, EyeOff, KeyRound, ShieldCheck, LockKeyhole } from "lucide-react";
@@ -98,7 +99,7 @@ function Perfil() {
 
           {error && <div className="login-error" role="alert" style={{ marginBottom: 16 }}>{error}</div>}
           {exito && (
-            <div style={{ padding: 15, border: "1px solid #30d5a355", color: "#6bf0bd", borderRadius: 12, marginBottom: 18 }} role="status">
+            <div style={{ padding: 15, border: "1px solid #30d5a355", color: "var(--ui-success)", borderRadius: 12, marginBottom: 18 }} role="status">
               {exito}
               <div style={{ marginTop: 15 }}>
                 <button type="button" className="riccati-button-primary" onClick={() => navigate("/", { replace: true })}>
@@ -110,18 +111,18 @@ function Perfil() {
 
           {!exito && (
             <form onSubmit={guardar} style={{ display: "grid", gap: 19, maxWidth: 560 }}>
-              <div className="riccati-form-group">
+              <FormField className="riccati-form-group">
                 <label htmlFor="passwordActual">Contraseña actual *</label>
                 <input id="passwordActual" name="passwordActual" type={visible ? "text" : "password"} autoComplete="current-password" className="riccati-input" value={formulario.passwordActual} onChange={actualizar} required />
-              </div>
-              <div className="riccati-form-group">
+              </FormField>
+              <FormField className="riccati-form-group">
                 <label htmlFor="passwordNueva">Nueva contraseña *</label>
                 <input id="passwordNueva" name="passwordNueva" type={visible ? "text" : "password"} autoComplete="new-password" className="riccati-input" value={formulario.passwordNueva} onChange={actualizar} minLength={8} required />
-              </div>
-              <div className="riccati-form-group">
+              </FormField>
+              <FormField className="riccati-form-group">
                 <label htmlFor="confirmarPassword">Confirmar nueva contraseña *</label>
                 <input id="confirmarPassword" name="confirmarPassword" type={visible ? "text" : "password"} autoComplete="new-password" className="riccati-input" value={formulario.confirmarPassword} onChange={actualizar} required />
-              </div>
+              </FormField>
               <p style={{ margin: 0, fontSize: 13 }}>
                 Mínimo 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial. No debe coincidir con la contraseña anterior.
               </p>

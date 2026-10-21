@@ -68,7 +68,7 @@ function ProyectoFichaModal({
               <p
                 style={{
                   marginTop: "5px",
-                  color: "#afc4d7",
+                  color: "var(--rp-muted)",
                   fontSize: "12px",
                 }}
               >
@@ -103,7 +103,7 @@ function ProyectoFichaModal({
           )}
 
           {error && !cargando && (
-            <div className="login-error">
+            <div className="login-error" role="alert">
               {error}
             </div>
           )}
@@ -329,9 +329,9 @@ function ProyectoFichaModal({
                                 style={{
                                   display: "block",
                                   color:
-                                    "#e7eef5",
+                                    "var(--rp-ink)",
                                   fontSize:
-                                    "9px",
+                                    "13px",
                                 }}
                               >
                                 {usuario.nombre}{" "}
@@ -346,9 +346,9 @@ function ProyectoFichaModal({
                                   marginTop:
                                     "4px",
                                   color:
-                                    "#afc4d7",
+                                    "var(--rp-muted)",
                                   fontSize:
-                                    "7px",
+                                    "13px",
                                 }}
                               >
                                 {usuario.correo}
@@ -369,7 +369,7 @@ function ProyectoFichaModal({
 
                     <span
                       style={{
-                        color: "#afc4d7",
+                        color: "var(--rp-muted)",
                         fontSize: "12px",
                       }}
                     >
@@ -456,14 +456,14 @@ function ProyectoFichaModal({
                   <p
                     style={{
                       marginTop: "5px",
-                      color: "#afc4d7",
+                      color: "var(--rp-muted)",
                       fontSize: "12px",
                     }}
                   >
                     Estado actual:{" "}
                     <strong
                       style={{
-                        color: "#26d9ff",
+                        color: "var(--rp-accent)",
                       }}
                     >
                       {proyecto.estado}
@@ -591,8 +591,8 @@ function DatoProyecto({
         style={{
           display: "block",
           marginBottom: "6px",
-          color: "#526b81",
-          fontSize: "11px",
+          color: "var(--rp-ink)",
+          fontSize: "13px",
           letterSpacing: "0.8px",
           textTransform: "uppercase",
         }}
@@ -618,11 +618,9 @@ function DatoProyecto({
           style={{
             display: "block",
             color: destacado
-              ? "#26d9ff"
-              : "#e7eef5",
-            fontSize: destacado
-              ? "10px"
-              : "9px",
+              ? "var(--rp-accent)"
+              : "var(--rp-ink)",
+            fontSize: "13px",
             fontWeight: "500",
             lineHeight: "1.6",
           }}

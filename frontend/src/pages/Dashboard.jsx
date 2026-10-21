@@ -27,20 +27,7 @@ function Dashboard() {
   // USUARIO ACTUAL
   // =====================================================
 
-  const usuario = useMemo(() => {
-    try {
-      return JSON.parse(
-        localStorage.getItem(
-          "usuarioRiccati"
-        )
-      );
-    } catch {
-      return null;
-    }
-  }, []);
-
-
-  // =====================================================
+// =====================================================
   // ESTADOS
   // =====================================================
 
@@ -206,13 +193,7 @@ function Dashboard() {
       <PageHeader
         modulo="RICCATI PROJECT HUB"
         titulo="Dashboard"
-        descripcion={
-          `Bienvenido de nuevo, ${
-            usuario?.nombre ||
-            "Usuario"
-          }. Aquí tienes el estado general de tus proyectos.`
-        }
-        estado="Sistema operativo"
+        descripcion="Proyectos recientes y distribución por estado."
       />
 
 
@@ -226,7 +207,7 @@ function Dashboard() {
           style={{
             marginBottom: "16px",
           }}
-        >
+         role="alert">
           {error}
         </div>
       )}
@@ -403,10 +384,10 @@ function Dashboard() {
                                 "block",
 
                               color:
-                                "#e8f0f7",
+                                "var(--rp-ink)",
 
                               fontSize:
-                                "9px",
+                                "13px",
                             }}
                           >
                             {
@@ -424,10 +405,10 @@ function Dashboard() {
                                 "4px",
 
                               color:
-                                "#26d9ff",
+                                "var(--rp-accent)",
 
                               fontSize:
-                                "7px",
+                                "13px",
                             }}
                           >
                             {
@@ -654,10 +635,10 @@ function ResumenEstado({
 
 
   const colores = {
-    cyan: "#26d9ff",
-    green: "#2de2a6",
-    orange: "#ffb84d",
-    red: "#ff7185",
+    cyan: "var(--ui-info)",
+    green: "var(--ui-success)",
+    orange: "var(--ui-warning)",
+    red: "var(--ui-danger)",
   };
 
 
@@ -694,7 +675,7 @@ function ResumenEstado({
 
         <span
           style={{
-            color: "#b5cadd",
+            color: "var(--rp-muted)",
             fontSize: "12px",
             fontWeight: "600",
           }}
@@ -755,9 +736,9 @@ function ResumenEstado({
 
           marginTop: "7px",
 
-          color: "#a3b9cc",
+          color: "var(--rp-muted)",
 
-          fontSize: "11px",
+          fontSize: "13px",
         }}
       >
         {porcentaje}% del total

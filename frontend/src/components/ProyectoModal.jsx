@@ -1,3 +1,4 @@
+import FormField from "./FormField";
 import { createPortal } from "react-dom";
 
 function ProyectoModal({
@@ -62,7 +63,7 @@ function ProyectoModal({
           <p
             style={{
               marginTop: "5px",
-              color: "#afc4d7",
+              color: "var(--rp-muted)",
               fontSize: "12px",
             }}
           >
@@ -106,7 +107,7 @@ function ProyectoModal({
             {/* ERROR */}
 
             {error && (
-              <div className="login-error">
+              <div className="login-error" role="alert">
                 {error}
               </div>
             )}
@@ -123,7 +124,7 @@ function ProyectoModal({
 
             {/* NOMBRE */}
 
-            <div
+            <FormField
               className="riccati-form-group"
               style={{
                 marginTop: "14px",
@@ -146,7 +147,7 @@ function ProyectoModal({
                 required
               />
 
-            </div>
+            </FormField>
 
 
             {/* =====================================
@@ -164,7 +165,7 @@ function ProyectoModal({
 
               {/* CLIENTE */}
 
-              <div className="riccati-form-group">
+              <FormField className="riccati-form-group">
 
                 <label>
                   Cliente
@@ -207,12 +208,12 @@ function ProyectoModal({
 
                 </select>
 
-              </div>
+              </FormField>
 
 
               {/* CONTACTO */}
 
-              <div className="riccati-form-group">
+              <FormField className="riccati-form-group">
 
                 <label>
                   Contacto principal
@@ -261,7 +262,7 @@ function ProyectoModal({
 
                 </select>
 
-              </div>
+              </FormField>
 
             </div>
 
@@ -281,7 +282,7 @@ function ProyectoModal({
 
               {/* RESPONSABLE */}
 
-              <div className="riccati-form-group">
+              <FormField className="riccati-form-group">
 
                 <label>
                   Responsable
@@ -325,12 +326,12 @@ function ProyectoModal({
 
                 </select>
 
-              </div>
+              </FormField>
 
 
               {/* PRIORIDAD */}
 
-              <div className="riccati-form-group">
+              <FormField className="riccati-form-group">
 
                 <label>
                   Prioridad
@@ -374,7 +375,7 @@ function ProyectoModal({
 
                 </select>
 
-              </div>
+              </FormField>
 
             </div>
 
@@ -402,7 +403,7 @@ function ProyectoModal({
               <p
                 style={{
                   marginTop: "5px",
-                  color: "#afc4d7",
+                  color: "var(--rp-muted)",
                   fontSize: "12px",
                 }}
               >
@@ -415,7 +416,7 @@ function ProyectoModal({
 
             {/* DESCRIPCIÓN */}
 
-            <div className="riccati-form-group">
+            <FormField className="riccati-form-group">
 
               <label>
                 Descripción
@@ -435,12 +436,12 @@ function ProyectoModal({
                 }}
               />
 
-            </div>
+            </FormField>
 
 
             {/* CONTRATO */}
 
-            <div className="riccati-form-group">
+            <FormField className="riccati-form-group">
 
               <label>
                 Contrato
@@ -457,12 +458,12 @@ function ProyectoModal({
                 onChange={onChange}
               />
 
-            </div>
+            </FormField>
 
 
             {/* OBSERVACIONES */}
 
-            <div className="riccati-form-group">
+            <FormField className="riccati-form-group">
 
               <label>
                 Observaciones
@@ -482,7 +483,7 @@ function ProyectoModal({
                 }}
               />
 
-            </div>
+            </FormField>
 
 
             {/* =====================================
@@ -508,7 +509,7 @@ function ProyectoModal({
               <p
                 style={{
                   marginTop: "5px",
-                  color: "#afc4d7",
+                  color: "var(--rp-muted)",
                   fontSize: "12px",
                 }}
               >
@@ -534,7 +535,7 @@ function ProyectoModal({
 
               {/* INICIO */}
 
-              <div className="riccati-form-group">
+              <FormField className="riccati-form-group">
 
                 <label>
                   Fecha de inicio
@@ -550,12 +551,12 @@ function ProyectoModal({
                   onChange={onChange}
                 />
 
-              </div>
+              </FormField>
 
 
               {/* COMPROMISO */}
 
-              <div className="riccati-form-group">
+              <FormField className="riccati-form-group">
 
                 <label>
                   Fecha de compromiso
@@ -572,12 +573,12 @@ function ProyectoModal({
                   onChange={onChange}
                 />
 
-              </div>
+              </FormField>
 
 
               {/* FINALIZACIÓN */}
 
-              <div className="riccati-form-group">
+              <FormField className="riccati-form-group">
 
                 <label>
                   Fecha de cierre
@@ -594,7 +595,7 @@ function ProyectoModal({
                   onChange={onChange}
                 />
 
-              </div>
+              </FormField>
 
             </div>
 
@@ -616,7 +617,7 @@ function ProyectoModal({
                 <span
                   style={{
                     display: "block",
-                    color: "#26d9ff",
+                    color: "var(--rp-accent)",
                     fontSize: "12px",
                     fontWeight: "600",
                     marginBottom: "5px",
@@ -627,7 +628,7 @@ function ProyectoModal({
 
                 <span
                   style={{
-                    color: "#afc4d7",
+                    color: "var(--rp-muted)",
                     fontSize: "12px",
                     lineHeight: "1.6",
                   }}

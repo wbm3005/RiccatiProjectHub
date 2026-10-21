@@ -1,3 +1,4 @@
+import Pagination from "../components/Pagination";
 import {
   useEffect,
   useMemo,
@@ -51,6 +52,7 @@ function Proyectos() {
   const [contactos, setContactos] =
     useState([]);
 
+  const [pagina, setPagina] = useState(1);
   const [busqueda, setBusqueda] =
     useState("");
 
@@ -274,6 +276,9 @@ function Proyectos() {
       );
 
     }, [proyectos, busqueda]);
+  const paginaActual = Math.min(pagina, Math.max(1, Math.ceil(proyectosFiltrados.length / 10)));
+  const visibles = proyectosFiltrados.slice((paginaActual - 1) * 10, paginaActual * 10);
+
 
 
   // =====================================================
@@ -916,7 +921,7 @@ function Proyectos() {
         modulo="MÓDULO M03 · PROYECTOS"
         titulo="Proyectos"
         descripcion="Creación, actualización y seguimiento operativo de proyectos."
-        estado="PostgreSQL conectado"
+        estado="Gestión de proyectos"
       />
 
 
@@ -938,7 +943,7 @@ function Proyectos() {
             background:
               "rgba(45,226,166,0.06)",
 
-            color: "#2de2a6",
+            color: "var(--ui-success)",
             fontSize: "12px",
           }}
         >
@@ -953,7 +958,7 @@ function Proyectos() {
 
       {error &&
         !mostrarModal && (
-          <div className="login-error animate-up">
+          <div className="login-error animate-up" role="alert">
             {error}
           </div>
         )}
@@ -1036,12 +1041,10 @@ function Proyectos() {
 
               <input
                 type="text"
-                placeholder="Buscar proyecto..."
+                aria-label="Buscar proyecto" placeholder="Buscar proyecto..."
                 value={busqueda}
                 onChange={(e) =>
-                  setBusqueda(
-                    e.target.value
-                  )
+                  (setBusqueda(e.target.value), setPagina(1))
                 }
               />
 
@@ -1146,7 +1149,7 @@ function Proyectos() {
 
                 <tbody>
 
-                  {proyectosFiltrados.map(
+                  {visibles.map(
                     (proyecto) => (
 
                       <tr
@@ -1166,10 +1169,10 @@ function Proyectos() {
                                 "block",
 
                               color:
-                                "#e8f0f7",
+                                "var(--rp-ink)",
 
                               fontSize:
-                                "9px",
+                                "13px",
                             }}
                           >
                             {
@@ -1188,10 +1191,10 @@ function Proyectos() {
                                 "4px",
 
                               color:
-                                "#26d9ff",
+                                "var(--rp-accent)",
 
                               fontSize:
-                                "7px",
+                                "13px",
                             }}
                           >
                             {
@@ -1284,28 +1287,7 @@ function Proyectos() {
 
             {/* CONTADOR */}
 
-            <div
-              style={{
-                padding:
-                  "12px 16px",
-
-                color:
-                  "#a3b9cc",
-
-                fontSize:
-                  "7px",
-              }}
-            >
-              Mostrando{" "}
-              {
-                proyectosFiltrados.length
-              }{" "}
-              de{" "}
-              {
-                proyectos.length
-              }{" "}
-              proyectos
-            </div>
+            <Pagination total={proyectosFiltrados.length} page={paginaActual} onChange={setPagina} noun="proyectos" />
 
           </>
         )}
