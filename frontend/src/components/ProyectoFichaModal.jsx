@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { createPortal } from "react-dom";
 
 function ProyectoFichaModal({
@@ -535,6 +536,9 @@ function ProyectoFichaModal({
         {/* FOOTER */}
 
         <div className="riccati-modal-footer">
+          {proyecto && <Link to={`/bitacora?proyecto=${proyecto.id_proyecto}`} onClick={onClose} className="riccati-button-secondary" style={{ textDecoration: "none" }}>
+            Ver bitácora
+          </Link>}
 
           {proyecto && (
             <button

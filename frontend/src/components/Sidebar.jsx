@@ -7,6 +7,7 @@ import {
   FolderKanban,
   LogOut,
   UserRound,
+  ClipboardList,
 } from "lucide-react";
 
 function Sidebar({ paginaActiva }) {
@@ -112,6 +113,10 @@ function Sidebar({ paginaActiva }) {
                 />
               </span>
               Proyectos
+            </NavLink>
+            <NavLink to="/bitacora" className={claseMenu("bitacora")}>
+              <span className="riccati-menu-icon"><ClipboardList size={19} strokeWidth={2.2} /></span>
+              Bitácora
             </NavLink>
           </div>
           <div className="riccati-sidebar-section">

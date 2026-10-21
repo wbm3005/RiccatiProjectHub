@@ -10,6 +10,7 @@ import Usuarios from "./pages/Usuarios";
 import Clientes from "./pages/Clientes";
 import Proyectos from "./pages/Proyectos";
 import Perfil from "./pages/Perfil";
+import Bitacora from "./pages/Bitacora";
 
 import RutaProtegida from "./components/RutaProtegida";
 
@@ -74,6 +75,9 @@ function App() {
         }
       />
 
+
+      {/* M04 - BITÁCORA / SPRINT 2 */}
+      <Route path="/bitacora" element={<RutaProtegida><Bitacora /></RutaProtegida>} />
 
       {/* MI CUENTA - ambos roles */}
       <Route path="/perfil" element={

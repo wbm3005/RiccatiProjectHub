@@ -25,6 +25,7 @@ function RiccatiLayout({ children, paginaActiva }) {
     usuarios: "Usuarios",
     clientes: "Clientes",
     proyectos: "Proyectos",
+    bitacora: "Bitácora",
     perfil: "Mi cuenta",
   };
 
