@@ -21,6 +21,8 @@ const proyectosRoutes = require(
   "./routes/proyectos.routes"
 );
 
+const bitacoraRoutes = require("./routes/bitacora.routes");
+
 
 const app = express();
 
@@ -71,6 +73,8 @@ app.use(
   "/api/proyectos",
   proyectosRoutes
 );
+
+app.use("/api/bitacora", bitacoraRoutes);
 
 
 // =====================================================

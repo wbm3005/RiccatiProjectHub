@@ -1,452 +1,73 @@
-function ClienteModal({
-  mostrar,
-  formulario,
-  contacto,
-  error,
-  guardando,
-  onChangeCliente,
-  onChangeContacto,
-  onSubmit,
-  onClose,
-}) {
-  if (!mostrar) {
-    return null;
-  }
+import { createPortal } from "react-dom";
+import { Building2, X } from "lucide-react";
 
-  return (
-    <div
-      className="riccati-modal-backdrop"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
-    >
-      <div
-        className="riccati-modal"
-        style={{
-          height: "calc(100dvh - 32px)",
-          maxHeight: "860px",
-        }}
-      >
-
-        {/* =====================================================
-            HEADER
-        ===================================================== */}
-
-        <div className="riccati-modal-header">
-
-          <span className="riccati-page-label">
-            M02 · CLIENTES
-          </span>
-
-          <h3>
-            Nuevo cliente
-          </h3>
-
-          <p
-            style={{
-              marginTop: "5px",
-              color: "#60788d",
-              fontSize: "8px",
-            }}
-          >
-            Registra la información general
-            del cliente.
-          </p>
-
+function ClienteModal({ mostrar, formulario, contacto, esEdicion = false, error,
+  guardando, onChangeCliente, onChangeContacto, onSubmit, onClose }) {
+  if (!mostrar) return null;
+  return createPortal(
+    <div className="riccati-modal-backdrop" onMouseDown={e => e.target === e.currentTarget && !guardando && onClose()}>
+      <div className="riccati-modal riccati-s2-modal" role="dialog" aria-modal="true" aria-label={esEdicion ? "Editar cliente" : "Nuevo cliente"}>
+        <div className="riccati-modal-header riccati-s2-modal-heading">
+          <div>
+            <span className="riccati-panel-label">GESTIÓN DE CLIENTES</span>
+            <h3><Building2 size={22} aria-hidden="true" /> {esEdicion ? "Editar cliente" : "Nuevo cliente"}</h3>
+            <p>{esEdicion ? "Actualiza la ficha sin perder su historial." : "Registra un cliente y, opcionalmente, su contacto principal."}</p>
+          </div>
+          <button type="button" className="riccati-button-secondary" aria-label="Cerrar" onClick={onClose} disabled={guardando}><X size={18}/></button>
         </div>
-
-
-        {/* =====================================================
-            FORMULARIO
-        ===================================================== */}
-
-        <form
-          onSubmit={onSubmit}
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            flex: 1,
-            minHeight: 0,
-            overflow: "hidden",
-          }}
-        >
-
-          {/* ===================================================
-              CUERPO CON SCROLL
-          =================================================== */}
-
-          <div
-            className="riccati-modal-body"
-            style={{
-              flex: "1 1 auto",
-              minHeight: 0,
-              overflowY: "auto",
-              overflowX: "hidden",
-            }}
-          >
-
-            {/* ERROR */}
-
-            {error && (
-              <div className="login-error">
-                {error}
+        <form onSubmit={onSubmit} className="riccati-s2-modal-form">
+          <div className="riccati-modal-body">
+            {error && <div className="login-error" role="alert">{error}</div>}
+            <span className="riccati-panel-label">DATOS GENERALES</span>
+            <div className="riccati-form-group">
+              <label htmlFor="cliente-nombre">Nombre o razón social *</label>
+              <input id="cliente-nombre" className="riccati-input" name="nombre_razon_social" value={formulario.nombre_razon_social} onChange={onChangeCliente} required maxLength={160} placeholder="Ej. Constructora Horizonte S.A." />
+            </div>
+            <div className="riccati-s2-form-grid">
+              <div className="riccati-form-group">
+                <label htmlFor="cliente-id">Identificación</label>
+                <input id="cliente-id" className="riccati-input" name="identificacion" value={formulario.identificacion} onChange={onChangeCliente} maxLength={30}/>
               </div>
+              <div className="riccati-form-group">
+                <label htmlFor="cliente-correo">Correo general</label>
+                <input id="cliente-correo" type="email" className="riccati-input" name="correo_general" value={formulario.correo_general} onChange={onChangeCliente} maxLength={150}/>
+              </div>
+              <div className="riccati-form-group">
+                <label htmlFor="cliente-telefono">Teléfono</label>
+                <input id="cliente-telefono" className="riccati-input" name="telefono_general" value={formulario.telefono_general} onChange={onChangeCliente} maxLength={30}/>
+              </div>
+              <div className="riccati-form-group">
+                <label>Estado</label>
+                <div className="riccati-s2-estado-lectura">{esEdicion ? formulario.estado === "ACTIVO" ? "Activo (cambia desde la ficha)" : "Inactivo (cambia desde la ficha)" : "Activo"}</div>
+              </div>
+            </div>
+            <div className="riccati-form-group">
+              <label htmlFor="cliente-direccion">Dirección</label>
+              <input id="cliente-direccion" className="riccati-input" name="direccion" value={formulario.direccion} onChange={onChangeCliente}/>
+            </div>
+            <div className="riccati-form-group">
+              <label htmlFor="cliente-obs">Observaciones</label>
+              <textarea id="cliente-obs" className="riccati-input" rows={3} name="observaciones" value={formulario.observaciones} onChange={onChangeCliente}/>
+            </div>
+            {!esEdicion && (
+              <>
+                <div className="riccati-s2-form-divider"><span className="riccati-panel-label">CONTACTO PRINCIPAL · OPCIONAL</span></div>
+                <div className="riccati-s2-form-grid">
+                  <div className="riccati-form-group"><label htmlFor="cp-nombre">Nombre</label><input id="cp-nombre" className="riccati-input" name="nombre" value={contacto.nombre} onChange={onChangeContacto} maxLength={100}/></div>
+                  <div className="riccati-form-group"><label htmlFor="cp-puesto">Puesto</label><input id="cp-puesto" className="riccati-input" name="puesto" value={contacto.puesto} onChange={onChangeContacto} maxLength={100}/></div>
+                  <div className="riccati-form-group"><label htmlFor="cp-correo">Correo</label><input id="cp-correo" type="email" className="riccati-input" name="correo" value={contacto.correo} onChange={onChangeContacto} maxLength={150}/></div>
+                  <div className="riccati-form-group"><label htmlFor="cp-telefono">Teléfono</label><input id="cp-telefono" className="riccati-input" name="telefono" value={contacto.telefono} onChange={onChangeContacto} maxLength={30}/></div>
+                </div>
+              </>
             )}
-
-
-            {/* =================================================
-                INFORMACIÓN GENERAL
-            ================================================= */}
-
-            <span className="riccati-panel-label">
-              INFORMACIÓN GENERAL
-            </span>
-
-
-            {/* NOMBRE */}
-
-            <div className="riccati-form-group">
-
-              <label>
-                Nombre o razón social
-              </label>
-
-              <input
-                type="text"
-                name="nombre_razon_social"
-                className="riccati-input"
-                placeholder="Ej: Arquitectura Central S.A."
-                value={
-                  formulario.nombre_razon_social
-                }
-                onChange={onChangeCliente}
-                required
-              />
-
-            </div>
-
-
-            {/* IDENTIFICACIÓN + ESTADO */}
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "repeat(2, minmax(0, 1fr))",
-                gap: "12px",
-              }}
-            >
-
-              <div className="riccati-form-group">
-
-                <label>
-                  Identificación
-                </label>
-
-                <input
-                  type="text"
-                  name="identificacion"
-                  className="riccati-input"
-                  placeholder="Cédula física o jurídica"
-                  value={
-                    formulario.identificacion
-                  }
-                  onChange={onChangeCliente}
-                />
-
-              </div>
-
-
-              <div className="riccati-form-group">
-
-                <label>
-                  Estado
-                </label>
-
-                <select
-                  name="estado"
-                  className="riccati-select"
-                  value={formulario.estado}
-                  onChange={onChangeCliente}
-                >
-                  <option value="ACTIVO">
-                    Activo
-                  </option>
-
-                  <option value="INACTIVO">
-                    Inactivo
-                  </option>
-                </select>
-
-              </div>
-
-            </div>
-
-
-            {/* CORREO + TELÉFONO */}
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "repeat(2, minmax(0, 1fr))",
-                gap: "12px",
-              }}
-            >
-
-              <div className="riccati-form-group">
-
-                <label>
-                  Correo general
-                </label>
-
-                <input
-                  type="email"
-                  name="correo_general"
-                  className="riccati-input"
-                  placeholder="cliente@correo.com"
-                  value={
-                    formulario.correo_general
-                  }
-                  onChange={onChangeCliente}
-                />
-
-              </div>
-
-
-              <div className="riccati-form-group">
-
-                <label>
-                  Teléfono
-                </label>
-
-                <input
-                  type="text"
-                  name="telefono_general"
-                  className="riccati-input"
-                  placeholder="8888-8888"
-                  value={
-                    formulario.telefono_general
-                  }
-                  onChange={onChangeCliente}
-                />
-
-              </div>
-
-            </div>
-
-
-            {/* DIRECCIÓN */}
-
-            <div className="riccati-form-group">
-
-              <label>
-                Dirección
-              </label>
-
-              <input
-                type="text"
-                name="direccion"
-                className="riccati-input"
-                placeholder="Dirección del cliente"
-                value={
-                  formulario.direccion
-                }
-                onChange={onChangeCliente}
-              />
-
-            </div>
-
-
-            {/* OBSERVACIONES */}
-
-            <div className="riccati-form-group">
-
-              <label>
-                Observaciones
-              </label>
-
-              <textarea
-                name="observaciones"
-                className="riccati-input"
-                placeholder="Información adicional..."
-                value={
-                  formulario.observaciones
-                }
-                onChange={onChangeCliente}
-                rows="3"
-                style={{
-                  resize: "vertical",
-                }}
-              />
-
-            </div>
-
-
-            {/* =================================================
-                CONTACTO PRINCIPAL
-            ================================================= */}
-
-            <div
-              style={{
-                marginTop: "22px",
-                marginBottom: "15px",
-                borderTop:
-                  "1px solid rgba(255,255,255,0.05)",
-                paddingTop: "18px",
-              }}
-            >
-
-              <span className="riccati-panel-label">
-                CONTACTO PRINCIPAL
-              </span>
-
-              <p
-                style={{
-                  marginTop: "5px",
-                  marginBottom: "15px",
-                  color: "#60788d",
-                  fontSize: "8px",
-                }}
-              >
-                Este apartado es opcional.
-              </p>
-
-            </div>
-
-
-            {/* NOMBRE CONTACTO */}
-
-            <div className="riccati-form-group">
-
-              <label>
-                Nombre del contacto
-              </label>
-
-              <input
-                type="text"
-                name="nombre"
-                className="riccati-input"
-                placeholder="Nombre completo"
-                value={contacto.nombre}
-                onChange={onChangeContacto}
-              />
-
-            </div>
-
-
-            {/* PUESTO */}
-
-            <div className="riccati-form-group">
-
-              <label>
-                Puesto
-              </label>
-
-              <input
-                type="text"
-                name="puesto"
-                className="riccati-input"
-                placeholder="Ej: Gerente de proyectos"
-                value={contacto.puesto}
-                onChange={onChangeContacto}
-              />
-
-            </div>
-
-
-            {/* CORREO + TELÉFONO CONTACTO */}
-
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns:
-                  "repeat(2, minmax(0, 1fr))",
-                gap: "12px",
-              }}
-            >
-
-              <div className="riccati-form-group">
-
-                <label>
-                  Correo
-                </label>
-
-                <input
-                  type="email"
-                  name="correo"
-                  className="riccati-input"
-                  placeholder="contacto@correo.com"
-                  value={contacto.correo}
-                  onChange={onChangeContacto}
-                />
-
-              </div>
-
-
-              <div className="riccati-form-group">
-
-                <label>
-                  Teléfono
-                </label>
-
-                <input
-                  type="text"
-                  name="telefono"
-                  className="riccati-input"
-                  placeholder="8888-8888"
-                  value={contacto.telefono}
-                  onChange={onChangeContacto}
-                />
-
-              </div>
-
-            </div>
-
           </div>
-
-
-          {/* ===================================================
-              FOOTER SIEMPRE VISIBLE
-          =================================================== */}
-
-          <div
-            className="riccati-modal-footer"
-            style={{
-              flexShrink: 0,
-            }}
-          >
-
-            <button
-              type="button"
-              className="riccati-button-secondary"
-              onClick={onClose}
-              disabled={guardando}
-            >
-              Cancelar
-            </button>
-
-
-            <button
-              type="submit"
-              className="riccati-button-primary"
-              disabled={guardando}
-            >
-              {guardando
-                ? "Registrando..."
-                : "Registrar cliente"}
-            </button>
-
+          <div className="riccati-modal-footer">
+            <button type="button" className="riccati-button-secondary" onClick={onClose} disabled={guardando}>Cancelar</button>
+            <button type="submit" className="riccati-button-primary" disabled={guardando}>{guardando ? "Guardando..." : esEdicion ? "Guardar cambios" : "Registrar cliente"}</button>
           </div>
-
         </form>
-
       </div>
-    </div>
+    </div>, document.body
   );
 }
-
-
 export default ClienteModal;

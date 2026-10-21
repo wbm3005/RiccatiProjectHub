@@ -1,115 +1,140 @@
-import { useNavigate } from "react-router-dom";
+
+import { NavLink, useNavigate } from "react-router-dom";
+import {
+  LayoutDashboard,
+  UsersRound,
+  Building2,
+  FolderKanban,
+  LogOut,
+  UserRound,
+  ClipboardList,
+} from "lucide-react";
 
 function Sidebar({ paginaActiva }) {
   const navigate = useNavigate();
 
-  const usuario = JSON.parse(
-    localStorage.getItem("usuarioRiccati")
-  );
+  let usuario = null;
+
+  try {
+    usuario = JSON.parse(
+      localStorage.getItem("usuarioRiccati")
+    );
+  } catch {
+    usuario = null;
+  }
+
+  const esAdministrador =
+    usuario?.rol === "Administrador";
 
   const cerrarSesion = () => {
     localStorage.removeItem("tokenRiccati");
     localStorage.removeItem("usuarioRiccati");
-
     navigate("/");
   };
 
-  const claseMenu = (pagina) => {
-    return paginaActiva === pagina
+  const claseMenu = (pagina) =>
+    paginaActiva === pagina
       ? "riccati-menu-item active"
       : "riccati-menu-item";
-  };
 
   return (
     <aside className="riccati-sidebar">
-
       <div>
-
-        {/* LOGO */}
-
         <div className="riccati-brand">
-
-          <div className="riccati-brand-logo">
-            R
-          </div>
+          <div className="riccati-brand-logo">R</div>
 
           <div>
             <h2>Riccati</h2>
             <span>PROJECT HUB</span>
           </div>
-
         </div>
 
-        {/* MENÚ */}
-
-        <div className="riccati-sidebar-section">
-
-          <span className="riccati-sidebar-title">
-            MENÚ PRINCIPAL
-          </span>
-
-          <button
-            className={claseMenu("dashboard")}
-            onClick={() => navigate("/dashboard")}
-          >
-            <span className="riccati-menu-icon">
-              ◈
+        <nav aria-label="Menú principal">
+          <div className="riccati-sidebar-section">
+            <span className="riccati-sidebar-title">
+              PRINCIPAL
             </span>
 
-            Dashboard
-          </button>
-
-          {/* SOLO ADMINISTRADOR */}
-
-          {usuario?.rol === "Administrador" && (
-            <button
-              className={claseMenu("usuarios")}
-              onClick={() => navigate("/usuarios")}
+            <NavLink
+              to="/dashboard"
+              className={claseMenu("dashboard")}
             >
               <span className="riccati-menu-icon">
-                ◇
+                <LayoutDashboard
+                  size={19}
+                  strokeWidth={2.2}
+                />
               </span>
+              Dashboard
+            </NavLink>
+          </div>
 
-              Usuarios
-            </button>
-          )}
-
-          <button
-            className={claseMenu("clientes")}
-            onClick={() => navigate("/clientes")}
-          >
-            <span className="riccati-menu-icon">
-              ◎
+          <div className="riccati-sidebar-section">
+            <span className="riccati-sidebar-title">
+              GESTIÓN
             </span>
 
-            Clientes
-          </button>
+            {esAdministrador && (
+              <NavLink
+                to="/usuarios"
+                className={claseMenu("usuarios")}
+              >
+                <span className="riccati-menu-icon">
+                  <UsersRound
+                    size={19}
+                    strokeWidth={2.2}
+                  />
+                </span>
+                Usuarios
+              </NavLink>
+            )}
 
-          <button
-            className={claseMenu("proyectos")}
-            onClick={() => navigate("/proyectos")}
-          >
-            <span className="riccati-menu-icon">
-              ◉
-            </span>
+            <NavLink
+              to="/clientes"
+              className={claseMenu("clientes")}
+            >
+              <span className="riccati-menu-icon">
+                <Building2
+                  size={19}
+                  strokeWidth={2.2}
+                />
+              </span>
+              Clientes
+            </NavLink>
 
-            Proyectos
-          </button>
-
-        </div>
-
+            <NavLink
+              to="/proyectos"
+              className={claseMenu("proyectos")}
+            >
+              <span className="riccati-menu-icon">
+                <FolderKanban
+                  size={19}
+                  strokeWidth={2.2}
+                />
+              </span>
+              Proyectos
+            </NavLink>
+            <NavLink to="/bitacora" className={claseMenu("bitacora")}>
+              <span className="riccati-menu-icon"><ClipboardList size={19} strokeWidth={2.2} /></span>
+              Bitácora
+            </NavLink>
+          </div>
+          <div className="riccati-sidebar-section">
+            <span className="riccati-sidebar-title">CUENTA</span>
+            <NavLink to="/perfil" className={claseMenu("perfil")}>
+              <span className="riccati-menu-icon"><UserRound size={19} strokeWidth={2.2} /></span>
+              Mi cuenta
+            </NavLink>
+          </div>
+        </nav>
       </div>
 
-      {/* USUARIO */}
-
       <div className="riccati-sidebar-user">
-
         <div className="riccati-user-avatar">
           {usuario?.nombre?.charAt(0) || "U"}
         </div>
 
         <div className="riccati-user-data">
-
           <strong>
             {usuario?.nombre || "Usuario"}{" "}
             {usuario?.apellidos || ""}
@@ -118,25 +143,18 @@ function Sidebar({ paginaActiva }) {
           <span>
             {usuario?.rol || "Sin rol"}
           </span>
-
         </div>
 
         <button
-          className="riccati-button-danger riccati-tooltip"
-          data-tooltip="Cerrar sesión"
+          type="button"
+          className="riccati-button-danger riccati-logout-button"
           onClick={cerrarSesion}
-          style={{
-            width: "32px",
-            minHeight: "32px",
-            padding: 0,
-            flexShrink: 0,
-          }}
+          title="Cerrar sesión"
+          aria-label="Cerrar sesión"
         >
-          ↪
+          <LogOut size={19} strokeWidth={2.2} />
         </button>
-
       </div>
-
     </aside>
   );
 }

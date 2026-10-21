@@ -154,16 +154,6 @@ function Proyectos() {
   // =====================================================
 
   useEffect(() => {
-    // Evita que Fast Refresh conserve
-    // una ficha abierta anteriormente.
-    setMostrarFicha(false);
-    setProyectoSeleccionado(null);
-    setCargandoFicha(false);
-    setErrorFicha("");
-
-    setMostrarModal(false);
-    setProyectoEditando(null);
-
     cargarTodo();
   }, []);
 
@@ -949,7 +939,7 @@ function Proyectos() {
               "rgba(45,226,166,0.06)",
 
             color: "#2de2a6",
-            fontSize: "9px",
+            fontSize: "12px",
           }}
         >
           ✓ {mensaje}
@@ -1300,7 +1290,7 @@ function Proyectos() {
                   "12px 16px",
 
                 color:
-                  "#50677e",
+                  "#a3b9cc",
 
                 fontSize:
                   "7px",

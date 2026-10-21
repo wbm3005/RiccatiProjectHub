@@ -8,12 +8,15 @@ import RiccatiLayout from "../components/RiccatiLayout";
 import PageHeader from "../components/PageHeader";
 import StatCard from "../components/StatCard";
 import UsuarioModal from "../components/UsuarioModal";
+import { createPortal } from "react-dom";
+import { UserCheck, UserX } from "lucide-react";
 
 import {
   obtenerUsuarios,
   obtenerRoles,
   crearUsuario,
   actualizarUsuario,
+  cambiarEstadoUsuario,
 } from "../services/usuariosService";
 
 
@@ -38,6 +41,17 @@ function Usuarios() {
 
   const [guardando, setGuardando] =
     useState(false);
+
+  const [usuarioConfirmando, setUsuarioConfirmando] = useState(null);
+  const [procesandoEstado, setProcesandoEstado] = useState(false);
+  let miId = -1;
+  try {
+    miId = Number(JSON.parse(localStorage.getItem("usuarioRiccati"))?.idUsuario || -1);
+  } catch {
+    miId = -1;
+  }
+
+
 
   const [error, setError] =
     useState("");
@@ -267,6 +281,29 @@ function Usuarios() {
 
 
   // =====================================================
+  // HU-M01-06: INACTIVAR / REACTIVAR
+  // =====================================================
+
+  const confirmarCambioEstado = async () => {
+    if (!usuarioConfirmando) return;
+    const destino = usuarioConfirmando.estado === "ACTIVO" ? "INACTIVO" : "ACTIVO";
+    setProcesandoEstado(true);
+    setError("");
+    setMensaje("");
+    try {
+      const resultado = await cambiarEstadoUsuario(usuarioConfirmando.id_usuario, destino);
+      setUsuarioConfirmando(null);
+      await cargarDatos();
+      setMensaje(resultado.mensaje);
+    } catch (fallo) {
+      setUsuarioConfirmando(null);
+      setError(fallo.message);
+    } finally {
+      setProcesandoEstado(false);
+    }
+  };
+
+  // =====================================================
   // CARGANDO
   // =====================================================
 
@@ -315,7 +352,7 @@ function Usuarios() {
             background:
               "rgba(45,226,166,0.06)",
             color: "#2de2a6",
-            fontSize: "9px",
+            fontSize: "12px",
           }}
         >
           ✓ {mensaje}
@@ -478,7 +515,7 @@ function Usuarios() {
                             style={{
                               display: "block",
                               color: "#e8f0f7",
-                              fontSize: "9px",
+                              fontSize: "12px",
                             }}
                           >
                             {usuario.nombre}{" "}
@@ -489,8 +526,8 @@ function Usuarios() {
                             style={{
                               display: "block",
                               marginTop: "3px",
-                              color: "#50677e",
-                              fontSize: "7px",
+                              color: "#a3b9cc",
+                              fontSize: "11px",
                             }}
                           >
                             USR-
@@ -547,16 +584,27 @@ function Usuarios() {
 
                     <td>
 
-                      <button
-                        className="riccati-button-secondary"
-                        onClick={() =>
-                          abrirEditarUsuario(
-                            usuario
-                          )
-                        }
-                      >
-                        Editar
-                      </button>
+                      <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+                        <button
+                          type="button"
+                          className="riccati-button-secondary"
+                          onClick={() => abrirEditarUsuario(usuario)}
+                        >
+                          Editar
+                        </button>
+                        {Number(usuario.id_usuario) !== miId && (
+                          <button
+                            type="button"
+                            className={usuario.estado === "ACTIVO"
+                              ? "riccati-button-danger" : "riccati-button-secondary"}
+                            onClick={() => setUsuarioConfirmando(usuario)}
+                          >
+                            {usuario.estado === "ACTIVO"
+                              ? <><UserX size={15} aria-hidden="true" /> Inactivar</>
+                              : <><UserCheck size={15} aria-hidden="true" /> Reactivar</>}
+                          </button>
+                        )}
+                      </div>
 
                     </td>
 
@@ -575,8 +623,8 @@ function Usuarios() {
         <div
           style={{
             padding: "12px 16px",
-            color: "#50677e",
-            fontSize: "7px",
+            color: "#a3b9cc",
+            fontSize: "11px",
           }}
         >
           Mostrando{" "}
@@ -586,6 +634,14 @@ function Usuarios() {
 
       </section>
 
+
+      {/* CONFIRMACIÓN DE CAMBIO DE ESTADO */}
+      <ConfirmarEstadoUsuario
+        usuario={usuarioConfirmando}
+        procesando={procesandoEstado}
+        onConfirmar={confirmarCambioEstado}
+        onCerrar={() => setUsuarioConfirmando(null)}
+      />
 
       {/* MODAL */}
 
@@ -609,6 +665,39 @@ function Usuarios() {
   );
 }
 
+
+function ConfirmarEstadoUsuario({ usuario, procesando, onConfirmar, onCerrar }) {
+  if (!usuario) return null;
+
+  const seInactiva = usuario.estado === "ACTIVO";
+  return createPortal(
+    <div className="riccati-modal-backdrop" onMouseDown={(e) => {
+      if (e.target === e.currentTarget && !procesando) onCerrar();
+    }}>
+      <div className="riccati-modal" role="dialog" aria-modal="true"
+           aria-labelledby="confirmacion-estado-titulo"
+           style={{ width: "min(100%, 520px)" }}>
+        <div className="riccati-modal-header">
+          <span className="riccati-page-label">GESTIÓN DE CUENTAS</span>
+          <h3 id="confirmacion-estado-titulo">{seInactiva ? "Inactivar usuario" : "Reactivar usuario"}</h3>
+        </div>
+        <div className="riccati-modal-body" style={{ fontSize: 14 }}>
+          {seInactiva
+            ? <>¿Deseas inactivar a <strong>{usuario.nombre} {usuario.apellidos}</strong>? Perderá el acceso inmediatamente. No se eliminará su historial.</>
+            : <>¿Deseas reactivar a <strong>{usuario.nombre} {usuario.apellidos}</strong>? Podrá volver a iniciar sesión.</>}
+        </div>
+        <div className="riccati-modal-footer">
+          <button type="button" className="riccati-button-secondary" onClick={onCerrar} disabled={procesando}>Cancelar</button>
+          <button type="button" className={seInactiva ? "riccati-button-danger" : "riccati-button-primary"}
+                  onClick={onConfirmar} disabled={procesando}>
+            {procesando ? "Actualizando..." : seInactiva ? "Sí, inactivar" : "Sí, reactivar"}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
 
 function EstadoUsuario({
   estado,

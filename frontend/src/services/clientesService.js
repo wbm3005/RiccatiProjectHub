@@ -225,3 +225,22 @@ export const crearContactoCliente =
       respuesta
     );
   };
+/* Sprint 2: cambiar estado del cliente (con justificación cuando corresponde). */
+export const cambiarEstadoCliente = async (idCliente, estado, justificacion = "") => {
+  const respuesta = await fetch(`${API_URL}/${idCliente}/estado`, {
+    method: "PUT",
+    headers: obtenerHeaders(true),
+    body: JSON.stringify({ estado, justificacion }),
+  });
+  return procesarRespuesta(respuesta);
+};
+
+/* Sprint 2: editar un contacto existente conservando su identificador. */
+export const actualizarContactoCliente = async (idCliente, idContacto, datos) => {
+  const respuesta = await fetch(`${API_URL}/${idCliente}/contactos/${idContacto}`, {
+    method: "PUT",
+    headers: obtenerHeaders(true),
+    body: JSON.stringify(datos),
+  });
+  return procesarRespuesta(respuesta);
+};

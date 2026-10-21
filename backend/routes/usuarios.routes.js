@@ -10,6 +10,22 @@ const {
 
 const router = express.Router();
 
+// El bloqueo de tabla serializa ambos cambios de cuenta y protege el conteo
+// incluso frente a otras escrituras en usuarios. Se mantiene hasta COMMIT/ROLLBACK.
+async function bloquearAdministracion(conexion, idActor) {
+  await conexion.query("LOCK TABLE usuarios IN SHARE ROW EXCLUSIVE MODE");
+  const actor = await conexion.query(
+    `SELECT u.id_usuario FROM usuarios u
+       JOIN roles r ON r.id_rol = u.id_rol
+      WHERE u.id_usuario = $1 AND u.estado = 'ACTIVO'
+        AND r.nombre = 'Administrador' AND r.activo = TRUE`,
+    [idActor]
+  );
+  // Otro administrador pudo revocar el acceso mientras esta petición esperaba.
+  return actor.rows.length > 0;
+}
+
+
 
 // =====================================================
 // TODAS LAS RUTAS DE USUARIOS REQUIEREN:
@@ -290,7 +306,15 @@ router.post("/", async (req, res) => {
 // =====================================================
 
 router.put("/:id", async (req, res) => {
+  let conexion;
+  let enTransaccion = false;
   try {
+    conexion = await pool.connect();
+    await conexion.query("BEGIN");
+    enTransaccion = true;
+    if (!(await bloquearAdministracion(conexion, req.usuario.idUsuario))) {
+      return res.status(403).json({ mensaje: "Tu cuenta ya no tiene permisos de administración." });
+    }
     const { id } = req.params;
 
     const {
@@ -307,7 +331,7 @@ router.put("/:id", async (req, res) => {
     // ===============================================
 
     const usuarioActual =
-      await pool.query(
+      await conexion.query(
         `
         SELECT id_usuario
         FROM usuarios
@@ -359,12 +383,45 @@ router.put("/:id", async (req, res) => {
       });
     }
 
+    // La propia cuenta de administrador no puede inactivarse
+    // ni perder el rol desde esta ruta.
+    if (
+      Number(id) === Number(req.usuario.idUsuario) &&
+      (estado !== "ACTIVO" || rol !== "Administrador")
+    ) {
+      return res.status(409).json({
+        mensaje: "No puedes desactivar ni retirar el rol de tu propia cuenta administrativa.",
+      });
+    }
+
+    const rolActual = await conexion.query(
+      `SELECT r.nombre AS rol, u.estado
+         FROM usuarios u JOIN roles r ON u.id_rol = r.id_rol
+        WHERE u.id_usuario = $1`, [id]
+    );
+    if (
+      rolActual.rows[0]?.rol === "Administrador" &&
+      rolActual.rows[0]?.estado === "ACTIVO" &&
+      (estado !== "ACTIVO" || rol !== "Administrador")
+    ) {
+      const activos = await conexion.query(
+        `SELECT COUNT(*)::int AS total FROM usuarios u
+          JOIN roles r ON r.id_rol = u.id_rol
+         WHERE r.nombre = 'Administrador' AND u.estado = 'ACTIVO'`
+      );
+      if (activos.rows[0].total <= 1) {
+        return res.status(409).json({
+          mensaje: "Debe existir al menos un administrador activo.",
+        });
+      }
+    }
+
     // ===============================================
     // CORREO DUPLICADO
     // ===============================================
 
     const correoDuplicado =
-      await pool.query(
+      await conexion.query(
         `
         SELECT id_usuario
         FROM usuarios
@@ -388,7 +445,7 @@ router.put("/:id", async (req, res) => {
     // ===============================================
 
     const resultadoRol =
-      await pool.query(
+      await conexion.query(
         `
         SELECT id_rol
         FROM roles
@@ -430,7 +487,7 @@ router.put("/:id", async (req, res) => {
           10
         );
 
-      await pool.query(
+      await conexion.query(
         `
         UPDATE usuarios
 
@@ -457,7 +514,7 @@ router.put("/:id", async (req, res) => {
         ]
       );
     } else {
-      await pool.query(
+      await conexion.query(
         `
         UPDATE usuarios
 
@@ -488,7 +545,7 @@ router.put("/:id", async (req, res) => {
     // ===============================================
 
     const actualizado =
-      await pool.query(
+      await conexion.query(
         `
         SELECT
           u.id_usuario,
@@ -508,6 +565,8 @@ router.put("/:id", async (req, res) => {
         [id]
       );
 
+    await conexion.query("COMMIT");
+    enTransaccion = false;
     return res.json({
       mensaje:
         "Usuario actualizado correctamente.",
@@ -525,8 +584,88 @@ router.put("/:id", async (req, res) => {
       mensaje:
         "Error interno al actualizar el usuario.",
     });
+  } finally {
+    if (enTransaccion) {
+      try { await conexion.query("ROLLBACK"); }
+      catch (error) { console.error("Error al revertir cambio de usuario:", error); }
+    }
+    if (conexion) conexion.release();
   }
 });
 
+
+// HU-M01-06: inactivar/reactivar sin borrar el historial.
+router.patch("/:id/estado", async (req, res) => {
+  let conexion;
+  let enTransaccion = false;
+  try {
+    conexion = await pool.connect();
+    await conexion.query("BEGIN");
+    enTransaccion = true;
+    if (!(await bloquearAdministracion(conexion, req.usuario.idUsuario))) {
+      return res.status(403).json({ mensaje: "Tu cuenta ya no tiene permisos de administración." });
+    }
+    const id = Number(req.params.id);
+    const { estado } = req.body || {};
+    if (!Number.isSafeInteger(id) || id < 1 || !["ACTIVO", "INACTIVO"].includes(estado)) {
+      return res.status(400).json({ mensaje: "Usuario o estado inválido." });
+    }
+
+    if (id === Number(req.usuario.idUsuario) && estado !== "ACTIVO") {
+      return res.status(409).json({
+        mensaje: "No puedes inactivar tu propia cuenta.",
+      });
+    }
+
+    const usuario = await conexion.query(
+      `SELECT u.id_usuario, u.estado, r.nombre AS rol
+         FROM usuarios u JOIN roles r ON r.id_rol = u.id_rol
+        WHERE u.id_usuario = $1`,
+      [id]
+    );
+    if (usuario.rows.length === 0) {
+      return res.status(404).json({ mensaje: "Usuario no encontrado." });
+    }
+
+    if (usuario.rows[0].estado === estado) {
+      return res.status(409).json({ mensaje: "El usuario ya tiene ese estado." });
+    }
+
+    if (usuario.rows[0].rol === "Administrador" && estado === "INACTIVO") {
+      const activos = await conexion.query(
+        `SELECT COUNT(*)::int AS total FROM usuarios u
+          JOIN roles r ON r.id_rol = u.id_rol
+         WHERE r.nombre = 'Administrador' AND u.estado = 'ACTIVO'`
+      );
+      if (activos.rows[0].total <= 1) {
+        return res.status(409).json({
+          mensaje: "Debe existir al menos un administrador activo.",
+        });
+      }
+    }
+
+    const actualizado = await conexion.query(
+      `UPDATE usuarios SET estado = $1, actualizado_en = CURRENT_TIMESTAMP
+        WHERE id_usuario = $2
+        RETURNING id_usuario, nombre, apellidos, correo, estado`,
+      [estado, id]
+    );
+    await conexion.query("COMMIT");
+    enTransaccion = false;
+    return res.json({
+      mensaje: estado === "ACTIVO" ? "Usuario reactivado correctamente." : "Usuario inactivado correctamente.",
+      usuario: actualizado.rows[0],
+    });
+  } catch (error) {
+    console.error("Error al cambiar estado del usuario:", error);
+    return res.status(500).json({ mensaje: "No fue posible actualizar el estado del usuario." });
+  } finally {
+    if (enTransaccion) {
+      try { await conexion.query("ROLLBACK"); }
+      catch (error) { console.error("Error al revertir cambio de usuario:", error); }
+    }
+    if (conexion) conexion.release();
+  }
+});
 
 module.exports = router;

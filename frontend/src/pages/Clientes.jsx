@@ -1,1070 +1,189 @@
-import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
-
+import { useEffect, useMemo, useState } from "react";
+import { Building2, CheckCircle2, ChevronLeft, ChevronRight, CircleAlert, Pencil, Plus, Search, SlidersHorizontal, UserRoundCheck, Users, X } from "lucide-react";
+import { createPortal } from "react-dom";
 import RiccatiLayout from "../components/RiccatiLayout";
 import PageHeader from "../components/PageHeader";
 import StatCard from "../components/StatCard";
 import ClienteModal from "../components/ClienteModal";
 import ClienteFichaModal from "../components/ClienteFichaModal";
 import ContactoModal from "../components/ContactoModal";
+import { obtenerClientes, obtenerCliente, crearCliente, actualizarCliente,
+  crearContactoCliente, actualizarContactoCliente, cambiarEstadoCliente } from "../services/clientesService";
+import "../styles/clientes-sprint2.css";
 
-import {
-  obtenerClientes,
-  obtenerCliente,
-  crearCliente,
-  crearContactoCliente,
-} from "../services/clientesService";
-
+const clienteVacio = { nombre_razon_social: "", identificacion: "", correo_general: "", telefono_general: "", direccion: "", observaciones: "", estado: "ACTIVO" };
+const contactoVacio = { nombre: "", puesto: "", correo: "", telefono: "", es_principal: false, estado: "ACTIVO" };
+const TAMANIO_PAGINA = 8;
 
 function Clientes() {
-  const [clientes, setClientes] =
-    useState([]);
+  const usuario = (() => { try { return JSON.parse(localStorage.getItem("usuarioRiccati")); } catch { return null; } })();
+  const esAdministrador = usuario?.rol === "Administrador";
+  const [clientes, setClientes] = useState([]);
+  const [busqueda, setBusqueda] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState("TODOS");
+  const [pagina, setPagina] = useState(1);
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState("");
+  const [mensaje, setMensaje] = useState("");
+  const [modalCliente, setModalCliente] = useState(false);
+  const [clienteEditando, setClienteEditando] = useState(null);
+  const [formulario, setFormulario] = useState({ ...clienteVacio });
+  const [principal, setPrincipal] = useState({ ...contactoVacio });
+  const [guardando, setGuardando] = useState(false);
+  const [errorModal, setErrorModal] = useState("");
+  const [modalFicha, setModalFicha] = useState(false);
+  const [cargandoFicha, setCargandoFicha] = useState(false);
+  const [ficha, setFicha] = useState(null);
+  const [errorFicha, setErrorFicha] = useState("");
+  const [modalContacto, setModalContacto] = useState(false);
+  const [contactoEditando, setContactoEditando] = useState(null);
+  const [formContacto, setFormContacto] = useState({ ...contactoVacio });
+  const [guardandoContacto, setGuardandoContacto] = useState(false);
+  const [errorContacto, setErrorContacto] = useState("");
+  const [clienteParaContacto, setClienteParaContacto] = useState(null);
+  const [confirmacion, setConfirmacion] = useState(null);
+  const [justificacion, setJustificacion] = useState("");
+  const [guardandoEstado, setGuardandoEstado] = useState(false);
+  const [errorEstado, setErrorEstado] = useState("");
 
-  const [busqueda, setBusqueda] =
-    useState("");
-
-  const [cargando, setCargando] =
-    useState(true);
-
-  const [guardando, setGuardando] =
-    useState(false);
-
-  const [error, setError] =
-    useState("");
-
-  const [mensaje, setMensaje] =
-    useState("");
-
-
-  // =====================================================
-  // MODAL CLIENTE
-  // =====================================================
-
-  const [
-    mostrarModalCliente,
-    setMostrarModalCliente,
-  ] = useState(false);
-
-
-  // =====================================================
-  // FICHA CLIENTE
-  // =====================================================
-
-  const [
-    mostrarFicha,
-    setMostrarFicha,
-  ] = useState(false);
-
-  const [
-    cargandoFicha,
-    setCargandoFicha,
-  ] = useState(false);
-
-  const [
-    clienteSeleccionado,
-    setClienteSeleccionado,
-  ] = useState(null);
-
-  const [
-    contactosSeleccionados,
-    setContactosSeleccionados,
-  ] = useState([]);
-
-  const [
-    errorFicha,
-    setErrorFicha,
-  ] = useState("");
-
-
-  // =====================================================
-  // MODAL CONTACTO
-  // =====================================================
-
-  const [
-    mostrarModalContacto,
-    setMostrarModalContacto,
-  ] = useState(false);
-
-  const [
-    guardandoContacto,
-    setGuardandoContacto,
-  ] = useState(false);
-
-  const [
-    errorContacto,
-    setErrorContacto,
-  ] = useState("");
-
-
-  // =====================================================
-  // FORM CLIENTE
-  // =====================================================
-
-  const [formulario, setFormulario] =
-    useState({
-      nombre_razon_social: "",
-      identificacion: "",
-      correo_general: "",
-      telefono_general: "",
-      direccion: "",
-      observaciones: "",
-      estado: "ACTIVO",
-    });
-
-
-  // =====================================================
-  // CONTACTO PRINCIPAL AL CREAR CLIENTE
-  // =====================================================
-
-  const [
-    contacto,
-    setContacto,
-  ] = useState({
-    nombre: "",
-    puesto: "",
-    correo: "",
-    telefono: "",
-  });
-
-
-  // =====================================================
-  // NUEVO CONTACTO
-  // =====================================================
-
-  const [
-    nuevoContacto,
-    setNuevoContacto,
-  ] = useState({
-    nombre: "",
-    puesto: "",
-    correo: "",
-    telefono: "",
-    es_principal: false,
-  });
-
-
-  // =====================================================
-  // INICIO
-  // =====================================================
-
-  useEffect(() => {
-    cargarClientes();
-  }, []);
-
-
-  // =====================================================
-  // CARGAR CLIENTES
-  // =====================================================
-
-  const cargarClientes = async () => {
-    setCargando(true);
-    setError("");
-
+  async function cargarClientes() {
     try {
-      const datos =
-        await obtenerClientes();
-
-      setClientes(datos);
-
-    } catch (error) {
-      setError(error.message);
-
-    } finally {
-      setCargando(false);
-    }
-  };
-
-
-  // =====================================================
-  // BUSCADOR
-  // =====================================================
-
-  const clientesFiltrados =
-    useMemo(() => {
-      const texto =
-        busqueda
-          .trim()
-          .toLowerCase();
-
-      if (!texto) {
-        return clientes;
-      }
-
-      return clientes.filter(
-        (cliente) =>
-          cliente.nombre_razon_social
-            ?.toLowerCase()
-            .includes(texto) ||
-
-          cliente.identificacion
-            ?.toLowerCase()
-            .includes(texto) ||
-
-          cliente.correo_general
-            ?.toLowerCase()
-            .includes(texto) ||
-
-          cliente.telefono_general
-            ?.toLowerCase()
-            .includes(texto)
-      );
-
-    }, [clientes, busqueda]);
-
-
-  // =====================================================
-  // ESTADÍSTICAS
-  // =====================================================
-
-  const activos =
-    clientes.filter(
-      (cliente) =>
-        cliente.estado === "ACTIVO"
-    ).length;
-
-
-  const totalContactos =
-    clientes.reduce(
-      (total, cliente) =>
-        total +
-        Number(
-          cliente.cantidad_contactos || 0
-        ),
-      0
-    );
-
-
-  // =====================================================
-  // CAMBIO CLIENTE
-  // =====================================================
-
-  const manejarCambioCliente =
-    (e) => {
-      const {
-        name,
-        value,
-      } = e.target;
-
-      setFormulario(
-        (anterior) => ({
-          ...anterior,
-          [name]: value,
-        })
-      );
-    };
-
-
-  // =====================================================
-  // CAMBIO CONTACTO PRINCIPAL
-  // =====================================================
-
-  const manejarCambioContacto =
-    (e) => {
-      const {
-        name,
-        value,
-      } = e.target;
-
-      setContacto(
-        (anterior) => ({
-          ...anterior,
-          [name]: value,
-        })
-      );
-    };
-
-
-  // =====================================================
-  // CAMBIO NUEVO CONTACTO
-  // =====================================================
-
-  const manejarCambioNuevoContacto =
-    (e) => {
-      const {
-        name,
-        value,
-        type,
-        checked,
-      } = e.target;
-
-      setNuevoContacto(
-        (anterior) => ({
-          ...anterior,
-
-          [name]:
-            type === "checkbox"
-              ? checked
-              : value,
-        })
-      );
-    };
-
-
-  // =====================================================
-  // NUEVO CLIENTE
-  // =====================================================
-
-  const abrirNuevoCliente = () => {
-    setError("");
-
-    setFormulario({
-      nombre_razon_social: "",
-      identificacion: "",
-      correo_general: "",
-      telefono_general: "",
-      direccion: "",
-      observaciones: "",
-      estado: "ACTIVO",
-    });
-
-    setContacto({
-      nombre: "",
-      puesto: "",
-      correo: "",
-      telefono: "",
-    });
-
-    setMostrarModalCliente(true);
-  };
-
-
-  const cerrarModalCliente = () => {
-    if (guardando) {
-      return;
-    }
-
-    setMostrarModalCliente(false);
-    setError("");
-  };
-
-
-  // =====================================================
-  // GUARDAR CLIENTE
-  // =====================================================
-
-  const guardarCliente =
-    async (e) => {
-      e.preventDefault();
-
-      setGuardando(true);
+      const datos = await obtenerClientes();
+      setClientes(Array.isArray(datos) ? datos : []);
       setError("");
-      setMensaje("");
-
-      try {
-        const datos = {
-          ...formulario,
-
-          contactoPrincipal:
-            contacto.nombre.trim()
-              ? contacto
-              : null,
-        };
-
-        const resultado =
-          await crearCliente(
-            datos
-          );
-
-        setMensaje(
-          resultado.mensaje
-        );
-
-        setMostrarModalCliente(
-          false
-        );
-
-        await cargarClientes();
-
-        setTimeout(() => {
-          setMensaje("");
-        }, 3500);
-
-      } catch (error) {
-        setError(error.message);
-
-      } finally {
-        setGuardando(false);
-      }
-    };
-
-
-  // =====================================================
-  // ABRIR FICHA
-  // =====================================================
-
-  const abrirFicha =
-    async (idCliente) => {
-      setMostrarFicha(true);
-      setCargandoFicha(true);
-
-      setClienteSeleccionado(
-        null
-      );
-
-      setContactosSeleccionados(
-        []
-      );
-
-      setErrorFicha("");
-
-      try {
-        const datos =
-          await obtenerCliente(
-            idCliente
-          );
-
-        setClienteSeleccionado(
-          datos.cliente
-        );
-
-        setContactosSeleccionados(
-          datos.contactos || []
-        );
-
-      } catch (error) {
-        setErrorFicha(
-          error.message
-        );
-
-      } finally {
-        setCargandoFicha(false);
-      }
-    };
-
-
-  const cerrarFicha = () => {
-    if (mostrarModalContacto) {
-      return;
-    }
-
-    setMostrarFicha(false);
-
-    setClienteSeleccionado(
-      null
-    );
-
-    setContactosSeleccionados(
-      []
-    );
-
-    setErrorFicha("");
-  };
-
-
-  // =====================================================
-  // ABRIR NUEVO CONTACTO
-  // =====================================================
-
-  const abrirNuevoContacto = () => {
-    if (!clienteSeleccionado) {
-      return;
-    }
-
-    setErrorContacto("");
-
-    setNuevoContacto({
-      nombre: "",
-      puesto: "",
-      correo: "",
-      telefono: "",
-      es_principal: false,
-    });
-
-    setMostrarModalContacto(
-      true
-    );
-  };
-
-
-  const cerrarModalContacto = () => {
-    if (guardandoContacto) {
-      return;
-    }
-
-    setMostrarModalContacto(
-      false
-    );
-
-    setErrorContacto("");
-  };
-
-
-  // =====================================================
-  // GUARDAR CONTACTO
-  // =====================================================
-
-  const guardarNuevoContacto =
-    async (e) => {
-      e.preventDefault();
-
-      if (!clienteSeleccionado) {
-        return;
-      }
-
-      setGuardandoContacto(true);
-      setErrorContacto("");
-
-      try {
-        const resultado =
-          await crearContactoCliente(
-            clienteSeleccionado.id_cliente,
-            nuevoContacto
-          );
-
-        setMostrarModalContacto(
-          false
-        );
-
-        // ACTUALIZAR FICHA
-
-        const fichaActualizada =
-          await obtenerCliente(
-            clienteSeleccionado.id_cliente
-          );
-
-        setClienteSeleccionado(
-          fichaActualizada.cliente
-        );
-
-        setContactosSeleccionados(
-          fichaActualizada.contactos || []
-        );
-
-
-        // ACTUALIZAR TABLA Y CONTADORES
-
-        const listaActualizada =
-          await obtenerClientes();
-
-        setClientes(
-          listaActualizada
-        );
-
-
-        setMensaje(
-          resultado.mensaje
-        );
-
-        setTimeout(() => {
-          setMensaje("");
-        }, 3500);
-
-      } catch (error) {
-        setErrorContacto(
-          error.message
-        );
-
-      } finally {
-        setGuardandoContacto(false);
-      }
-    };
-
-
-  // =====================================================
-  // CARGANDO
-  // =====================================================
-
-  if (cargando) {
-    return (
-      <RiccatiLayout paginaActiva="clientes">
-
-        <div className="riccati-loader-wrapper">
-
-          <div className="riccati-loader">
-          </div>
-
-          <span className="riccati-loader-text">
-            Cargando clientes...
-          </span>
-
-        </div>
-
-      </RiccatiLayout>
-    );
+    } catch (e) { setError(e.message); }
+    finally { setCargando(false); }
   }
+  useEffect(() => { cargarClientes(); }, []);
 
+  const filtrados = useMemo(() => {
+    const q = busqueda.trim().toLocaleLowerCase("es");
+    return clientes.filter(c => (filtroEstado === "TODOS" || c.estado === filtroEstado) &&
+      [c.nombre_razon_social, c.identificacion, c.correo_general, c.telefono_general, c.estado].some(valor => String(valor || "").toLocaleLowerCase("es").includes(q)));
+  }, [clientes, busqueda, filtroEstado]);
+  const totalPaginas = Math.max(1, Math.ceil(filtrados.length / TAMANIO_PAGINA));
+  const paginaActual = Math.min(pagina, totalPaginas);
+  const visibles = filtrados.slice((paginaActual - 1) * TAMANIO_PAGINA, paginaActual * TAMANIO_PAGINA);
+  const activos = clientes.filter(c => c.estado === "ACTIVO").length;
+  const contactos = clientes.reduce((total, c) => total + Number(c.cantidad_contactos || 0), 0);
+
+  function abrirNuevo() {
+    setClienteEditando(null); setFormulario({ ...clienteVacio }); setPrincipal({ ...contactoVacio }); setErrorModal(""); setModalCliente(true);
+  }
+  function abrirEditar(cliente) {
+    if (!esAdministrador) return;
+    setModalFicha(false); setClienteEditando(cliente);
+    setFormulario(Object.fromEntries(Object.keys(clienteVacio).map(k => [k, cliente[k] ?? clienteVacio[k]])));
+    setPrincipal({ ...contactoVacio }); setErrorModal(""); setModalCliente(true);
+  }
+  function cambiarCampo(setter, evento) {
+    const { name, value, checked, type } = evento.target;
+    setter(anterior => ({ ...anterior, [name]: type === "checkbox" ? checked : value }));
+  }
+  async function guardarCliente(evento) {
+    evento.preventDefault();
+    if (!esAdministrador || guardando) return;
+    setGuardando(true); setErrorModal("");
+    try {
+      if (!clienteEditando && !principal.nombre.trim() && [principal.puesto,principal.correo,principal.telefono].some(v => v.trim())) {
+        throw new Error("Para registrar un contacto principal, indica también su nombre.");
+      }
+      const datos = clienteEditando
+        ? await actualizarCliente(clienteEditando.id_cliente, formulario)
+        : await crearCliente({ ...formulario, contactoPrincipal: principal.nombre.trim() ? principal : null });
+      setModalCliente(false); setMensaje(datos.mensaje || "Cambios guardados correctamente.");
+      await cargarClientes();
+    } catch (e) { setErrorModal(e.message); }
+    finally { setGuardando(false); }
+  }
+  async function abrirFicha(id) {
+    setModalFicha(true); setCargandoFicha(true); setErrorFicha(""); setFicha(null);
+    try { setFicha(await obtenerCliente(id)); }
+    catch (e) { setErrorFicha(e.message); }
+    finally { setCargandoFicha(false); }
+  }
+  function abrirContacto(clienteId, contacto = null) {
+    if (!esAdministrador) return;
+    setClienteParaContacto(clienteId); setContactoEditando(contacto);
+    setFormContacto(contacto ? Object.fromEntries(Object.keys(contactoVacio).map(k => [k, contacto[k] ?? contactoVacio[k]])) : { ...contactoVacio });
+    setErrorContacto(""); setModalFicha(false); setModalContacto(true);
+  }
+  async function guardarContacto(evento) {
+    evento.preventDefault(); if (!esAdministrador || guardandoContacto) return;
+    setGuardandoContacto(true); setErrorContacto("");
+    try {
+      const d = contactoEditando
+        ? await actualizarContactoCliente(clienteParaContacto, contactoEditando.id_contacto, formContacto)
+        : await crearContactoCliente(clienteParaContacto, formContacto);
+      setModalContacto(false); setMensaje(d.mensaje || "Contacto guardado correctamente.");
+      await cargarClientes(); await abrirFicha(clienteParaContacto);
+    } catch (e) { setErrorContacto(e.message); }
+    finally { setGuardandoContacto(false); }
+  }
+  function abrirConfirmacion(cliente) {
+    if (!esAdministrador) return;
+    setModalFicha(false); setConfirmacion(cliente); setJustificacion(""); setErrorEstado("");
+  }
+  async function guardarEstado(evento) {
+    evento.preventDefault(); if (!confirmacion || guardandoEstado || !esAdministrador) return;
+    setGuardandoEstado(true); setErrorEstado("");
+    const estadoNuevo = confirmacion.estado === "ACTIVO" ? "INACTIVO" : "ACTIVO";
+    try {
+      const respuesta = await cambiarEstadoCliente(confirmacion.id_cliente, estadoNuevo, justificacion);
+      setConfirmacion(null); setMensaje(respuesta.mensaje); await cargarClientes();
+    } catch (e) { setErrorEstado(e.message); }
+    finally { setGuardandoEstado(false); }
+  }
 
   return (
     <RiccatiLayout paginaActiva="clientes">
-
-      <PageHeader
-        modulo="MÓDULO M02 · CLIENTES"
-        titulo="Clientes"
-        descripcion="Registro y consulta de clientes y sus contactos asociados."
-        estado="PostgreSQL conectado"
-      />
-
-
-      {mensaje && (
-        <div
-          className="animate-up"
-          style={{
-            marginBottom: "16px",
-            padding: "12px 15px",
-            borderRadius: "10px",
-            border:
-              "1px solid rgba(45,226,166,0.15)",
-            background:
-              "rgba(45,226,166,0.06)",
-            color: "#2de2a6",
-            fontSize: "9px",
-          }}
-        >
-          ✓ {mensaje}
+      <div className="riccati-clientes-s2">
+        <PageHeader modulo="GESTIÓN DE CLIENTES" titulo="Clientes" descripcion="Directorio, contactos e historial de proyectos de Riccati S.A." estado="Sistema conectado" />
+        {mensaje && <div className="riccati-s2-success" role="status"><CheckCircle2 size={18}/>{mensaje}<button type="button" aria-label="Cerrar aviso" onClick={() => setMensaje("")}><X size={16}/></button></div>}
+        {error && <div className="login-error" role="alert">{error}</div>}
+        <section className="riccati-stats-grid">
+          <StatCard etiqueta="TOTAL CLIENTES" valor={clientes.length} icono={<Building2 size={21}/>} pie="Clientes en la base de datos"/>
+          <StatCard etiqueta="ACTIVOS" valor={activos} icono={<UserRoundCheck size={21}/>} pie="Disponibles para proyectos" clasePie="text-riccati-green"/>
+          <StatCard etiqueta="INACTIVOS" valor={clientes.length - activos} icono={<CircleAlert size={21}/>} pie="Conservan su historial"/>
+          <StatCard etiqueta="CONTACTOS" valor={contactos} icono={<Users size={21}/>} pie="Contactos asociados"/>
+        </section>
+        <section className="riccati-panel animate-up">
+          <div className="riccati-panel-header riccati-s2-clientes-head">
+            <div><span className="riccati-panel-label">DIRECTORIO</span><h3>Clientes registrados</h3></div>
+            <div className="riccati-s2-clientes-filtros">
+              <label className="riccati-search" aria-label="Buscar cliente"><Search size={18} aria-hidden="true"/><input value={busqueda} onChange={e => {setBusqueda(e.target.value); setPagina(1);}} placeholder="Nombre, identificación, correo..." /></label>
+              <label className="riccati-s2-select-wrap"><SlidersHorizontal size={17}/><select value={filtroEstado} onChange={e => { setFiltroEstado(e.target.value); setPagina(1); }} aria-label="Filtrar por estado"><option value="TODOS">Todos los estados</option><option value="ACTIVO">Activos</option><option value="INACTIVO">Inactivos</option></select></label>
+              {esAdministrador && <button type="button" className="riccati-button-primary" onClick={abrirNuevo}><Plus size={17}/> Nuevo cliente</button>}
+            </div>
+          </div>
+          {cargando ? <div className="riccati-empty"><span className="riccati-loader"/> Cargando clientes...</div> : filtrados.length === 0 ?
+            <div className="riccati-empty"><Building2 size={34}/><strong>Sin resultados</strong><span>Cambia los filtros o registra un cliente nuevo.</span></div> :
+            <div className="riccati-table-wrapper"><table className="riccati-table"><thead><tr><th>CLIENTE</th><th>IDENTIFICACIÓN</th><th>CONTACTO GENERAL</th><th>CONTACTOS</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody>
+              {visibles.map(c => <tr key={c.id_cliente}>
+                <td><div className="riccati-s2-cliente-identidad"><span className="riccati-user-avatar">{c.nombre_razon_social?.charAt(0).toUpperCase()}</span><div><strong>{c.nombre_razon_social}</strong><small>CLI-{String(c.id_cliente).padStart(3,"0")}</small></div></div></td>
+                <td>{c.identificacion || "No registrada"}</td>
+                <td><div className="riccati-s2-doble"><span>{c.correo_general || "Sin correo"}</span><small>{c.telefono_general || "Sin teléfono"}</small></div></td>
+                <td><span className="riccati-badge riccati-badge-cyan">{c.cantidad_contactos || 0} contacto(s)</span></td>
+                <td><span className={"riccati-badge " + (c.estado === "ACTIVO" ? "riccati-badge-green" : "riccati-badge-orange")}>{c.estado === "ACTIVO" ? "Activo" : "Inactivo"}</span></td>
+                <td><div className="riccati-s2-actions"><button type="button" className="riccati-button-secondary" onClick={() => abrirFicha(c.id_cliente)}>Ver ficha</button>{esAdministrador && <button type="button" className="riccati-s2-icon-action" aria-label={`Editar ${c.nombre_razon_social}`} title="Editar" onClick={() => abrirEditar(c)}><Pencil size={17}/></button>}</div></td>
+              </tr>)}</tbody></table></div>}
+          <div className="riccati-s2-paginacion"><span>{filtrados.length === 0 ? "0 resultados" : `Mostrando ${(paginaActual - 1) * TAMANIO_PAGINA + 1}–${Math.min(paginaActual * TAMANIO_PAGINA, filtrados.length)} de ${filtrados.length} clientes`}</span><div><button type="button" className="riccati-button-secondary" disabled={paginaActual === 1} aria-label="Página anterior" onClick={() => setPagina(paginaActual - 1)}><ChevronLeft size={17}/></button><span>Página {paginaActual} de {totalPaginas}</span><button type="button" className="riccati-button-secondary" disabled={paginaActual >= totalPaginas} aria-label="Página siguiente" onClick={() => setPagina(paginaActual + 1)}><ChevronRight size={17}/></button></div></div>
+        </section>
+      </div>
+      <ClienteModal mostrar={modalCliente} formulario={formulario} contacto={principal} esEdicion={Boolean(clienteEditando)} error={errorModal} guardando={guardando} onChangeCliente={e => cambiarCampo(setFormulario,e)} onChangeContacto={e => cambiarCampo(setPrincipal,e)} onSubmit={guardarCliente} onClose={() => !guardando && setModalCliente(false)}/>
+      <ClienteFichaModal mostrar={modalFicha} cliente={ficha?.cliente} contactos={ficha?.contactos || []} proyectos={ficha?.proyectos || []} cargando={cargandoFicha} error={errorFicha} esAdministrador={esAdministrador} onEditar={() => abrirEditar(ficha.cliente)} onAgregarContacto={() => abrirContacto(ficha.cliente.id_cliente)} onEditarContacto={c => abrirContacto(ficha.cliente.id_cliente,c)} onCambiarEstado={() => abrirConfirmacion(ficha.cliente)} onClose={() => setModalFicha(false)}/>
+      <ContactoModal mostrar={modalContacto} formulario={formContacto} editando={Boolean(contactoEditando)} error={errorContacto} guardando={guardandoContacto} onChange={e => cambiarCampo(setFormContacto,e)} onSubmit={guardarContacto} onClose={() => !guardandoContacto && setModalContacto(false)}/>
+      {confirmacion && createPortal(<div className="riccati-modal-backdrop" onMouseDown={e => e.target === e.currentTarget && !guardandoEstado && setConfirmacion(null)}>
+        <div className="riccati-modal riccati-s2-modal riccati-s2-modal-pequeno" role="dialog" aria-modal="true" aria-label="Confirmar cambio de estado">
+          <div className="riccati-modal-header riccati-s2-modal-heading"><div><span className="riccati-panel-label">CONFIRMAR CAMBIO</span><h3>{confirmacion.estado === "ACTIVO" ? "Inactivar cliente" : "Reactivar cliente"}</h3><p>{confirmacion.nombre_razon_social}</p></div><button type="button" className="riccati-button-secondary" aria-label="Cerrar" onClick={() => setConfirmacion(null)}><X size={18}/></button></div>
+          <form className="riccati-s2-modal-form" onSubmit={guardarEstado}><div className="riccati-modal-body">
+            {errorEstado && <div className="login-error" role="alert">{errorEstado}</div>}
+            <div className="riccati-s2-advertencia"><CircleAlert size={22}/><div><strong>Esta acción no elimina ningún dato.</strong><p>Los clientes inactivos no podrán asociarse a proyectos nuevos. Si hay proyectos activos, debes ingresar una justificación obligatoria.</p></div></div>
+            <div className="riccati-form-group"><label htmlFor="justificacion-estado">Justificación {confirmacion.estado === "ACTIVO" ? "(obligatoria si tiene proyectos activos)" : "(opcional)"}</label><textarea id="justificacion-estado" rows={3} className="riccati-input" value={justificacion} onChange={e=>setJustificacion(e.target.value)} placeholder="Motivo del cambio..."/></div>
+          </div><div className="riccati-modal-footer"><button type="button" className="riccati-button-secondary" disabled={guardandoEstado} onClick={() => setConfirmacion(null)}>Cancelar</button><button type="submit" className={confirmacion.estado === "ACTIVO" ? "riccati-button-danger" : "riccati-button-primary"} disabled={guardandoEstado}>{guardandoEstado ? "Guardando..." : confirmacion.estado === "ACTIVO" ? "Confirmar inactivación" : "Confirmar reactivación"}</button></div></form>
         </div>
-      )}
-
-
-      {error &&
-        !mostrarModalCliente && (
-          <div className="login-error animate-up">
-            {error}
-          </div>
-        )}
-
-
-      {/* ESTADÍSTICAS */}
-
-      <section className="riccati-stats-grid">
-
-        <StatCard
-          etiqueta="TOTAL CLIENTES"
-          valor={clientes.length}
-          icono="◎"
-          pie="Clientes registrados"
-        />
-
-        <StatCard
-          etiqueta="CLIENTES ACTIVOS"
-          valor={activos}
-          icono="✓"
-          pie="Actualmente activos"
-          clasePie="text-riccati-green"
-        />
-
-        <StatCard
-          etiqueta="CONTACTOS"
-          valor={totalContactos}
-          icono="◇"
-          pie="Contactos registrados"
-        />
-
-        <StatCard
-          etiqueta="MÓDULO"
-          valor="M02"
-          icono="02"
-          pie="Sprint 1"
-          clasePie="text-riccati-cyan"
-        />
-
-      </section>
-
-
-      {/* PANEL */}
-
-      <section className="riccati-panel animate-up delay-2">
-
-        <div className="riccati-panel-header">
-
-          <div>
-
-            <span className="riccati-panel-label">
-              DIRECTORIO
-            </span>
-
-            <h3>
-              Clientes registrados
-            </h3>
-
-          </div>
-
-
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-            }}
-          >
-
-            <div className="riccati-search">
-
-              <span className="riccati-search-icon">
-                ⌕
-              </span>
-
-              <input
-                type="text"
-                placeholder="Buscar cliente..."
-                value={busqueda}
-                onChange={(e) =>
-                  setBusqueda(
-                    e.target.value
-                  )
-                }
-              />
-
-            </div>
-
-
-            <button
-              className="riccati-button-primary"
-              onClick={
-                abrirNuevoCliente
-              }
-            >
-              + Nuevo cliente
-            </button>
-
-          </div>
-
-        </div>
-
-
-        {clientes.length === 0 ? (
-
-          <div className="riccati-empty">
-
-            <div className="riccati-empty-icon">
-              ◎
-            </div>
-
-            <strong>
-              No hay clientes registrados
-            </strong>
-
-            <span>
-              Registra el primer cliente
-              para comenzar.
-            </span>
-
-            <button
-              className="riccati-button-primary"
-              onClick={
-                abrirNuevoCliente
-              }
-              style={{
-                marginTop: "14px",
-              }}
-            >
-              + Registrar cliente
-            </button>
-
-          </div>
-
-        ) : (
-
-          <>
-            <div className="riccati-table-wrapper">
-
-              <table className="riccati-table">
-
-                <thead>
-
-                  <tr>
-                    <th>CLIENTE</th>
-                    <th>IDENTIFICACIÓN</th>
-                    <th>CONTACTO</th>
-                    <th>CONTACTOS</th>
-                    <th>ESTADO</th>
-                    <th>ACCIONES</th>
-                  </tr>
-
-                </thead>
-
-                <tbody>
-
-                  {clientesFiltrados.map(
-                    (cliente) => (
-
-                      <tr
-                        key={
-                          cliente.id_cliente
-                        }
-                      >
-
-                        <td>
-
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems:
-                                "center",
-                              gap: "11px",
-                            }}
-                          >
-
-                            <div
-                              className="riccati-user-avatar"
-                              style={{
-                                width: "32px",
-                                height: "32px",
-                              }}
-                            >
-                              {cliente
-                                .nombre_razon_social
-                                ?.charAt(0)
-                                ?.toUpperCase()}
-                            </div>
-
-                            <div>
-
-                              <strong
-                                style={{
-                                  display:
-                                    "block",
-                                  color:
-                                    "#e8f0f7",
-                                  fontSize:
-                                    "9px",
-                                }}
-                              >
-                                {
-                                  cliente.nombre_razon_social
-                                }
-                              </strong>
-
-                              <span
-                                style={{
-                                  display:
-                                    "block",
-                                  marginTop:
-                                    "3px",
-                                  color:
-                                    "#50677e",
-                                  fontSize:
-                                    "7px",
-                                }}
-                              >
-                                CLI-
-                                {String(
-                                  cliente.id_cliente
-                                ).padStart(
-                                  3,
-                                  "0"
-                                )}
-                              </span>
-
-                            </div>
-
-                          </div>
-
-                        </td>
-
-
-                        <td>
-                          {cliente.identificacion ||
-                            "No registrada"}
-                        </td>
-
-
-                        <td>
-
-                          <span
-                            style={{
-                              display:
-                                "block",
-                            }}
-                          >
-                            {cliente.correo_general ||
-                              "Sin correo"}
-                          </span>
-
-                          <span
-                            style={{
-                              display:
-                                "block",
-                              marginTop:
-                                "3px",
-                              color:
-                                "#50677e",
-                              fontSize:
-                                "7px",
-                            }}
-                          >
-                            {cliente.telefono_general ||
-                              "Sin teléfono"}
-                          </span>
-
-                        </td>
-
-
-                        <td>
-
-                          <span className="riccati-badge riccati-badge-cyan">
-                            {cliente.cantidad_contactos ||
-                              0}{" "}
-                            contacto(s)
-                          </span>
-
-                        </td>
-
-
-                        <td>
-
-                          <EstadoCliente
-                            estado={
-                              cliente.estado
-                            }
-                          />
-
-                        </td>
-
-
-                        <td>
-
-                          <button
-                            className="riccati-button-secondary"
-                            onClick={() =>
-                              abrirFicha(
-                                cliente.id_cliente
-                              )
-                            }
-                          >
-                            Ver ficha
-                          </button>
-
-                        </td>
-
-                      </tr>
-
-                    )
-                  )}
-
-                </tbody>
-
-              </table>
-
-            </div>
-
-
-            <div
-              style={{
-                padding: "12px 16px",
-                color: "#50677e",
-                fontSize: "7px",
-              }}
-            >
-              Mostrando{" "}
-              {clientesFiltrados.length} de{" "}
-              {clientes.length} clientes
-            </div>
-
-          </>
-
-        )}
-
-      </section>
-
-
-      {/* NUEVO CLIENTE */}
-
-      <ClienteModal
-        mostrar={mostrarModalCliente}
-        formulario={formulario}
-        contacto={contacto}
-        error={
-          mostrarModalCliente
-            ? error
-            : ""
-        }
-        guardando={guardando}
-        onChangeCliente={
-          manejarCambioCliente
-        }
-        onChangeContacto={
-          manejarCambioContacto
-        }
-        onSubmit={
-          guardarCliente
-        }
-        onClose={
-          cerrarModalCliente
-        }
-      />
-
-
-      {/* FICHA */}
-
-      <ClienteFichaModal
-        mostrar={mostrarFicha}
-        cliente={
-          clienteSeleccionado
-        }
-        contactos={
-          contactosSeleccionados
-        }
-        cargando={
-          cargandoFicha
-        }
-        error={
-          errorFicha
-        }
-        onAgregarContacto={
-          abrirNuevoContacto
-        }
-        onClose={
-          cerrarFicha
-        }
-      />
-
-
-      {/* NUEVO CONTACTO */}
-
-      <ContactoModal
-        mostrar={
-          mostrarModalContacto
-        }
-        formulario={
-          nuevoContacto
-        }
-        error={
-          errorContacto
-        }
-        guardando={
-          guardandoContacto
-        }
-        onChange={
-          manejarCambioNuevoContacto
-        }
-        onSubmit={
-          guardarNuevoContacto
-        }
-        onClose={
-          cerrarModalContacto
-        }
-      />
-
+      </div>,document.body)}
     </RiccatiLayout>
   );
 }
-
-
-function EstadoCliente({
-  estado,
-}) {
-  if (estado === "ACTIVO") {
-    return (
-      <span className="riccati-badge riccati-badge-green">
-
-        <span className="riccati-badge-dot">
-        </span>
-
-        Activo
-
-      </span>
-    );
-  }
-
-  return (
-    <span className="riccati-badge riccati-badge-orange">
-      Inactivo
-    </span>
-  );
-}
-
-
 export default Clientes;

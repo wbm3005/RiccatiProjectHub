@@ -1,0 +1,77 @@
+/* M04 · Sprint 2: Bitácora. Encapsulado para respetar Horizon Dark. */
+.bitacora-pagina { display:grid; gap:20px; }
+.bitacora-pagina .riccati-topbar {margin-bottom: 2px;}
+.bitacora-selector {display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap;padding:23px 27px;}
+.bitacora-selector-titulo {display:flex;align-items:center;gap:15px;min-width:0;}
+.bitacora-selector-icono {display:grid;place-items:center;flex-shrink:0;width:53px;height:53px;background:linear-gradient(135deg,#283e74,#174b6c);border:1px solid #527aba;color:#97e8ff;border-radius:16px;}
+.bitacora-selector h3 {font-size:19px;color:#f7fbff;font-weight:800;margin:5px 0;}
+.bitacora-selector p {font-size:13px;color:#aabedc;margin:0;}
+.bitacora-selector-acciones {display:flex;flex-direction:column;gap:7px;min-width:min(100%,360px);max-width:450px;flex:1;}
+.bitacora-select-label {font-size:12px;font-weight:750;color:#b5d8f9;}
+.bitacora-selector-acciones select {width:100%;height:48px;font-size:14px;background:#101f39;color:#f1f8ff;}
+.bitacora-selector-acciones option,.bitacora-filtro-barra option {background:#101f39;color:#f1f8ff;}
+.bitacora-estadisticas {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;}
+.bitacora-kpi {display:flex;gap:14px;align-items:center;min-height:125px;padding:18px 19px;background:linear-gradient(140deg,#192946,#101f38);border:1px solid #3a4d78;border-radius:17px;box-shadow:0 9px 26px rgba(2,8,23,.18);}
+.bitacora-kpi-icono {height:49px;width:49px;flex-shrink:0;display:grid;place-items:center;border-radius:15px;}
+.bitacora-kpi-icono.morado {background:#35366a;color:#c0a5ff;}.bitacora-kpi-icono.celeste {background:#164767;color:#80e3ff;}.bitacora-kpi-icono.verde {background:#144e43;color:#74edca;}.bitacora-kpi-icono.naranja {background:#5c392a;color:#ffd09c;}
+.bitacora-kpi div:last-child {display:grid;gap:3px;min-width:0;}
+.bitacora-kpi span {font-size:11px;letter-spacing:.075em;color:#a4bad6;font-weight:800;}
+.bitacora-kpi strong {font-size:27px;color:#f3f8ff;line-height:1.3;font-weight:850;}
+.bitacora-kpi small {font-size:11px;color:#a3bad6;}
+.bitacora-panel {overflow:hidden;}
+.bitacora-panel-header {align-items:center;flex-wrap:wrap;}
+.bitacora-panel-header p {margin:6px 0 0;color:#aabedb;font-size:12px;}
+.bitacora-botones {display:flex;gap:10px;flex-wrap:wrap;}
+.bitacora-filtro-barra {display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;padding:17px 27px;background:#101d35;border-bottom:1px solid #344564;}
+.bitacora-filtro-barra label {display:flex;align-items:center;gap:10px;color:#90ddf2;font-size:13px;}
+.bitacora-filtro-barra select {width:auto;min-width:205px;height:42px;color:#e3f1ff;background:#172a46;font-size:13px;}
+.bitacora-actualizar {display:flex;align-items:center;gap:8px;background:transparent;border:0;color:#91ddfa;font-size:13px;font-weight:700;cursor:pointer;}
+.bitacora-actualizar:hover {color:#fff;}
+.bitacora-linea-tiempo {padding:26px 29px 12px;}
+.bitacora-evento {display:flex;gap:16px;position:relative;padding-bottom:27px;}
+.bitacora-evento:not(:last-child):before {content:"";position:absolute;top:48px;left:22px;bottom:0;width:2px;background:linear-gradient(#435c94,#253957);}
+.bitacora-evento-simbolo {z-index:1;display:grid;place-items:center;flex:0 0 46px;height:46px;border:1px solid #6864bd;border-radius:15px;background:#2e2b5d;color:#c1b7ff;box-shadow:0 5px 12px #050a2040;}
+.bitacora-evento.es-comentario .bitacora-evento-simbolo {border-color:#277b9c;background:#143b59;color:#7adfff;}
+.bitacora-evento.es-correccion .bitacora-evento-simbolo {border-color:#ae714a;background:#483321;color:#ffd39e;}
+.bitacora-evento-info {flex:1;min-width:0;padding:19px 21px;background:linear-gradient(120deg,#182c48,#101e34);border:1px solid #354b6b;border-radius:15px;}
+.bitacora-evento-superior {display:flex;align-items:center;justify-content:space-between;gap:13px;flex-wrap:wrap;}
+.bitacora-evento-etiquetas {display:flex;align-items:center;gap:11px;flex-wrap:wrap;}
+.bitacora-chip {border-radius:20px;padding:6px 10px;display:inline-flex;align-items:center;font-size:11px;font-weight:750;}
+.bitacora-chip.chip-violeta {background:#34336a;color:#cec6ff;}.bitacora-chip.chip-cyan {background:#174c5e;color:#8beaff;}.bitacora-chip.chip-naranja {background:#533726;color:#ffd59a;}
+.bitacora-fecha {display:inline-flex;align-items:center;gap:5px;color:#9fb6d2;font-size:12px;}
+.bitacora-evento-autor {color:#98b6d7;font-size:12px;margin-top:12px;}.bitacora-evento-autor strong {color:#dbe8ff;}
+.bitacora-evento h3 {margin:13px 0 8px;font-size:17px;font-weight:800;color:#f4f8ff;}
+.bitacora-evento-contenido,.bitacora-motivo {color:#c7d7ed;font-size:13px;line-height:1.7;margin:10px 0;white-space:pre-wrap;overflow-wrap:anywhere;}
+.bitacora-corregir {display:flex;align-items:center;gap:7px;border:1px solid #59759f;background:#193757;border-radius:9px;padding:8px 11px;color:#b6e9ff;cursor:pointer;font-size:12px;font-weight:700;}
+.bitacora-corregir:hover {border-color:#65d0ff;color:#fff;}
+.bitacora-evento-pie {border-top:1px solid #334764;margin-top:15px;padding-top:12px;display:flex;gap:10px 18px;align-items:center;flex-wrap:wrap;}
+.bitacora-evento-pie span {display:inline-flex;align-items:center;gap:6px;color:#abc2dd;font-size:12px;overflow-wrap:anywhere;}
+.bitacora-evento-pie .bitacora-etiqueta-cambio {color:#ffce87;}
+.bitacora-diferencias {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:15px;}
+.bitacora-diferencias>div {display:flex;flex-direction:column;gap:6px;border-radius:12px;background:#14243b;padding:14px;border:1px solid #34516e;min-width:0;}
+.bitacora-diferencias>div:first-child {border-color:#745a55;}.bitacora-diferencias>div:last-child {border-color:#39776d;}
+.bitacora-diferencias span {font-size:10px;letter-spacing:.09em;color:#b0d9f5;font-weight:800;}
+.bitacora-diferencias strong {font-size:13px;color:#f6f9ff;}
+.bitacora-diferencias p {font-size:12px;line-height:1.6;color:#d0dfee;margin:0;white-space:pre-wrap;overflow-wrap:anywhere;}
+.bitacora-diferencias small {color:#abc6dd;font-size:11px;overflow-wrap:anywhere;}
+.bitacora-paginacion {display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap;padding:18px 27px;border-top:1px solid #344765;color:#adc4dd;font-size:12px;}
+.bitacora-paginacion>div {display:flex;gap:8px;}
+.bitacora-paginacion button {padding:8px 11px;}
+.bitacora-vacio {display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;text-align:center;min-height:220px;padding:38px 16px;color:#9bc9ed;}
+.bitacora-vacio h3 {color:#f4f8ff;font-size:18px;margin:0;}.bitacora-vacio p {font-size:13px;color:#adc5de;margin:0;}
+.bitacora-error {margin:17px 25px 0;}
+.bitacora-modal {display:flex;flex-direction:column;width:min(760px,100%);max-height:calc(100dvh - 34px);overflow:hidden;}
+.bitacora-modal-header {display:flex;align-items:flex-start;justify-content:space-between;gap:16px;}
+.bitacora-modal-header h3 {font-size:22px;margin:9px 0 7px;}.bitacora-modal-header p {font-size:13px;color:#bbd4ec;margin:0;}
+.bitacora-modal-form {display:flex;flex-direction:column;min-height:0;flex:1;overflow:hidden;}
+.bitacora-modal-form .riccati-modal-body {overflow-y:auto;flex:1;min-height:0;}
+.bitacora-modal-form .riccati-modal-footer {flex:0 0 auto;display:flex;justify-content:flex-end;align-items:center;gap:11px;flex-wrap:wrap;}
+.bitacora-area {min-height:115px;}
+.bitacora-campos-horas {display:grid;grid-template-columns:1fr 1.5fr;gap:17px;}
+.bitacora-campo-icono {position:relative;}.bitacora-campo-icono svg {position:absolute;left:12px;top:14px;color:#8fdbfa;pointer-events:none;}
+.bitacora-campo-icono input {padding-left:40px;}
+.bitacora-ayuda {display:block;margin-top:7px;font-size:11px;color:#abc6e0;}
+.bitacora-alert {display:flex;gap:10px;border:1px solid #947148;background:#352719;color:#ffdfac;padding:13px 16px;border-radius:12px;margin:0 0 20px;font-size:12px;line-height:1.6;}
+.bitacora-alert svg {flex-shrink:0;}
+@media(max-width:1050px){.bitacora-estadisticas{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:620px){.bitacora-pagina{gap:15px;}.bitacora-estadisticas{grid-template-columns:1fr;}.bitacora-selector{padding:18px;}.bitacora-selector-acciones{max-width:none;}.bitacora-linea-tiempo{padding:19px 12px 0;}.bitacora-evento{gap:9px;}.bitacora-evento-simbolo{flex-basis:36px;height:36px;border-radius:11px;}.bitacora-evento:not(:last-child):before{left:17px;top:38px;}.bitacora-evento-info{padding:14px;}.bitacora-diferencias,.bitacora-campos-horas{grid-template-columns:1fr;}.bitacora-paginacion,.bitacora-filtro-barra{padding:15px;}.bitacora-panel-header{padding:18px;}.bitacora-botones{width:100%;}.bitacora-botones button{flex:1;}.bitacora-modal{max-height:calc(100dvh - 12px);}}

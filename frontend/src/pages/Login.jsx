@@ -52,7 +52,7 @@ function Login() {
       );
 
       navigate("/dashboard");
-    } catch (error) {
+    } catch {
       setError(
         "No se pudo conectar con el servidor."
       );
