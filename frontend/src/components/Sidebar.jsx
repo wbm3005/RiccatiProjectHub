@@ -1,162 +1,40 @@
+import RiccatiLogo from "./RiccatiLogo";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { LayoutDashboard, UsersRound, Building2, FolderKanban, LogOut, UserRound, ClipboardList, X } from "lucide-react";
 
-import { NavLink, useNavigate } from "react-router-dom";
-import {
-  LayoutDashboard,
-  UsersRound,
-  Building2,
-  FolderKanban,
-  LogOut,
-  UserRound,
-  ClipboardList,
-} from "lucide-react";
-
-function Sidebar({ paginaActiva }) {
+export default function Sidebar({ onClose }) {
   const navigate = useNavigate();
-
   let usuario = null;
-
-  try {
-    usuario = JSON.parse(
-      localStorage.getItem("usuarioRiccati")
-    );
-  } catch {
-    usuario = null;
-  }
-
-  const esAdministrador =
-    usuario?.rol === "Administrador";
-
-  const cerrarSesion = () => {
+  try { usuario = JSON.parse(localStorage.getItem("usuarioRiccati")); } catch { /* Invalid stored session. */ }
+  const links = [
+    ["/dashboard", "Dashboard", LayoutDashboard, "GENERAL"],
+    ...(usuario?.rol === "Administrador" ? [["/usuarios", "Usuarios", UsersRound, "GESTIÓN"]] : []),
+    ["/clientes", "Clientes", Building2, usuario?.rol === "Administrador" ? null : "GESTIÓN"],
+    ["/proyectos", "Proyectos", FolderKanban],
+    ["/bitacora", "Bitácora", ClipboardList],
+    ["/perfil", "Mi cuenta", UserRound, "PERSONAL"],
+  ];
+  function logout() {
     localStorage.removeItem("tokenRiccati");
     localStorage.removeItem("usuarioRiccati");
     navigate("/");
-  };
-
-  const claseMenu = (pagina) =>
-    paginaActiva === pagina
-      ? "riccati-menu-item active"
-      : "riccati-menu-item";
-
-  return (
-    <aside className="riccati-sidebar">
-      <div>
-        <div className="riccati-brand">
-          <div className="riccati-brand-logo">R</div>
-
-          <div>
-            <h2>Riccati</h2>
-            <span>PROJECT HUB</span>
-          </div>
-        </div>
-
-        <nav aria-label="Menú principal">
-          <div className="riccati-sidebar-section">
-            <span className="riccati-sidebar-title">
-              PRINCIPAL
-            </span>
-
-            <NavLink
-              to="/dashboard"
-              className={claseMenu("dashboard")}
-            >
-              <span className="riccati-menu-icon">
-                <LayoutDashboard
-                  size={19}
-                  strokeWidth={2.2}
-                />
-              </span>
-              Dashboard
-            </NavLink>
-          </div>
-
-          <div className="riccati-sidebar-section">
-            <span className="riccati-sidebar-title">
-              GESTIÓN
-            </span>
-
-            {esAdministrador && (
-              <NavLink
-                to="/usuarios"
-                className={claseMenu("usuarios")}
-              >
-                <span className="riccati-menu-icon">
-                  <UsersRound
-                    size={19}
-                    strokeWidth={2.2}
-                  />
-                </span>
-                Usuarios
-              </NavLink>
-            )}
-
-            <NavLink
-              to="/clientes"
-              className={claseMenu("clientes")}
-            >
-              <span className="riccati-menu-icon">
-                <Building2
-                  size={19}
-                  strokeWidth={2.2}
-                />
-              </span>
-              Clientes
-            </NavLink>
-
-            <NavLink
-              to="/proyectos"
-              className={claseMenu("proyectos")}
-            >
-              <span className="riccati-menu-icon">
-                <FolderKanban
-                  size={19}
-                  strokeWidth={2.2}
-                />
-              </span>
-              Proyectos
-            </NavLink>
-            <NavLink to="/bitacora" className={claseMenu("bitacora")}>
-              <span className="riccati-menu-icon"><ClipboardList size={19} strokeWidth={2.2} /></span>
-              Bitácora
-            </NavLink>
-          </div>
-          <div className="riccati-sidebar-section">
-            <span className="riccati-sidebar-title">CUENTA</span>
-            <NavLink to="/perfil" className={claseMenu("perfil")}>
-              <span className="riccati-menu-icon"><UserRound size={19} strokeWidth={2.2} /></span>
-              Mi cuenta
-            </NavLink>
-          </div>
-        </nav>
-      </div>
-
-      <div className="riccati-sidebar-user">
-        <div className="riccati-user-avatar">
-          {usuario?.nombre?.charAt(0) || "U"}
-        </div>
-
-        <div className="riccati-user-data">
-          <strong>
-            {usuario?.nombre || "Usuario"}{" "}
-            {usuario?.apellidos || ""}
-          </strong>
-
-          <span>
-            {usuario?.rol || "Sin rol"}
-          </span>
-        </div>
-
-        <button
-          type="button"
-          className="riccati-button-danger riccati-logout-button"
-          onClick={cerrarSesion}
-          title="Cerrar sesión"
-          aria-label="Cerrar sesión"
-        >
-          <LogOut size={19} strokeWidth={2.2} />
-        </button>
-      </div>
-    </aside>
-  );
+  }
+  return <aside className="rp-sidebar">
+    <div className="rp-brand-row">
+      <NavLink to="/dashboard" className="rp-brand" onClick={onClose} aria-label="Riccati Project Hub, inicio">
+        <span className="rp-brand-lockup"><RiccatiLogo/><small>Project Hub</small></span>
+      </NavLink>
+      <button type="button" className="rp-icon-button rp-mobile-only" onClick={onClose} aria-label="Cerrar navegación"><X size={20}/></button>
+    </div>
+    <nav aria-label="Menú principal" className="rp-nav">
+      {links.map(([to, label, Icon, section]) => <div key={to}>
+        {section && <div className="rp-nav-section">{section}</div>}
+        <NavLink to={to} onClick={onClose} className={({isActive}) => "rp-nav-link" + (isActive ? " active" : "")}><Icon size={20} aria-hidden="true"/><span>{label}</span></NavLink>
+      </div>)}
+    </nav>
+    <div className="rp-sidebar-bottom">
+      <Link to="/perfil" className="rp-session-user" onClick={onClose} aria-label="Consultar mi perfil"><span className="rp-avatar"><UserRound size={20} aria-hidden="true"/></span><span><strong>{usuario?.nombre || "Usuario"}</strong><small>{usuario?.rol || "Sin rol"}</small></span></Link>
+      <button type="button" className="rp-nav-link rp-logout" onClick={logout}><LogOut size={19} aria-hidden="true"/>Cerrar sesión</button>
+    </div>
+  </aside>;
 }
-
-export default Sidebar;

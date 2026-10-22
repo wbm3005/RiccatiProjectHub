@@ -1,7 +1,11 @@
+import RiccatiLogo from "../components/RiccatiLogo";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
+import ThemeToggle from "../components/ThemeToggle";
 
 function Login() {
+  const [visible, setVisible] = useState(false);
   const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -61,108 +65,29 @@ function Login() {
     }
   };
 
-  return (
-    <div className="login-page">
-
-      <div className="login-glow login-glow-one"></div>
-      <div className="login-glow login-glow-two"></div>
-
-      <div className="login-container">
-
-        <div className="login-card">
-
-          <div className="login-brand">
-
-            <div className="login-logo">
-              R
-            </div>
-
-            <h1>
-              Riccati <span>Project Hub</span>
-            </h1>
-
-            <span>
-              PROJECT MANAGEMENT
-            </span>
-
-            <p className="login-description">
-              Gestión centralizada de proyectos arquitectónicos
-            </p>
-
+  return <main className="rp-auth">
+    <div className="rp-auth-theme"><ThemeToggle/></div>
+    <div className="authentication-wrapper authentication-basic">
+      <div className="authentication-inner">
+        <section className="card rp-auth-card" aria-labelledby="login-heading">
+          <div className="card-body">
+            <div className="rp-auth-brand"><RiccatiLogo full/><span className="rp-product-name">Project Hub</span></div>
+            <h1 id="login-heading">Bienvenido a Riccati</h1>
+            <p className="rp-auth-description">Ingresa para continuar con tus proyectos.</p>
+            <form onSubmit={iniciarSesion} aria-busy={cargando}>
+              <p className="rp-required-note">Los campos con * son obligatorios.</p>
+              <div className="mb-4"><label htmlFor="login-correo" className="form-label">Correo electrónico <span aria-hidden="true">*</span></label><input id="login-correo" name="correo" type="email" className="form-control" placeholder="correo@riccati.cr" autoComplete="username" value={correo} onChange={e => setCorreo(e.target.value)} required disabled={cargando}/></div>
+              <div className="mb-4"><label htmlFor="login-password" className="form-label">Contraseña <span aria-hidden="true">*</span></label><div className="rp-password"><input id="login-password" name="password" type={visible ? "text" : "password"} className="form-control" placeholder="Ingresa tu contraseña" autoComplete="current-password" value={password} onChange={e => setPassword(e.target.value)} required disabled={cargando}/><button type="button" className="rp-icon-button" onClick={() => setVisible(!visible)} aria-label={visible ? "Ocultar contraseña" : "Mostrar contraseña"} aria-pressed={visible}>{visible ? <EyeOff size={19}/> : <Eye size={19}/>}</button></div></div>
+              {error && <div className="rp-auth-error" role="alert">{error}</div>}
+              <button type="submit" className="btn btn-primary w-100 rp-auth-submit" disabled={cargando}>{cargando ? "Verificando acceso…" : "Iniciar sesión"}</button>
+              <span className="visually-hidden" role="status">{cargando ? "Verificando acceso" : ""}</span>
+            </form>
           </div>
-
-          <form onSubmit={iniciarSesion}>
-
-            <div className="login-form-group">
-
-              <label>
-                Correo electrónico
-              </label>
-
-              <input
-                type="email"
-                className="login-input"
-                placeholder="correo@riccati.cr"
-                value={correo}
-                onChange={(e) =>
-                  setCorreo(e.target.value)
-                }
-                required
-              />
-
-            </div>
-
-            <div className="login-form-group">
-
-              <label>
-                Contraseña
-              </label>
-
-              <input
-                type="password"
-                className="login-input"
-                placeholder="Ingresa tu contraseña"
-                value={password}
-                onChange={(e) =>
-                  setPassword(e.target.value)
-                }
-                required
-              />
-
-            </div>
-
-            {error && (
-              <div className="login-error">
-                {error}
-              </div>
-            )}
-
-            <button
-              type="submit"
-              className="login-button"
-              disabled={cargando}
-            >
-              {cargando
-                ? "Verificando acceso..."
-                : "Iniciar sesión"}
-            </button>
-
-          </form>
-
-          <div className="login-footer">
-
-            <span className="login-online-dot"></span>
-
-            Riccati Project Hub · Sistema disponible
-
-          </div>
-
-        </div>
-
+        </section>
+        <p className="rp-auth-caption">Gestión centralizada de proyectos arquitectónicos</p>
       </div>
-
     </div>
-  );
+  </main>;
 }
 
 export default Login;

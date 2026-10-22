@@ -1,159 +1,52 @@
-
-import { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Menu, Layers3, ShieldCheck } from "lucide-react";
+import RiccatiLogo from "./RiccatiLogo";
+import ModalAccessibility from "./ModalAccessibility";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, Link } from "react-router-dom";
+import { Menu } from "lucide-react";
 import Sidebar from "./Sidebar";
+import ThemeToggle from "./ThemeToggle";
 
-function RiccatiLayout({ children, paginaActiva }) {
-  const [rutaMenuAbierto, setRutaMenuAbierto] = useState(null);
+export default function RiccatiLayout({ children }) {
   const location = useLocation();
-  const menuAbierto = rutaMenuAbierto === location.key;
-  const setMenuAbierto = abierto => setRutaMenuAbierto(abierto ? location.key : null);
-
+  const [openRoute, setOpenRoute] = useState(null);
+  const open = openRoute === location.key;
+  const menuButton = useRef(null);
+  const drawer = useRef(null);
   let usuario = null;
-
-  try {
-    usuario = JSON.parse(
-      localStorage.getItem("usuarioRiccati")
-    );
-  } catch {
-    usuario = null;
-  }
-
-  const titulos = {
-    dashboard: "Dashboard",
-    usuarios: "Usuarios",
-    clientes: "Clientes",
-    proyectos: "Proyectos",
-    bitacora: "Bitácora",
-    perfil: "Mi cuenta",
-  };
-
-  const tituloActual =
-    titulos[paginaActiva] || "Espacio de trabajo";
-
+  try { usuario = JSON.parse(localStorage.getItem("usuarioRiccati")); } catch { /* Invalid stored session. */ }
+  const close = () => { setOpenRoute(null); menuButton.current?.focus(); };
   useEffect(() => {
-    if (!menuAbierto) return;
-
-    const cerrarConEscape = (evento) => {
-      if (evento.key === "Escape") {
-        setRutaMenuAbierto(null);
+    if (!open) return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const focusable = () => [...drawer.current.querySelectorAll('a[href], button:not([disabled])')];
+    focusable()[0]?.focus();
+    function keydown(event) {
+      if (event.key === "Escape") { setOpenRoute(null); menuButton.current?.focus(); }
+      if (event.key === "Tab") {
+        const items = focusable(); const first = items[0]; const last = items.at(-1);
+        if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
       }
-    };
-
-    window.addEventListener("keydown", cerrarConEscape);
-
-    return () => {
-      window.removeEventListener(
-        "keydown",
-        cerrarConEscape
-      );
-    };
-  }, [menuAbierto]);
-
-  return (
-    <div className="riccati-app riccati-shell-v2">
-
-      <div
-        className={
-          menuAbierto
-            ? "riccati-shell-navigation is-open"
-            : "riccati-shell-navigation"
-        }
-      >
-        <Sidebar paginaActiva={paginaActiva} />
-      </div>
-
-      {menuAbierto && (
-        <button
-          type="button"
-          className="riccati-shell-overlay"
-          aria-label="Cerrar menú"
-          onClick={() => setMenuAbierto(false)}
-        />
-      )}
-
-      <div className="riccati-workspace">
-
-        <header className="riccati-workspace-bar">
-
-          <div className="riccati-workspace-left">
-
-            <button
-              type="button"
-              className="riccati-mobile-menu"
-              onClick={() =>
-                setMenuAbierto(!menuAbierto)
-              }
-              aria-label="Abrir menú de navegación"
-              aria-expanded={menuAbierto}
-            >
-              <Menu size={22} />
-            </button>
-
-            <div className="riccati-workspace-symbol">
-              <Layers3 size={20} />
-            </div>
-
-            <div className="riccati-workspace-context">
-              <span>RICCATI PROJECT HUB</span>
-
-              <div className="riccati-workspace-breadcrumb">
-                Espacio de trabajo
-                <span>/</span>
-                <strong>{tituloActual}</strong>
-              </div>
-            </div>
-
-          </div>
-
-          <div className="riccati-workspace-right">
-
-            <div className="riccati-workspace-session">
-              <span className="riccati-workspace-session-dot" />
-              Sesión iniciada
-            </div>
-
-            <div className="riccati-workspace-account">
-
-              <div className="riccati-workspace-account-text">
-                <strong>
-                  {usuario?.nombre || "Usuario"}
-                </strong>
-
-                <span>
-                  {usuario?.rol || "Sin rol"}
-                </span>
-              </div>
-
-              <div className="riccati-workspace-avatar">
-                {usuario?.nombre?.charAt(0) || "U"}
-              </div>
-
-            </div>
-
-            <div
-              className="riccati-workspace-security"
-              title="Acceso mediante sesión autenticada"
-            >
-              <ShieldCheck size={19} />
-            </div>
-
-          </div>
-
-        </header>
-
-        <main
-          id="contenido-principal"
-          className="riccati-main"
-        >
-          {children}
-        </main>
-
-      </div>
-
+    }
+    const desktop = window.matchMedia("(min-width: 1200px)");
+    const onResize = () => { if (desktop.matches) setOpenRoute(null); };
+    desktop.addEventListener("change", onResize);
+    document.addEventListener("keydown", keydown);
+    return () => { document.body.style.overflow = previous; document.removeEventListener("keydown", keydown); desktop.removeEventListener("change", onResize); };
+  }, [open]);
+  return <div className={"rp-shell" + (open ? " rp-menu-open" : "")}>
+    <ModalAccessibility/>
+    <a href="#contenido-principal" className="rp-skip">Saltar al contenido</a>
+    <div ref={drawer} id="navegacion-principal" className="rp-drawer" role={open ? "dialog" : undefined} aria-modal={open || undefined} aria-label="Navegación principal"><Sidebar onClose={close}/></div>
+    {open && <button type="button" tabIndex={-1} className="rp-overlay" onClick={close} aria-label="Cerrar navegación"/>}
+    <div className="rp-workspace" inert={open ? true : undefined}>
+      <header className="rp-topbar">
+        <div className="rp-topbar-left"><button ref={menuButton} type="button" className="rp-icon-button rp-mobile-only" onClick={() => setOpenRoute(location.key)} aria-label="Abrir navegación" aria-expanded={open} aria-controls="navegacion-principal"><Menu size={23}/></button><Link to="/dashboard" className="rp-header-brand" aria-label="Riccati Project Hub, inicio"><RiccatiLogo/></Link></div>
+        <div className="rp-topbar-right"><ThemeToggle/><span className="rp-topbar-divider"/><Link to="/perfil" className="rp-account" aria-label="Ir a mi cuenta"><span className="rp-account-text"><strong>{usuario?.nombre || "Usuario"}</strong><small>{usuario?.rol || "Sin rol"}</small></span><span className="rp-avatar">{usuario?.nombre?.charAt(0) || "U"}</span></Link></div>
+      </header>
+      <main id="contenido-principal" tabIndex={-1} className="rp-content"><div className="rp-module-content">{children}</div></main>
+      <footer className="rp-footer">Riccati Project Hub</footer>
     </div>
-  );
+  </div>;
 }
-
-export default RiccatiLayout;

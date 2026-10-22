@@ -1,3 +1,4 @@
+import FormField from "../components/FormField";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
@@ -46,30 +47,30 @@ function ModalRegistro({ modo, entrada, usuario, ahora, error, guardando, onCerr
           <div className="riccati-modal-body">
             {error && <div className="login-error" role="alert">{error}</div>}
             {editando && <div className="bitacora-alert"><ShieldAlert size={19}/><span>{exigeMotivo ? "Esta corrección requiere una justificación obligatoria de 10 caracteres como mínimo." : "Puedes corregir tu propia actividad dentro de las primeras 24 horas. La modificación quedará auditada."}</span></div>}
-            {!comentario && <div className="riccati-form-group">
+            {!comentario && <FormField className="riccati-form-group">
               <label htmlFor="bitacora-titulo">Título de la actividad *</label>
               <input id="bitacora-titulo" className="riccati-input" name="titulo" value={form.titulo || ""} onChange={cambio} maxLength={180} required minLength={3} placeholder="Ej.: Visita técnica y revisión de planos" />
-            </div>}
-            <div className="riccati-form-group">
+            </FormField>}
+            <FormField className="riccati-form-group">
               <label htmlFor="bitacora-contenido">{comentario ? "Comentario *" : "Descripción de la actividad *"}</label>
               <textarea id="bitacora-contenido" className="riccati-input bitacora-area" name="contenido" value={form.contenido || ""} onChange={cambio} minLength={comentario ? 2 : 5} maxLength={comentario ? 3000 : 5000} required rows={4} placeholder={comentario ? "Escribe tu comentario para el equipo..." : "Describe los avances realizados, entregables o hallazgos..."}/>
-            </div>
+            </FormField>
             {!comentario && <div className="bitacora-campos-horas">
-              <div className="riccati-form-group">
+              <FormField className="riccati-form-group">
                 <label htmlFor="bitacora-horas">Horas dedicadas (opcional)</label>
                 <div className="bitacora-campo-icono"><Clock3 size={19}/><input id="bitacora-horas" className="riccati-input" name="horas" value={form.horas ?? ""} onChange={cambio} type="number" min="0.01" max="24" step="0.01" placeholder="Ej.: 2.50"/></div>
                 <small className="bitacora-ayuda">Mayor que 0 y máximo 24 horas.</small>
-              </div>
-              <div className="riccati-form-group">
+              </FormField>
+              <FormField className="riccati-form-group">
                 <label htmlFor="bitacora-esfuerzo">Descripción del esfuerzo {form.horas === "" || form.horas == null ? "*" : "(opcional)"}</label>
                 <textarea id="bitacora-esfuerzo" className="riccati-input" name="descripcion_esfuerzo" value={form.descripcion_esfuerzo || ""} onChange={cambio} maxLength={2000} minLength={form.horas === "" || form.horas == null ? 5 : undefined} required={form.horas === "" || form.horas == null} rows={2} placeholder="Ej.: Revisión de detalles técnicos..."/>
                 <small className="bitacora-ayuda">Obligatoria cuando no se informan horas.</small>
-              </div>
+              </FormField>
             </div>}
-            {editando && <div className="riccati-form-group">
+            {editando && <FormField className="riccati-form-group">
               <label htmlFor="bitacora-justificacion">Justificación de la corrección {exigeMotivo ? "*" : "(opcional)"}</label>
               <textarea id="bitacora-justificacion" className="riccati-input" name="justificacion" value={form.justificacion || ""} onChange={cambio} minLength={exigeMotivo ? 10 : undefined} maxLength={2000} required={exigeMotivo} rows={3} placeholder="Explica por qué necesitas corregir este registro..."/>
-            </div>}
+            </FormField>}
           </div>
           <div className="riccati-modal-footer">
             <button type="button" className="riccati-button-secondary" disabled={guardando} onClick={onCerrar}>Cancelar</button>

@@ -1,3 +1,4 @@
+import Pagination from "../components/Pagination";
 import {
   useEffect,
   useMemo,
@@ -27,6 +28,7 @@ function Usuarios() {
   const [roles, setRoles] =
     useState([]);
 
+  const [pagina, setPagina] = useState(1);
   const [busqueda, setBusqueda] =
     useState("");
 
@@ -139,6 +141,9 @@ function Usuarios() {
       );
 
     }, [usuarios, busqueda]);
+  const paginaActual = Math.min(pagina, Math.max(1, Math.ceil(usuariosFiltrados.length / 10)));
+  const visibles = usuariosFiltrados.slice((paginaActual - 1) * 10, paginaActual * 10);
+
 
 
   // =====================================================
@@ -334,7 +339,7 @@ function Usuarios() {
         modulo="MÓDULO M01 · ADMINISTRACIÓN"
         titulo="Usuarios"
         descripcion="Administración de usuarios, roles y permisos de acceso al sistema."
-        estado="PostgreSQL conectado"
+        estado="Administración de accesos"
       />
 
 
@@ -351,7 +356,7 @@ function Usuarios() {
               "1px solid rgba(45,226,166,0.15)",
             background:
               "rgba(45,226,166,0.06)",
-            color: "#2de2a6",
+            color: "var(--ui-success)",
             fontSize: "12px",
           }}
         >
@@ -363,7 +368,7 @@ function Usuarios() {
       {/* ERROR GENERAL */}
 
       {error && !mostrarModal && (
-        <div className="login-error animate-up">
+        <div className="login-error animate-up" role="alert">
           {error}
         </div>
       )}
@@ -440,12 +445,10 @@ function Usuarios() {
 
               <input
                 type="text"
-                placeholder="Buscar usuario..."
+                aria-label="Buscar usuario" placeholder="Buscar usuario..."
                 value={busqueda}
                 onChange={(e) =>
-                  setBusqueda(
-                    e.target.value
-                  )
+                  (setBusqueda(e.target.value), setPagina(1))
                 }
               />
 
@@ -483,8 +486,9 @@ function Usuarios() {
             </thead>
 
             <tbody>
+ {usuariosFiltrados.length === 0 && <tr><td colSpan={6}><div className="riccati-empty"><strong>Sin resultados</strong><span>{busqueda ? "Prueba con otro nombre, correo o rol." : "No hay usuarios registrados."}</span></div></td></tr>}
 
-              {usuariosFiltrados.map(
+              {visibles.map(
                 (usuario) => (
 
                   <tr key={usuario.id_usuario}>
@@ -514,7 +518,7 @@ function Usuarios() {
                           <strong
                             style={{
                               display: "block",
-                              color: "#e8f0f7",
+                              color: "var(--rp-ink)",
                               fontSize: "12px",
                             }}
                           >
@@ -526,8 +530,8 @@ function Usuarios() {
                             style={{
                               display: "block",
                               marginTop: "3px",
-                              color: "#a3b9cc",
-                              fontSize: "11px",
+                              color: "var(--rp-muted)",
+                              fontSize: "13px",
                             }}
                           >
                             USR-
@@ -620,17 +624,7 @@ function Usuarios() {
         </div>
 
 
-        <div
-          style={{
-            padding: "12px 16px",
-            color: "#a3b9cc",
-            fontSize: "11px",
-          }}
-        >
-          Mostrando{" "}
-          {usuariosFiltrados.length} de{" "}
-          {usuarios.length} usuarios
-        </div>
+        <Pagination total={usuariosFiltrados.length} page={paginaActual} onChange={setPagina} noun="usuarios" />
 
       </section>
 
