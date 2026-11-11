@@ -34,3 +34,5 @@ Thumbs.db
 
 # Documentos cargados por usuarios (Sprint 3 · M05): nunca se versionan
 backend/uploads/
+
+Claude outputs/
