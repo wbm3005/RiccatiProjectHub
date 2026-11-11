@@ -23,6 +23,9 @@ const proyectosRoutes = require(
 
 const bitacoraRoutes = require("./routes/bitacora.routes");
 
+// Sprint 3 · M05 Gestión documental
+const documentosRoutes = require("./routes/documentos.routes");
+
 
 const app = express();
 
@@ -76,6 +79,8 @@ app.use(
 
 app.use("/api/bitacora", bitacoraRoutes);
 
+app.use("/api/documentos", documentosRoutes);
+
 
 // =====================================================
 // SERVIDOR
@@ -85,4 +90,4 @@ app.listen(PORT, () => {
   console.log(
     `Servidor ejecutándose en http://localhost:${PORT}`
   );
-});
+});

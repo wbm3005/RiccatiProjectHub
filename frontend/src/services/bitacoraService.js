@@ -29,8 +29,15 @@ async function solicitud(ruta, configuracion = {}) {
 }
 
 export const proyectosDeBitacora = () => solicitud("/proyectos");
-export const cronologiaProyecto = (id, pagina = 1, tipo = "TODOS") =>
-  solicitud(`/proyectos/${Number(id)}/cronologia?pagina=${pagina}&limite=8&tipo=${encodeURIComponent(tipo)}`);
+// HU-M04-06: filtros opcionales { desde, hasta, colaborador } combinables con el tipo.
+export const cronologiaProyecto = (id, pagina = 1, tipo = "TODOS", filtros = {}) => {
+  const parametros = new URLSearchParams({ pagina: String(pagina), limite: "8", tipo });
+  if (filtros.desde) parametros.set("desde", filtros.desde);
+  if (filtros.hasta) parametros.set("hasta", filtros.hasta);
+  if (filtros.colaborador) parametros.set("colaborador", String(filtros.colaborador));
+  return solicitud(`/proyectos/${Number(id)}/cronologia?${parametros}`);
+};
+export const colaboradoresBitacora = (id) => solicitud(`/proyectos/${Number(id)}/colaboradores`);
 export const registrarActividad = (id, datos) =>
   solicitud(`/proyectos/${Number(id)}/actividades`, { method: "POST", body: JSON.stringify(datos) });
 export const registrarComentario = (id, datos) =>

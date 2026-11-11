@@ -540,6 +540,10 @@ function ProyectoFichaModal({
             Ver bitácora
           </Link>}
 
+          {proyecto && <Link to={`/documentos?proyecto=${proyecto.id_proyecto}`} onClick={onClose} className="riccati-button-secondary" style={{ textDecoration: "none" }}>
+            Ver documentos
+          </Link>}
+
           {proyecto && (
             <button
               type="button"
@@ -735,4 +739,4 @@ function formatearFecha(fecha) {
 }
 
 
-export default ProyectoFichaModal;
+export default ProyectoFichaModal;

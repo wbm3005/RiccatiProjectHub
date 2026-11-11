@@ -3,18 +3,19 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useSearchParams } from "react-router-dom";
 import {
-  Activity, CalendarClock, Check, ChevronLeft, ChevronRight, Clock3, FileClock,
-  FolderKanban, History, ListFilter, MessageSquareText, Pencil, Plus,
-  RefreshCcw, ShieldAlert, X,
+  Activity, CalendarClock, CalendarRange, Check, ChevronLeft, ChevronRight, Clock3, FileClock,
+  FilterX, FolderKanban, History, ListFilter, MessageSquareText, Pencil, Plus,
+  RefreshCcw, SearchX, ShieldAlert, UserRound, X,
 } from "lucide-react";
 import RiccatiLayout from "../components/RiccatiLayout";
 import PageHeader from "../components/PageHeader";
 import {
-  proyectosDeBitacora, cronologiaProyecto, registrarActividad,
+  proyectosDeBitacora, cronologiaProyecto, colaboradoresBitacora, registrarActividad,
   registrarComentario, corregirActividad,
 } from "../services/bitacoraService";
 import "../styles/bitacora.css";
 
+const FILTROS_INICIALES = { desde: "", hasta: "", colaborador: "" };
 const FORM_INICIAL = { titulo: "", contenido: "", horas: "", descripcion_esfuerzo: "", justificacion: "" };
 const fechaTexto = (valor) => valor ? new Date(valor).toLocaleString("es-CR", {
   dateStyle: "medium", timeStyle: "short",
@@ -137,6 +138,9 @@ export default function Bitacora() {
   const [error, setError] = useState("");
   const [mensaje, setMensaje] = useState("");
   const [tipo, setTipo] = useState("TODOS");
+  // HU-M04-06: filtros combinables que se aplican en el servidor.
+  const [filtros, setFiltros] = useState(FILTROS_INICIALES);
+  const [colaboradores, setColaboradores] = useState([]);
   const [pagina, setPagina] = useState(1);
   const [paginas, setPaginas] = useState(1);
   const [total, setTotal] = useState(0);
@@ -169,7 +173,7 @@ export default function Bitacora() {
     let activo = true;
     setCargando(true);
     setError("");
-    cronologiaProyecto(idSeleccionado, pagina, tipo).then(datos => {
+    cronologiaProyecto(idSeleccionado, pagina, tipo, filtros).then(datos => {
       if (!activo) return;
       setEventos(datos.eventos || []);
       setResumen(datos.resumen || { actividades: 0, comentarios: 0, horas: 0, correcciones: 0 });
@@ -178,11 +182,27 @@ export default function Bitacora() {
       setPaginas(datos.paginas || 1);
     }).catch(e => { if (activo) setError(e.message); }).finally(() => { if (activo) setCargando(false); });
     return () => { activo = false; };
-  }, [idSeleccionado, pagina, tipo, recargar]);
+  }, [idSeleccionado, pagina, tipo, filtros, recargar]);
+
+  // Opciones del filtro por colaborador: personas con eventos en este proyecto.
+  useEffect(() => {
+    if (!idSeleccionado) return;
+    let activo = true;
+    colaboradoresBitacora(idSeleccionado)
+      .then(datos => { if (activo) setColaboradores(Array.isArray(datos) ? datos : []); })
+      .catch(() => { if (activo) setColaboradores([]); });
+    return () => { activo = false; };
+  }, [idSeleccionado, recargar]);
+
+  const hayFiltros = tipo !== "TODOS" || Boolean(filtros.desde || filtros.hasta || filtros.colaborador);
+  const cambiarFiltro = (e) => { const { name, value } = e.target; setFiltros(antes => ({ ...antes, [name]: value })); setPagina(1); };
+  const limpiarFiltros = () => { setTipo("TODOS"); setFiltros(FILTROS_INICIALES); setPagina(1); };
 
   const cambiarProyecto = useCallback((e) => {
     setSearchParams({ proyecto: e.target.value });
     setPagina(1);
+    setTipo("TODOS");
+    setFiltros(FILTROS_INICIALES);
     setMensaje("");
   }, [setSearchParams]);
 
@@ -240,10 +260,23 @@ export default function Bitacora() {
             <div><span className="riccati-panel-label">LÍNEA DE TIEMPO</span><h3>{proyectoActual?.nombre || "Historial del proyecto"}</h3><p>{proyectoActual?.codigo} · {proyectoActual?.cliente}</p></div>
             <div className="bitacora-botones"><button type="button" className="riccati-button-secondary" onClick={() => abrir("comentario")}><MessageSquareText size={18}/> Comentar</button><button type="button" className="riccati-button-primary" onClick={() => abrir("actividad")}><Plus size={19}/> Nueva actividad</button></div>
           </header>
-          <div className="bitacora-filtro-barra"><label><ListFilter size={18}/><span>Mostrar</span><select className="riccati-select" value={tipo} onChange={e => {setTipo(e.target.value);setPagina(1);}}><option value="TODOS">Todos los eventos</option><option value="ACTIVIDAD">Actividades</option><option value="COMENTARIO">Comentarios</option><option value="CORRECCION">Correcciones</option></select></label><button type="button" className="bitacora-actualizar" onClick={() => setRecargar(n=>n+1)}><RefreshCcw size={17}/> Actualizar</button></div>
+          <div className="bitacora-filtro-barra" role="search" aria-label="Filtrar bitácora">
+            <div className="bitacora-filtros">
+              <label className="bitacora-filtro"><span><ListFilter size={15}/> Tipo</span><select className="riccati-select" value={tipo} onChange={e => {setTipo(e.target.value);setPagina(1);}}><option value="TODOS">Todos los eventos</option><option value="ACTIVIDAD">Actividades</option><option value="COMENTARIO">Comentarios</option><option value="CORRECCION">Correcciones</option></select></label>
+              <label className="bitacora-filtro"><span><CalendarRange size={15}/> Desde</span><input type="date" className="riccati-input" name="desde" value={filtros.desde} max={filtros.hasta || undefined} onChange={cambiarFiltro}/></label>
+              <label className="bitacora-filtro"><span><CalendarRange size={15}/> Hasta</span><input type="date" className="riccati-input" name="hasta" value={filtros.hasta} min={filtros.desde || undefined} onChange={cambiarFiltro}/></label>
+              <label className="bitacora-filtro"><span><UserRound size={15}/> Colaborador</span><select className="riccati-select" name="colaborador" value={filtros.colaborador} onChange={cambiarFiltro}><option value="">Todos</option>{colaboradores.map(c => <option key={c.id_usuario} value={c.id_usuario}>{c.nombre}</option>)}</select></label>
+            </div>
+            <div className="bitacora-filtro-acciones">
+              <button type="button" className="bitacora-actualizar" onClick={limpiarFiltros} disabled={!hayFiltros}><FilterX size={17}/> Limpiar filtros</button>
+              <button type="button" className="bitacora-actualizar" onClick={() => setRecargar(n=>n+1)}><RefreshCcw size={17}/> Actualizar</button>
+            </div>
+          </div>
           {error && <div className="login-error bitacora-error" role="alert">{error}</div>}
-          {cargando ? <div className="bitacora-vacio"><div className="riccati-loader"/><p>Cargando cronología...</p></div> : eventos.length === 0 && !error ? <div className="bitacora-vacio"><FileClock size={37}/><h3>Sin eventos {tipo !== "TODOS" ? "de este tipo" : "todavía"}</h3><p>Registra una actividad o agrega un comentario para comenzar el seguimiento.</p></div> : <div className="bitacora-linea-tiempo">{eventos.map(e => <Entrada key={e.clave} evento={e} usuario={usuario} ahora={ahora} corregir={registro => abrir("corregir", registro)} />)}</div>}
-          <footer className="bitacora-paginacion"><span>{total} evento(s) · Página {pagina} de {paginas}</span><div><button type="button" className="riccati-button-secondary" onClick={() => setPagina(p => Math.max(1,p-1))} disabled={pagina<=1} aria-label="Página anterior"><ChevronLeft size={18}/></button><button type="button" className="riccati-button-secondary" onClick={() => setPagina(p => Math.min(paginas,p+1))} disabled={pagina>=paginas} aria-label="Página siguiente"><ChevronRight size={18}/></button></div></footer>
+          {cargando ? <div className="bitacora-vacio"><div className="riccati-loader"/><p>Cargando cronología...</p></div> : eventos.length === 0 && !error ? (hayFiltros
+            ? <div className="bitacora-vacio"><SearchX size={37}/><h3>No hay eventos que coincidan con los filtros</h3><p>Prueba con otro rango de fechas, colaborador o tipo de evento.</p><button type="button" className="riccati-button-secondary" onClick={limpiarFiltros}><FilterX size={17}/> Limpiar filtros</button></div>
+            : <div className="bitacora-vacio"><FileClock size={37}/><h3>Sin eventos todavía</h3><p>Registra una actividad o agrega un comentario para comenzar el seguimiento.</p></div>) : <div className="bitacora-linea-tiempo">{eventos.map(e => <Entrada key={e.clave} evento={e} usuario={usuario} ahora={ahora} corregir={registro => abrir("corregir", registro)} />)}</div>}
+          <footer className="bitacora-paginacion"><span>{total} evento(s){hayFiltros ? " con los filtros aplicados" : ""} · Página {pagina} de {paginas}</span><div><button type="button" className="riccati-button-secondary" onClick={() => setPagina(p => Math.max(1,p-1))} disabled={pagina<=1} aria-label="Página anterior"><ChevronLeft size={18}/></button><button type="button" className="riccati-button-secondary" onClick={() => setPagina(p => Math.min(paginas,p+1))} disabled={pagina>=paginas} aria-label="Página siguiente"><ChevronRight size={18}/></button></div></footer>
         </section>
       </>}
       {modal && <ModalRegistro key={`${modal}-${entradaEditar?.id_entrada ?? "nuevo"}`} modo={modal} entrada={entradaEditar} usuario={usuario} ahora={ahora} error={errorModal} guardando={guardando} onCerrar={cerrar} onGuardar={guardar}/>}

@@ -1,6 +1,6 @@
 import RiccatiLogo from "./RiccatiLogo";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { LayoutDashboard, UsersRound, Building2, FolderKanban, LogOut, UserRound, ClipboardList, X } from "lucide-react";
+import { LayoutDashboard, UsersRound, Building2, FolderKanban, LogOut, UserRound, ClipboardList, FileText, X } from "lucide-react";
 
 export default function Sidebar({ onClose }) {
   const navigate = useNavigate();
@@ -12,6 +12,7 @@ export default function Sidebar({ onClose }) {
     ["/clientes", "Clientes", Building2, usuario?.rol === "Administrador" ? null : "GESTIÓN"],
     ["/proyectos", "Proyectos", FolderKanban],
     ["/bitacora", "Bitácora", ClipboardList],
+    ["/documentos", "Documentos", FileText],
     ["/perfil", "Mi cuenta", UserRound, "PERSONAL"],
   ];
   function logout() {

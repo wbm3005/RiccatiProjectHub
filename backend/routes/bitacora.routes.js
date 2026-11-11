@@ -2,11 +2,11 @@
 const express = require("express");
 const pool = require("../db");
 const { autenticarToken } = require("../middleware/auth.middleware");
+const { permisoProyecto, idValido } = require("../services/accesoProyecto");
 
 const router = express.Router();
 router.use(autenticarToken);
 
-const idValido = (v) => /^\d+$/.test(String(v)) && Number.isSafeInteger(Number(v)) && Number(v) > 0;
 const texto = (v) => typeof v === "string" ? v.trim() : "";
 const administrador = (req) => req.usuario.rol === "Administrador";
 const errorHTTP = (res, estado, mensaje) => res.status(estado).json({ mensaje });
@@ -34,26 +34,6 @@ function validarActividad(body) {
   return { titulo, contenido, horas, descripcion_esfuerzo: esfuerzo || null };
 }
 
-async function permisoProyecto(cliente, req, idProyecto) {
-  const resp = await cliente.query(
-    `SELECT p.id_proyecto, p.codigo, p.nombre, ep.nombre AS estado,
-            c.nombre_razon_social AS cliente,
-            EXISTS (SELECT 1 FROM proyecto_usuarios pu
-                     WHERE pu.id_proyecto = p.id_proyecto AND pu.id_usuario = $2 AND pu.activo = TRUE) AS asignado
-       FROM proyectos p
-       JOIN estados_proyecto ep ON ep.id_estado = p.id_estado
-       JOIN clientes c ON c.id_cliente = p.id_cliente
-      WHERE p.id_proyecto = $1`,
-    [idProyecto, req.usuario.idUsuario]
-  );
-  if (!resp.rowCount) return { estado: 404, mensaje: "El proyecto no existe." };
-  const proyecto = resp.rows[0];
-  if (!administrador(req) && !proyecto.asignado) {
-    return { estado: 403, mensaje: "Solo puedes consultar o registrar información en proyectos que tengas asignados." };
-  }
-  return { proyecto };
-}
-
 // Catálogo filtrado en el SERVIDOR: un colaborador solo ve proyectos asignados.
 router.get("/proyectos", async (req, res) => {
   try {
@@ -75,6 +55,26 @@ router.get("/proyectos", async (req, res) => {
     return errorHTTP(res, 500, "No fue posible cargar los proyectos de la bitácora.");
   }
 });
+
+// HU-M04-06: fechas AAAA-MM-DD válidas y rango coherente.
+function fechaValida(valor) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(valor)) return false;
+  const [a, m, d] = valor.split("-").map(Number);
+  const fecha = new Date(Date.UTC(a, m - 1, d));
+  return fecha.getUTCFullYear() === a && fecha.getUTCMonth() === m - 1 && fecha.getUTCDate() === d && a >= 2000 && a <= 2100;
+}
+
+function analizarFiltrosFecha(desdeEntrada, hastaEntrada) {
+  const desde = texto(desdeEntrada) || null;
+  const hasta = texto(hastaEntrada) || null;
+  if ((desdeEntrada !== undefined && typeof desdeEntrada !== "string") || (hastaEntrada !== undefined && typeof hastaEntrada !== "string")) {
+    return { error: "El rango de fechas no es válido." };
+  }
+  if (desde && !fechaValida(desde)) return { error: "La fecha inicial no es válida (formato AAAA-MM-DD)." };
+  if (hasta && !fechaValida(hasta)) return { error: "La fecha final no es válida (formato AAAA-MM-DD)." };
+  if (desde && hasta && desde > hasta) return { error: "La fecha inicial no puede ser posterior a la fecha final." };
+  return { desde, hasta };
+}
 
 // HU-M04-04. Eventos originales y cada corrección, ordenados por fecha real de evento.
 const EVENTOS_SQL = `
@@ -117,17 +117,26 @@ router.get("/proyectos/:id/cronologia", async (req, res) => {
   if (!["TODOS", "ACTIVIDAD", "COMENTARIO", "CORRECCION"].includes(filtro)) {
     return errorHTTP(res, 400, "Filtro de eventos inválido.");
   }
+  // HU-M04-06: filtros combinables por rango de fechas y colaborador.
+  const rango = analizarFiltrosFecha(req.query.desde, req.query.hasta);
+  if (rango.error) return errorHTTP(res, 400, rango.error);
+  const autor = req.query.colaborador === undefined || req.query.colaborador === "" ? null : req.query.colaborador;
+  if (autor !== null && !idValido(autor)) return errorHTTP(res, 400, "El colaborador indicado no es válido.");
   const pagina = Math.max(1, Math.min(100000, parseInt(req.query.pagina, 10) || 1));
   const limite = Math.max(1, Math.min(30, parseInt(req.query.limite, 10) || 8));
   try {
     const acceso = await permisoProyecto(pool, req, Number(req.params.id));
     if (acceso.estado) return errorHTTP(res, acceso.estado, acceso.mensaje);
-    const parametros = [Number(req.params.id), filtro];
-    const condicion = `WHERE ($2::text = 'TODOS' OR tipo_evento = $2::text)`;
+    const parametros = [Number(req.params.id), filtro, rango.desde, rango.hasta, autor === null ? null : Number(autor)];
+    // Las fechas se interpretan como días completos en la zona horaria de PostgreSQL.
+    const condicion = `WHERE ($2::text = 'TODOS' OR tipo_evento = $2::text)
+        AND ($3::date IS NULL OR fecha_evento >= $3::date)
+        AND ($4::date IS NULL OR fecha_evento < $4::date + 1)
+        AND ($5::int IS NULL OR id_autor = $5::int)`;
     const [contador, listado, resumen] = await Promise.all([
       pool.query(`${EVENTOS_SQL} SELECT COUNT(*)::int AS total FROM eventos ${condicion}`, parametros),
       pool.query(`${EVENTOS_SQL} SELECT * FROM eventos ${condicion}
-                  ORDER BY fecha_evento DESC, clave DESC LIMIT $3 OFFSET $4`,
+                  ORDER BY fecha_evento DESC, clave DESC LIMIT $6 OFFSET $7`,
         [...parametros, limite, (pagina - 1) * limite]),
       pool.query(`SELECT COUNT(*) FILTER (WHERE tipo = 'ACTIVIDAD')::int AS actividades,
                          COUNT(*) FILTER (WHERE tipo = 'COMENTARIO')::int AS comentarios,
@@ -139,10 +148,36 @@ router.get("/proyectos/:id/cronologia", async (req, res) => {
     ]);
     const total = contador.rows[0].total;
     return res.json({ proyecto: acceso.proyecto, eventos: listado.rows, resumen: resumen.rows[0],
-      total, pagina, limite, paginas: Math.max(1, Math.ceil(total / limite)) });
+      total, pagina, limite, paginas: Math.max(1, Math.ceil(total / limite)),
+      filtros: { tipo: filtro, desde: rango.desde, hasta: rango.hasta, colaborador: parametros[4] } });
   } catch (error) {
     console.error("Error cronología bitácora:", error);
     return errorHTTP(res, 500, "No fue posible consultar la cronología. Comprueba que ejecutaste la migración 07.");
+  }
+});
+
+// HU-M04-06: colaboradores con eventos en la bitácora del proyecto (opciones del filtro).
+router.get("/proyectos/:id/colaboradores", async (req, res) => {
+  if (!idValido(req.params.id)) return errorHTTP(res, 400, "Proyecto inválido.");
+  try {
+    const acceso = await permisoProyecto(pool, req, Number(req.params.id));
+    if (acceso.estado) return errorHTTP(res, acceso.estado, acceso.mensaje);
+    const resultado = await pool.query(
+      `SELECT u.id_usuario, CONCAT(u.nombre, ' ', u.apellidos) AS nombre
+         FROM usuarios u
+        WHERE u.id_usuario IN (
+              SELECT e.id_usuario FROM bitacora_entradas e WHERE e.id_proyecto = $1
+              UNION
+              SELECT c.id_usuario_corrector FROM bitacora_correcciones c
+                JOIN bitacora_entradas e ON e.id_entrada = c.id_entrada
+               WHERE e.id_proyecto = $1)
+        ORDER BY nombre, u.id_usuario`,
+      [Number(req.params.id)]
+    );
+    return res.json(resultado.rows);
+  } catch (error) {
+    console.error("Error colaboradores bitácora:", error);
+    return errorHTTP(res, 500, "No fue posible cargar los colaboradores de la bitácora.");
   }
 });
 
