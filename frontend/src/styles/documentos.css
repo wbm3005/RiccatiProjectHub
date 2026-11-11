@@ -28,3 +28,32 @@
 .documentos-modal-pequeno {width:min(520px,100%);}
 
 @media(max-width:620px){.documentos-identidad{min-width:180px;}.documentos-barra{gap:10px;}}
+
+/* HU-M05-04 · Versiones */
+.documentos-version {display:inline-block;margin-left:8px;padding:1px 7px;border-radius:999px;font-size:10.5px;font-weight:700;color: var(--rp-accent);background: var(--rp-hover);border:1px solid var(--rp-line);vertical-align:1px;}
+.documentos-identidad strong .riccati-badge {margin-left:8px;vertical-align:1px;}
+.documentos-versiones {list-style:none;margin:0;padding:0;display:grid;gap:10px;}
+.documentos-versiones li {display:flex;align-items:center;gap:14px;padding:14px;border:1px solid var(--rp-line);border-radius:12px;background: var(--rp-hover);}
+.documentos-versiones li.vigente {border-color: var(--rp-accent);}
+.documentos-version-numero {display:grid;place-items:center;flex-shrink:0;width:42px;height:42px;border-radius:11px;font-weight:800;font-size:13px;color: var(--rp-accent);border:1px solid var(--rp-line);background: var(--rp-surface, transparent);}
+.documentos-version-info {flex:1;min-width:0;}
+.documentos-version-info strong {display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-size:13px;color: var(--rp-ink);overflow-wrap:anywhere;}
+.documentos-version-info small {display:block;margin-top:4px;font-size:11.5px;color: var(--rp-muted);}
+.documentos-version-info p {margin:6px 0 0;font-size:12px;color: var(--rp-muted);white-space:pre-wrap;}
+
+/* HU-M05-05 · Búsqueda */
+.documentos-filtro-busqueda {flex:2 1 220px;max-width:320px;}
+
+/* HU-M05-06 · Inactivación */
+.documentos-fila-inactiva td {opacity:.78;}
+.documentos-fila-inactiva .documentos-icono {color: var(--rp-muted);}
+.documentos-motivo {padding:8px 10px;border-radius:9px;border:1px dashed var(--rp-line);}
+.documentos-motivo strong {display:inline !important;font-size:12px !important;}
+.documentos-accion-peligro:hover {color: var(--ui-danger);border-color: var(--ui-danger);}
+.documentos-boton-peligro {background: var(--ui-danger);border-color: var(--ui-danger);}
+.documentos-boton-peligro:hover {filter:brightness(.92);}
+
+@media(max-width:620px){.documentos-versiones li{flex-wrap:wrap;}.documentos-filtro-busqueda{max-width:none;}}
+.documentos-filtros .bitacora-filtro {min-width:125px;flex:1 1 125px;max-width:190px;}
+.documentos-filtros .documentos-filtro-busqueda {flex:2 1 200px;max-width:300px;}
+.documentos-filtros .bitacora-filtro-acciones {gap:12px;}

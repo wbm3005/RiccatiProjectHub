@@ -9,8 +9,12 @@ const { cargarConDobles, filas, authSimulada } = require("./helpers/http");
 const carpeta = fs.mkdtempSync(path.join(os.tmpdir(), "riccati-docs-"));
 process.env.DOCUMENTOS_DIR = carpeta;
 const documentos = [];
+const versiones = [];
 const pool = {
+  connect: async () => ({ query: pool.query, release() {} }),
   async query(sql, p = []) {
+    if (/^\s*(BEGIN|COMMIT|ROLLBACK)/.test(sql)) return filas([]);
+    if (sql.includes("INSERT INTO documento_versiones")) { versiones.push(p); return filas([]); }
     if (sql.includes("FROM proyectos p") && sql.includes("WHERE p.id_proyecto = $1")) {
       if (+p[0] !== 1) return filas([]);
       return filas([{ id_proyecto: 1, codigo: "PRJ-0001", nombre: "Proyecto prueba", estado: "En curso", cliente: "Cliente", asignado: p[1] === 2 }]);
@@ -59,6 +63,7 @@ test("M05: carga de archivos con permisos y validaciones", async t => {
   assert.equal(fs.readdirSync(carpeta).length, 1);
   assert.equal(documentos[0][2], "Plano de prueba");
   assert.equal(documentos[0][9], 2, "registra el usuario que cargó el archivo");
+  assert.equal(versiones.length, 1, "la carga inicial queda registrada como versión 1");
 
   r = await enviar(PDF, { "x-user": "3" });
   assert.equal(r.status, 403, "colaborador sin asignación");

@@ -29,6 +29,10 @@ function ProyectoFichaModal({
     return null;
   }
 
+  // Sprint 3 · M06: el acceso a finanzas es solo para el administrador.
+  let esAdministrador = false;
+  try { esAdministrador = JSON.parse(localStorage.getItem("usuarioRiccati"))?.rol === "Administrador"; } catch { esAdministrador = false; }
+
   return createPortal(
     <div
       className="riccati-modal-backdrop"
@@ -542,6 +546,10 @@ function ProyectoFichaModal({
 
           {proyecto && <Link to={`/documentos?proyecto=${proyecto.id_proyecto}`} onClick={onClose} className="riccati-button-secondary" style={{ textDecoration: "none" }}>
             Ver documentos
+          </Link>}
+
+          {proyecto && esAdministrador && <Link to={`/finanzas?proyecto=${proyecto.id_proyecto}`} onClick={onClose} className="riccati-button-secondary" style={{ textDecoration: "none" }}>
+            Ver finanzas
           </Link>}
 
           {proyecto && (

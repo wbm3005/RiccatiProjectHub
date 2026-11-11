@@ -26,6 +26,9 @@ const bitacoraRoutes = require("./routes/bitacora.routes");
 // Sprint 3 · M05 Gestión documental
 const documentosRoutes = require("./routes/documentos.routes");
 
+// Sprint 3 · M06 Control financiero básico (solo administrador)
+const finanzasRoutes = require("./routes/finanzas.routes");
+
 
 const app = express();
 
@@ -80,6 +83,8 @@ app.use(
 app.use("/api/bitacora", bitacoraRoutes);
 
 app.use("/api/documentos", documentosRoutes);
+
+app.use("/api/finanzas", finanzasRoutes);
 
 
 // =====================================================

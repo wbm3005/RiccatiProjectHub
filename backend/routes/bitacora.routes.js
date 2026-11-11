@@ -3,6 +3,7 @@ const express = require("express");
 const pool = require("../db");
 const { autenticarToken } = require("../middleware/auth.middleware");
 const { permisoProyecto, idValido } = require("../services/accesoProyecto");
+const { analizarFiltrosFecha } = require("../services/filtrosFecha");
 
 const router = express.Router();
 router.use(autenticarToken);
@@ -55,26 +56,6 @@ router.get("/proyectos", async (req, res) => {
     return errorHTTP(res, 500, "No fue posible cargar los proyectos de la bitácora.");
   }
 });
-
-// HU-M04-06: fechas AAAA-MM-DD válidas y rango coherente.
-function fechaValida(valor) {
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(valor)) return false;
-  const [a, m, d] = valor.split("-").map(Number);
-  const fecha = new Date(Date.UTC(a, m - 1, d));
-  return fecha.getUTCFullYear() === a && fecha.getUTCMonth() === m - 1 && fecha.getUTCDate() === d && a >= 2000 && a <= 2100;
-}
-
-function analizarFiltrosFecha(desdeEntrada, hastaEntrada) {
-  const desde = texto(desdeEntrada) || null;
-  const hasta = texto(hastaEntrada) || null;
-  if ((desdeEntrada !== undefined && typeof desdeEntrada !== "string") || (hastaEntrada !== undefined && typeof hastaEntrada !== "string")) {
-    return { error: "El rango de fechas no es válido." };
-  }
-  if (desde && !fechaValida(desde)) return { error: "La fecha inicial no es válida (formato AAAA-MM-DD)." };
-  if (hasta && !fechaValida(hasta)) return { error: "La fecha final no es válida (formato AAAA-MM-DD)." };
-  if (desde && hasta && desde > hasta) return { error: "La fecha inicial no puede ser posterior a la fecha final." };
-  return { desde, hasta };
-}
 
 // HU-M04-04. Eventos originales y cada corrección, ordenados por fecha real de evento.
 const EVENTOS_SQL = `
