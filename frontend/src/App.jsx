@@ -11,6 +11,8 @@ import Clientes from "./pages/Clientes";
 import Proyectos from "./pages/Proyectos";
 import Perfil from "./pages/Perfil";
 import Bitacora from "./pages/Bitacora";
+import Documentos from "./pages/Documentos";
+import Finanzas from "./pages/Finanzas";
 
 import RutaProtegida from "./components/RutaProtegida";
 
@@ -79,6 +81,12 @@ function App() {
       {/* M04 - BITÁCORA / SPRINT 2 */}
       <Route path="/bitacora" element={<RutaProtegida><Bitacora /></RutaProtegida>} />
 
+      {/* M05 - DOCUMENTOS / SPRINT 3 */}
+      <Route path="/documentos" element={<RutaProtegida><Documentos /></RutaProtegida>} />
+
+      {/* M06 - FINANZAS / SPRINT 3 - SOLO ADMIN */}
+      <Route path="/finanzas" element={<RutaProtegida soloAdministrador={true}><Finanzas /></RutaProtegida>} />
+
       {/* MI CUENTA - ambos roles */}
       <Route path="/perfil" element={
         <RutaProtegida><Perfil /></RutaProtegida>
@@ -100,4 +108,4 @@ function App() {
   );
 }
 
-export default App;
+export default App;

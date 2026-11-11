@@ -75,3 +75,14 @@
 .bitacora-alert svg {flex-shrink:0;}
 @media(max-width:1050px){.bitacora-estadisticas{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media(max-width:620px){.bitacora-pagina{gap:15px;}.bitacora-estadisticas{grid-template-columns:1fr;}.bitacora-selector{padding:18px;}.bitacora-selector-acciones{max-width:none;}.bitacora-linea-tiempo{padding:19px 12px 0;}.bitacora-evento{gap:9px;}.bitacora-evento-simbolo{flex-basis:36px;height:36px;border-radius:11px;}.bitacora-evento:not(:last-child):before{left:17px;top:38px;}.bitacora-evento-info{padding:14px;}.bitacora-diferencias,.bitacora-campos-horas{grid-template-columns:1fr;}.bitacora-paginacion,.bitacora-filtro-barra{padding:15px;}.bitacora-panel-header{padding:18px;}.bitacora-botones{width:100%;}.bitacora-botones button{flex:1;}.bitacora-modal{max-height:calc(100dvh - 12px);}}
+
+/* HU-M04-06 · Filtros combinables de la bitácora */
+.bitacora-filtro-barra {align-items:flex-end;}
+.bitacora-filtros {display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;flex:1;min-width:0;}
+.bitacora-filtro {display:flex;flex-direction:column;align-items:stretch !important;gap:6px !important;min-width:150px;flex:1 1 150px;max-width:230px;}
+.bitacora-filtro > span {display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color: var(--rp-muted);}
+.bitacora-filtro select,.bitacora-filtro input {width:100%;min-width:0 !important;height:42px;font-size:13px;color: var(--rp-ink);background: var(--rp-hover);}
+.bitacora-filtro-acciones {display:flex;align-items:center;gap:16px;min-height:42px;}
+.bitacora-actualizar:disabled {opacity:.45;cursor:not-allowed;}
+.bitacora-actualizar:disabled:hover {color: var(--rp-accent);}
+@media(max-width:620px){.bitacora-filtro{max-width:none;flex-basis:100%;}.bitacora-filtro-acciones{width:100%;justify-content:space-between;}}

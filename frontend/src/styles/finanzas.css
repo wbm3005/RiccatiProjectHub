@@ -1,0 +1,39 @@
+/* Sprint 3 · M06 Control financiero básico. Reutiliza los patrones de bitácora, documentos y clientes. */
+.finanzas-estadisticas {grid-template-columns:repeat(3,minmax(0,1fr));}
+.finanzas-estadisticas .bitacora-kpi strong {font-size:22px;overflow-wrap:anywhere;}
+.finanzas-kpi-alerta {border-color: var(--ui-warning);}
+.finanzas-kpi-alerta span {color: var(--ui-warning);}
+
+.finanzas-vacio .riccati-button-primary {margin-top:6px;}
+.finanzas-subtitulo {display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color: var(--rp-ink);}
+.finanzas-subtitulo svg {color: var(--rp-accent);}
+
+.finanzas-tabla td {vertical-align:top;}
+.finanzas-fecha {font-size:13px;white-space:nowrap;}
+.finanzas-monto {font-size:13.5px;color: var(--rp-ink);white-space:nowrap;font-variant-numeric:tabular-nums;}
+.finanzas-meta {display:block;margin-top:5px;font-size:11px;color: var(--rp-muted);}
+.finanzas-fila-anulada td {opacity:.7;}
+.finanzas-fila-anulada .finanzas-monto {text-decoration:line-through;}
+.finanzas-accion-peligro:hover {color: var(--ui-danger);border-color: var(--ui-danger);}
+.finanzas-boton-peligro {background: var(--ui-danger);border-color: var(--ui-danger);}
+.finanzas-boton-peligro:hover {filter:brightness(.92);}
+
+.finanzas-campos {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 15px;}
+.finanzas-modal-pequeno {width:min(520px,100%);}
+
+/* Aviso de sobrepago (decisión del negocio: se permite con confirmación). */
+.finanzas-aviso {display:flex;gap:12px;align-items:flex-start;margin-bottom:16px;padding:14px 16px;border-radius:12px;border:1px solid var(--ui-warning);background: var(--ui-warning-bg);color: var(--rp-ink);font-size:13px;}
+.finanzas-aviso > svg {color: var(--ui-warning);flex-shrink:0;margin-top:1px;}
+.finanzas-aviso p {margin:0 0 4px;}
+.finanzas-aviso .riccati-s2-checkbox {margin:8px 0 0;}
+.finanzas-aviso-banner {align-items:center;margin-bottom:18px;}
+.finanzas-aviso-banner button {margin-left:auto;border:0;background:none;color:inherit;}
+
+.finanzas-historial {display:grid;gap:12px;}
+.finanzas-historial article {padding:14px;border:1px solid var(--rp-line);border-radius:12px;background: var(--rp-hover);}
+.finanzas-historial header {display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px;}
+.finanzas-historial header small {font-size:11.5px;color: var(--rp-muted);}
+.finanzas-historial .bitacora-diferencias small {display:block;}
+
+@media(max-width:900px){.finanzas-estadisticas{grid-template-columns:1fr;}}
+@media(max-width:620px){.finanzas-campos{grid-template-columns:1fr;}}
