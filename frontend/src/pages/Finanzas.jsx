@@ -51,7 +51,7 @@ function AvisoExcedente({ aviso, confirmado, onConfirmar }) {
 function Pie({ guardando, onCerrar, texto, deshabilitado }) {
   return <div className="riccati-modal-footer">
     <button type="button" className="riccati-button-secondary" disabled={guardando} onClick={onCerrar}>Cancelar</button>
-    <button className="riccati-button-primary" type="submit" disabled={guardando || deshabilitado}>{guardando ? "Guardando..." : texto}<Check size={17}/></button>
+    <button className="riccati-button-primary" type="submit" disabled={guardando || deshabilitado}><Check size={17}/> {guardando ? "Guardando..." : texto}</button>
   </div>;
 }
 
@@ -184,12 +184,13 @@ function ModalHistorialPago({ pago, moneda, onCerrar }) {
         : <div className="finanzas-historial">{estado.registros.map(c => {
           const cambiados = CAMPOS.filter(([campo]) => JSON.stringify(c.anterior[campo] ?? null) !== JSON.stringify(c.nuevo[campo] ?? null));
           return <article key={c.id_correccion}>
-            <header><span className={`riccati-badge ${c.tipo === "ANULACION" ? "riccati-badge-red" : "riccati-badge-orange"}`}>{c.tipo === "ANULACION" ? "Anulación" : "Corrección"}</span><small>{c.usuario} · {fechaHora(c.corregido_en)}</small></header>
+            <header><span className={`riccati-badge ${c.tipo === "ANULACION" ? "riccati-badge-red" : "riccati-badge-orange"}`}>{c.tipo === "ANULACION" ? "Anulación" : "Corrección"}</span><small>{fechaHora(c.corregido_en)}</small></header>
             <p className="bitacora-motivo"><strong>Justificación:</strong> {c.justificacion}</p>
             {c.tipo === "CORRECCION" && <div className="bitacora-diferencias">
               <div><span>ANTES</span>{cambiados.map(([campo, etiqueta]) => <small key={campo}>{etiqueta}: {valorCampo(campo, c.anterior[campo], moneda)}</small>)}</div>
               <div><span>DESPUÉS</span>{cambiados.map(([campo, etiqueta]) => <small key={campo}>{etiqueta}: {valorCampo(campo, c.nuevo[campo], moneda)}</small>)}</div>
             </div>}
+            <footer className="rp-historial-responsable">Realizado por <strong>{c.usuario}</strong></footer>
           </article>;
         })}</div>}
     </div>
@@ -200,12 +201,13 @@ function ModalHistorialPago({ pago, moneda, onCerrar }) {
 function ModalHistorialMonto({ cambios, onCerrar }) {
   return <Modal etiqueta="M06 · TRAZABILIDAD" titulo="Cambios del monto acordado" onCerrar={onCerrar}>
     <div className="riccati-modal-body"><div className="finanzas-historial">{cambios.map((c, i) => <article key={i}>
-      <header><span className="riccati-badge riccati-badge-orange">Actualización</span><small>{c.usuario} · {fechaHora(c.cambiado_en)}</small></header>
+      <header><span className="riccati-badge riccati-badge-orange">Actualización</span><small>{fechaHora(c.cambiado_en)}</small></header>
       <p className="bitacora-motivo"><strong>Justificación:</strong> {c.justificacion}</p>
       <div className="bitacora-diferencias">
         <div><span>ANTES</span><strong>{formatoMoneda(c.monto_anterior, c.moneda_anterior)}</strong></div>
         <div><span>DESPUÉS</span><strong>{formatoMoneda(c.monto_nuevo, c.moneda_nueva)}</strong></div>
       </div>
+      <footer className="rp-historial-responsable">Actualizado por <strong>{c.usuario}</strong></footer>
     </article>)}</div></div>
     <div className="riccati-modal-footer"><button type="button" className="riccati-button-secondary" onClick={onCerrar}>Cerrar</button></div>
   </Modal>;
@@ -318,7 +320,7 @@ export default function Finanzas() {
           </header>
           <div className="bitacora-filtro-barra">
             <span className="finanzas-subtitulo"><ReceiptText size={17}/> Pagos recibidos</span>
-            <button type="button" className="bitacora-actualizar" onClick={() => setRecargar(n => n + 1)}><RefreshCcw size={17}/> Actualizar</button>
+            <button type="button" className="riccati-button-secondary rp-accion" onClick={() => setRecargar(n => n + 1)}><RefreshCcw size={17}/> Actualizar</button>
           </div>
           {pagos.length === 0 ? <div className="bitacora-vacio"><ReceiptText size={37}/><h3>Aún no hay pagos registrados</h3><p>Usa «Registrar pago» cada vez que el cliente realice un abono.</p></div>
             : <div className="riccati-table-wrapper"><table className="riccati-table finanzas-tabla"><thead><tr><th>FECHA</th><th>MONTO</th><th>REFERENCIA</th><th>ESTADO</th><th>REGISTRADO POR</th><th>ACCIONES</th></tr></thead><tbody>
@@ -331,9 +333,9 @@ export default function Finanzas() {
                   <td><span className={`riccati-badge ${anulado ? "riccati-badge-red" : "riccati-badge-green"}`}>{anulado ? "Anulado" : "Vigente"}</span>{p.correcciones > 0 && !anulado && <small className="finanzas-meta">Corregido {p.correcciones} vez/veces</small>}</td>
                   <td><div className="riccati-s2-doble"><span>{p.usuario_registra}</span><small>{fechaHora(p.registrado_en)}</small></div></td>
                   <td><div className="riccati-s2-actions">
-                    {!anulado && <button type="button" className="riccati-s2-icon-action" title="Corregir pago" aria-label={`Corregir pago del ${fechaCorta(p.fecha_pago)}`} onClick={() => abrir("corregir", p)}><Pencil size={16}/></button>}
-                    {!anulado && <button type="button" className="riccati-s2-icon-action finanzas-accion-peligro" title="Anular pago" aria-label={`Anular pago del ${fechaCorta(p.fecha_pago)}`} onClick={() => abrir("anular", p)}><Ban size={16}/></button>}
-                    {p.correcciones > 0 && <button type="button" className="riccati-s2-icon-action" title="Historial del pago" aria-label={`Historial del pago del ${fechaCorta(p.fecha_pago)}`} onClick={() => abrir("historial-pago", p)}><History size={16}/></button>}
+                    {!anulado && <button type="button" className="riccati-button-secondary rp-accion" title="Corregir pago" aria-label={`Corregir pago del ${fechaCorta(p.fecha_pago)}`} onClick={() => abrir("corregir", p)}><Pencil size={16} aria-hidden="true"/> Corregir</button>}
+                    {!anulado && <button type="button" className="riccati-button-danger rp-accion" title="Anular pago" aria-label={`Anular pago del ${fechaCorta(p.fecha_pago)}`} onClick={() => abrir("anular", p)}><Ban size={16} aria-hidden="true"/> Anular</button>}
+                    {p.correcciones > 0 && <button type="button" className="riccati-button-secondary rp-accion" title="Historial del pago" aria-label={`Historial del pago del ${fechaCorta(p.fecha_pago)}`} onClick={() => abrir("historial-pago", p)}><History size={16} aria-hidden="true"/> Historial</button>}
                   </div></td>
                 </tr>;
               })}
