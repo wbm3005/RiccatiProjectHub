@@ -1,5 +1,6 @@
 const express = require("express");
 const bcrypt = require("bcrypt");
+const crypto = require("node:crypto");
 
 const pool = require("../db");
 
@@ -88,6 +89,7 @@ router.get("/", async (req, res) => {
         u.estado,
         u.ultimo_acceso,
         u.creado_en,
+        COALESCE((to_jsonb(u) ->> 'debe_cambiar_password')::boolean, FALSE) AS debe_cambiar_password,
         r.id_rol,
         r.nombre AS rol
       FROM usuarios u
@@ -664,6 +666,87 @@ router.patch("/:id/estado", async (req, res) => {
       try { await conexion.query("ROLLBACK"); }
       catch (error) { console.error("Error al revertir cambio de usuario:", error); }
     }
+    if (conexion) conexion.release();
+  }
+});
+
+// =====================================================
+// POST /api/usuarios/:id/restablecer-contrasena
+// MEJORA M01: RESTABLECIMIENTO ASISTIDO DE CONTRASEÑA
+// Genera una contraseña temporal aleatoria que se muestra UNA sola vez al
+// administrador. El usuario queda obligado a cambiarla al iniciar sesión.
+// =====================================================
+
+// Sin caracteres ambiguos (0/O, 1/l/I) para que se pueda dictar o copiar sin errores.
+const GRUPOS_TEMPORAL = ["ABCDEFGHJKLMNPQRSTUVWXYZ", "abcdefghijkmnpqrstuvwxyz", "23456789", "!@#$%*?"];
+function generarContrasenaTemporal(longitud = 12) {
+  const todos = GRUPOS_TEMPORAL.join("");
+  // Garantiza la política: mayúscula, minúscula, número y carácter especial.
+  const caracteres = GRUPOS_TEMPORAL.map(g => g[crypto.randomInt(g.length)]);
+  while (caracteres.length < longitud) caracteres.push(todos[crypto.randomInt(todos.length)]);
+  for (let i = caracteres.length - 1; i > 0; i--) {
+    const j = crypto.randomInt(i + 1);
+    [caracteres[i], caracteres[j]] = [caracteres[j], caracteres[i]];
+  }
+  return caracteres.join("");
+}
+
+router.post("/:id/restablecer-contrasena", async (req, res) => {
+  const id = Number(req.params.id);
+  if (!Number.isSafeInteger(id) || id < 1) {
+    return res.status(400).json({ mensaje: "Usuario inválido." });
+  }
+  if (id === Number(req.usuario.idUsuario)) {
+    return res.status(409).json({ mensaje: "Para tu propia cuenta usa «Mi cuenta» y cambia tu contraseña allí." });
+  }
+  let conexion;
+  try {
+    conexion = await pool.connect();
+    await conexion.query("BEGIN");
+    if (!(await bloquearAdministracion(conexion, req.usuario.idUsuario))) {
+      await conexion.query("ROLLBACK");
+      return res.status(403).json({ mensaje: "Tu cuenta ya no tiene permisos de administración." });
+    }
+    const destino = await conexion.query(
+      "SELECT id_usuario, nombre, apellidos, correo, estado FROM usuarios WHERE id_usuario = $1",
+      [id]
+    );
+    if (!destino.rows.length) {
+      await conexion.query("ROLLBACK");
+      return res.status(404).json({ mensaje: "Usuario no encontrado." });
+    }
+    if (destino.rows[0].estado !== "ACTIVO") {
+      await conexion.query("ROLLBACK");
+      return res.status(409).json({ mensaje: "El usuario no está activo. Reactívalo antes de restablecer su contraseña." });
+    }
+
+    const temporal = generarContrasenaTemporal();
+    const hash = await bcrypt.hash(temporal, 10);
+    // Al cambiar el hash, todas las sesiones abiertas de ese usuario dejan de ser válidas.
+    await conexion.query(
+      `UPDATE usuarios
+          SET password_hash = $1, debe_cambiar_password = TRUE, actualizado_en = CURRENT_TIMESTAMP
+        WHERE id_usuario = $2`,
+      [hash, id]
+    );
+    await conexion.query(
+      "INSERT INTO usuarios_restablecimientos (id_usuario, id_administrador) VALUES ($1, $2)",
+      [id, req.usuario.idUsuario]
+    );
+    await conexion.query("COMMIT");
+
+    res.setHeader("Cache-Control", "no-store");
+    const u = destino.rows[0];
+    return res.json({
+      mensaje: `Contraseña restablecida para ${u.nombre} ${u.apellidos}. Entrégale la contraseña temporal; deberá cambiarla al iniciar sesión.`,
+      contrasenaTemporal: temporal,
+      usuario: { idUsuario: u.id_usuario, nombre: u.nombre, apellidos: u.apellidos, correo: u.correo },
+    });
+  } catch (error) {
+    if (conexion) await conexion.query("ROLLBACK").catch(() => {});
+    console.error("Error al restablecer contraseña:", error);
+    return res.status(500).json({ mensaje: "No fue posible restablecer la contraseña. Comprueba que ejecutaste la migración 11." });
+  } finally {
     if (conexion) conexion.release();
   }
 });

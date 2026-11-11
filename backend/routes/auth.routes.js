@@ -35,7 +35,8 @@ router.post("/login", async (req, res) => {
         u.password_hash,
         u.estado,
         r.nombre AS rol,
-        r.activo AS rol_activo
+        r.activo AS rol_activo,
+        COALESCE((to_jsonb(u) ->> 'debe_cambiar_password')::boolean, FALSE) AS debe_cambiar_password
       FROM usuarios u
       INNER JOIN roles r
         ON u.id_rol = r.id_rol
@@ -113,6 +114,8 @@ router.post("/login", async (req, res) => {
         apellidos: usuario.apellidos,
         correo: usuario.correo,
         rol: usuario.rol,
+        // Contraseña temporal: el frontend lleva directamente a "Mi cuenta" para cambiarla.
+        debeCambiarPassword: usuario.debe_cambiar_password === true,
       },
     });
   } catch (error) {
@@ -184,6 +187,14 @@ router.put("/cambiar-contrasena", autenticarToken, async (req, res) => {
       [nuevoHash, req.usuario.idUsuario]
     );
 
+    // Si era una contraseña temporal, queda resuelta.
+    if (req.usuario.debeCambiarPassword) {
+      await pool.query(
+        "UPDATE usuarios SET debe_cambiar_password = FALSE WHERE id_usuario = $1",
+        [req.usuario.idUsuario]
+      );
+    }
+
     return res.json({
       mensaje: "Contraseña actualizada. Inicia sesión nuevamente.",
     });
@@ -195,4 +206,4 @@ router.put("/cambiar-contrasena", autenticarToken, async (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports = router;

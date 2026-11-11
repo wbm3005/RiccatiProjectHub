@@ -175,6 +175,15 @@ export const actualizarUsuario =
     );
   };
 
+/* MEJORA M01: RESTABLECIMIENTO ASISTIDO DE CONTRASEÑA (solo administrador) */
+export async function restablecerContrasena(idUsuario) {
+  const respuesta = await fetch(`${API_URL}/${idUsuario}/restablecer-contrasena`, {
+    method: "POST",
+    headers: obtenerHeaders(true),
+  });
+  return procesarRespuesta(respuesta);
+}
+
 /* HU-M01-06: INACTIVAR / REACTIVAR */
 export async function cambiarEstadoUsuario(idUsuario, estado) {
   const respuesta = await fetch(`${API_URL}/${idUsuario}/estado`, {
@@ -183,4 +192,4 @@ export async function cambiarEstadoUsuario(idUsuario, estado) {
     body: JSON.stringify({ estado }),
   });
   return procesarRespuesta(respuesta);
-}
+}

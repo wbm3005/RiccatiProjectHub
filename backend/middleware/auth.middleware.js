@@ -35,7 +35,9 @@ const autenticarToken = async (req, res, next) => {
   try {
     const resultado = await pool.query(
       `SELECT u.id_usuario, u.correo, u.estado, u.password_hash,
-              r.nombre AS rol, r.activo AS rol_activo
+              r.nombre AS rol, r.activo AS rol_activo,
+              -- Lectura tolerante: si la migración 11 aún no se aplicó, vale FALSE.
+              COALESCE((to_jsonb(u) ->> 'debe_cambiar_password')::boolean, FALSE) AS debe_cambiar_password
          FROM usuarios u
          JOIN roles r ON r.id_rol = u.id_rol
         WHERE u.id_usuario = $1`,
@@ -71,7 +73,17 @@ const autenticarToken = async (req, res, next) => {
       idUsuario: usuario.id_usuario,
       correo: usuario.correo,
       rol: usuario.rol,
+      debeCambiarPassword: usuario.debe_cambiar_password === true,
     };
+
+    // Contraseña temporal pendiente: la única acción permitida es reemplazarla.
+    const ruta = (req.originalUrl || "").split("?")[0];
+    if (req.usuario.debeCambiarPassword && !(req.method === "PUT" && ruta.endsWith("/auth/cambiar-contrasena"))) {
+      return res.status(403).json({
+        mensaje: "Debes cambiar tu contraseña temporal antes de continuar.",
+        codigo: "CAMBIO_CONTRASENA_REQUERIDO",
+      });
+    }
     return next();
   } catch (error) {
     console.error("Error al validar acceso:", error);
@@ -90,4 +102,4 @@ const soloAdministrador = (req, res, next) => {
   next();
 };
 
-module.exports = { autenticarToken, soloAdministrador, versionCredencial };
+module.exports = { autenticarToken, soloAdministrador, versionCredencial };
