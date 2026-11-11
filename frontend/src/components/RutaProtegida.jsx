@@ -1,9 +1,10 @@
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 
 function RutaProtegida({
   children,
   soloAdministrador = false,
 }) {
+  const location = useLocation();
   const token =
     localStorage.getItem("tokenRiccati");
 
@@ -30,6 +31,20 @@ function RutaProtegida({
     );
   }
 
+  /* CONTRASEÑA TEMPORAL: solo puede usar "Mi cuenta" hasta cambiarla */
+
+  if (
+    usuario.debeCambiarPassword &&
+    location.pathname !== "/perfil"
+  ) {
+    return (
+      <Navigate
+        to="/perfil"
+        replace
+      />
+    );
+  }
+
   /* SOLO ADMINISTRADORES */
 
   if (
@@ -47,4 +62,4 @@ function RutaProtegida({
   return children;
 }
 
-export default RutaProtegida;
+export default RutaProtegida;

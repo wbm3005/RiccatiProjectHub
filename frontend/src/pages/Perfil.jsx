@@ -1,7 +1,7 @@
 import FormField from "../components/FormField";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, KeyRound, ShieldCheck, LockKeyhole } from "lucide-react";
+import { Eye, EyeOff, KeyRound, ShieldCheck, LockKeyhole, TriangleAlert } from "lucide-react";
 import RiccatiLayout from "../components/RiccatiLayout";
 import PageHeader from "../components/PageHeader";
 import { cambiarMiPassword, cerrarSesionLocal } from "../services/authService";
@@ -26,6 +26,9 @@ function Perfil() {
   } catch {
     usuario = null;
   }
+
+  // Contraseña temporal entregada por el administrador: el cambio es obligatorio.
+  const temporal = usuario?.debeCambiarPassword === true;
 
   const actualizar = (evento) => {
     setFormulario((antes) => ({ ...antes, [evento.target.name]: evento.target.value }));
@@ -69,6 +72,15 @@ function Perfil() {
       />
 
       <div style={{ maxWidth: 850, display: "grid", gap: 20 }}>
+        {temporal && !exito && (
+          <div className="perfil-aviso-temporal" role="alert">
+            <TriangleAlert size={20} aria-hidden="true" />
+            <div>
+              <strong>Debes crear tu propia contraseña</strong>
+              <p>Ingresaste con una contraseña temporal entregada por el administrador. Para continuar usando el sistema, escríbela en «Contraseña temporal» y define una nueva.</p>
+            </div>
+          </div>
+        )}
         <section className="riccati-panel" style={{ padding: "24px 28px" }}>
           <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
             <div className="riccati-user-avatar" style={{ width: 58, height: 58, fontSize: 23, flexShrink: 0 }}>
@@ -112,7 +124,7 @@ function Perfil() {
           {!exito && (
             <form onSubmit={guardar} style={{ display: "grid", gap: 19, maxWidth: 560 }}>
               <FormField className="riccati-form-group">
-                <label htmlFor="passwordActual">Contraseña actual *</label>
+                <label htmlFor="passwordActual">{temporal ? "Contraseña temporal *" : "Contraseña actual *"}</label>
                 <input id="passwordActual" name="passwordActual" type={visible ? "text" : "password"} autoComplete="current-password" className="riccati-input" value={formulario.passwordActual} onChange={actualizar} required />
               </FormField>
               <FormField className="riccati-form-group">

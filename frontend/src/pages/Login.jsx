@@ -55,7 +55,8 @@ function Login() {
         JSON.stringify(datos.usuario)
       );
 
-      navigate("/dashboard");
+      // Contraseña temporal (restablecida por el administrador): primero debe cambiarla.
+      navigate(datos.usuario?.debeCambiarPassword ? "/perfil" : "/dashboard");
     } catch {
       setError(
         "No se pudo conectar con el servidor."

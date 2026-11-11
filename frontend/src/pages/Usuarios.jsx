@@ -10,7 +10,7 @@ import PageHeader from "../components/PageHeader";
 import StatCard from "../components/StatCard";
 import UsuarioModal from "../components/UsuarioModal";
 import { createPortal } from "react-dom";
-import { UserCheck, UserX } from "lucide-react";
+import { Check, Copy, KeyRound, TriangleAlert, UserCheck, UserX } from "lucide-react";
 
 import {
   obtenerUsuarios,
@@ -18,6 +18,7 @@ import {
   crearUsuario,
   actualizarUsuario,
   cambiarEstadoUsuario,
+  restablecerContrasena,
 } from "../services/usuariosService";
 
 
@@ -46,6 +47,10 @@ function Usuarios() {
 
   const [usuarioConfirmando, setUsuarioConfirmando] = useState(null);
   const [procesandoEstado, setProcesandoEstado] = useState(false);
+  // Mejora M01: restablecimiento asistido de contraseña.
+  const [usuarioRestablecer, setUsuarioRestablecer] = useState(null);
+  const [restableciendo, setRestableciendo] = useState(false);
+  const [resultadoRestablecer, setResultadoRestablecer] = useState(null);
   let miId = -1;
   try {
     miId = Number(JSON.parse(localStorage.getItem("usuarioRiccati"))?.idUsuario || -1);
@@ -305,6 +310,28 @@ function Usuarios() {
       setError(fallo.message);
     } finally {
       setProcesandoEstado(false);
+    }
+  };
+
+  // =====================================================
+  // MEJORA M01: RESTABLECER CONTRASEÑA
+  // =====================================================
+
+  const confirmarRestablecer = async () => {
+    if (!usuarioRestablecer) return;
+    setRestableciendo(true);
+    setError("");
+    setMensaje("");
+    try {
+      const resultado = await restablecerContrasena(usuarioRestablecer.id_usuario);
+      setUsuarioRestablecer(null);
+      setResultadoRestablecer(resultado);
+      await cargarDatos();
+    } catch (fallo) {
+      setUsuarioRestablecer(null);
+      setError(fallo.message);
+    } finally {
+      setRestableciendo(false);
     }
   };
 
@@ -572,6 +599,11 @@ function Usuarios() {
                       <EstadoUsuario
                         estado={usuario.estado}
                       />
+                      {usuario.debe_cambiar_password && (
+                        <span className="riccati-badge riccati-badge-orange usuarios-badge-temporal" title="Debe cambiar la contraseña temporal al iniciar sesión">
+                          <KeyRound size={12} aria-hidden="true" /> Contraseña temporal
+                        </span>
+                      )}
                     </td>
 
                     <td>
@@ -596,6 +628,17 @@ function Usuarios() {
                         >
                           Editar
                         </button>
+                        {Number(usuario.id_usuario) !== miId && usuario.estado === "ACTIVO" && (
+                          <button
+                            type="button"
+                            className="riccati-button-secondary"
+                            onClick={() => setUsuarioRestablecer(usuario)}
+                            title="Restablecer contraseña: genera una contraseña temporal"
+                            aria-label={`Restablecer contraseña de ${usuario.nombre} ${usuario.apellidos}`}
+                          >
+                            <KeyRound size={15} aria-hidden="true" /> Restablecer
+                          </button>
+                        )}
                         {Number(usuario.id_usuario) !== miId && (
                           <button
                             type="button"
@@ -635,6 +678,18 @@ function Usuarios() {
         procesando={procesandoEstado}
         onConfirmar={confirmarCambioEstado}
         onCerrar={() => setUsuarioConfirmando(null)}
+      />
+
+      {/* MEJORA M01: RESTABLECER CONTRASEÑA */}
+      <ConfirmarRestablecer
+        usuario={usuarioRestablecer}
+        procesando={restableciendo}
+        onConfirmar={confirmarRestablecer}
+        onCerrar={() => setUsuarioRestablecer(null)}
+      />
+      <ContrasenaTemporal
+        resultado={resultadoRestablecer}
+        onCerrar={() => { setMensaje(resultadoRestablecer?.mensaje || ""); setResultadoRestablecer(null); }}
       />
 
       {/* MODAL */}
@@ -693,6 +748,74 @@ function ConfirmarEstadoUsuario({ usuario, procesando, onConfirmar, onCerrar }) 
   );
 }
 
+function ConfirmarRestablecer({ usuario, procesando, onConfirmar, onCerrar }) {
+  if (!usuario) return null;
+  return createPortal(
+    <div className="riccati-modal-backdrop" onMouseDown={(e) => {
+      if (e.target === e.currentTarget && !procesando) onCerrar();
+    }}>
+      <div className="riccati-modal" role="dialog" aria-modal="true" aria-labelledby="restablecer-titulo" style={{ width: "min(100%, 540px)" }}>
+        <div className="riccati-modal-header">
+          <span className="riccati-page-label">GESTIÓN DE CUENTAS</span>
+          <h3 id="restablecer-titulo">Restablecer contraseña</h3>
+        </div>
+        <div className="riccati-modal-body" style={{ fontSize: 14 }}>
+          <p style={{ marginTop: 0 }}>¿Deseas generar una contraseña temporal para <strong>{usuario.nombre} {usuario.apellidos}</strong> ({usuario.correo})?</p>
+          <ul className="usuarios-lista-pasos">
+            <li>Su contraseña actual dejará de funcionar y se cerrarán sus sesiones abiertas.</li>
+            <li>Verás la contraseña temporal <strong>una sola vez</strong> para entregársela.</li>
+            <li>Al ingresar con ella, deberá crear su propia contraseña antes de usar el sistema.</li>
+          </ul>
+        </div>
+        <div className="riccati-modal-footer">
+          <button type="button" className="riccati-button-secondary" onClick={onCerrar} disabled={procesando}>Cancelar</button>
+          <button type="button" className="riccati-button-primary" onClick={onConfirmar} disabled={procesando}>
+            <KeyRound size={16} aria-hidden="true" /> {procesando ? "Generando..." : "Sí, restablecer"}
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
+function ContrasenaTemporal({ resultado, onCerrar }) {
+  const [copiada, setCopiada] = useState(false);
+  if (!resultado) return null;
+  const copiar = async () => {
+    try { await navigator.clipboard.writeText(resultado.contrasenaTemporal); setCopiada(true); }
+    catch { setCopiada(false); }
+  };
+  const cerrar = () => { setCopiada(false); onCerrar(); };
+  return createPortal(
+    <div className="riccati-modal-backdrop">
+      <div className="riccati-modal" role="dialog" aria-modal="true" aria-labelledby="temporal-titulo" style={{ width: "min(100%, 540px)" }}>
+        <div className="riccati-modal-header">
+          <span className="riccati-page-label">GESTIÓN DE CUENTAS</span>
+          <h3 id="temporal-titulo">Contraseña temporal generada</h3>
+        </div>
+        <div className="riccati-modal-body" style={{ fontSize: 14 }}>
+          <p style={{ marginTop: 0 }}>Entrega esta contraseña a <strong>{resultado.usuario?.nombre} {resultado.usuario?.apellidos}</strong> ({resultado.usuario?.correo}) por un medio privado.</p>
+          <div className="usuarios-temporal">
+            <code aria-label="Contraseña temporal">{resultado.contrasenaTemporal}</code>
+            <button type="button" className="riccati-button-secondary" onClick={copiar}>
+              {copiada ? <><Check size={15} aria-hidden="true" /> Copiada</> : <><Copy size={15} aria-hidden="true" /> Copiar</>}
+            </button>
+          </div>
+          <div className="usuarios-aviso-temporal" role="note">
+            <TriangleAlert size={18} aria-hidden="true" />
+            <span>No se volverá a mostrar ni queda guardada en el sistema. Si se pierde, restablécela de nuevo.</span>
+          </div>
+        </div>
+        <div className="riccati-modal-footer">
+          <button type="button" className="riccati-button-primary" onClick={cerrar}>Listo, ya la entregué</button>
+        </div>
+      </div>
+    </div>,
+    document.body
+  );
+}
+
 function EstadoUsuario({
   estado,
 }) {
@@ -724,4 +847,4 @@ function EstadoUsuario({
   );
 }
 
-export default Usuarios;
+export default Usuarios;
