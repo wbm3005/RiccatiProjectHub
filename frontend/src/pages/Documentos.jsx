@@ -125,7 +125,7 @@ function ModalAdjuntar({ modo, tipos, proyecto, guardando, error, onCerrar, onGu
       </div>
       <div className="riccati-modal-footer">
         <button type="button" className="riccati-button-secondary" disabled={guardando} onClick={onCerrar}>Cancelar</button>
-        <button className="riccati-button-primary" type="submit" disabled={guardando}>{guardando ? (esVinculo ? "Guardando..." : "Subiendo archivo...") : esVinculo ? "Registrar vínculo" : "Adjuntar archivo"}<Check size={17}/></button>
+        <button className="riccati-button-primary" type="submit" disabled={guardando}><Check size={17}/> {guardando ? (esVinculo ? "Guardando..." : "Subiendo archivo...") : esVinculo ? "Registrar vínculo" : "Adjuntar archivo"}</button>
       </div>
     </form>
   </Modal>;
@@ -148,7 +148,7 @@ function ModalClasificar({ documento, tipos, guardando, error, onCerrar, onGuard
       </div>
       <div className="riccati-modal-footer">
         <button type="button" className="riccati-button-secondary" disabled={guardando} onClick={onCerrar}>Cancelar</button>
-        <button className="riccati-button-primary" type="submit" disabled={guardando || sinCambio}>{guardando ? "Guardando..." : "Guardar clasificación"}<Check size={17}/></button>
+        <button className="riccati-button-primary" type="submit" disabled={guardando || sinCambio}><Check size={17}/> {guardando ? "Guardando..." : "Guardar clasificación"}</button>
       </div>
     </form>
   </Modal>;
@@ -180,7 +180,7 @@ function ModalVersion({ documento, guardando, error, onCerrar, onGuardar }) {
       </div>
       <div className="riccati-modal-footer">
         <button type="button" className="riccati-button-secondary" disabled={guardando} onClick={onCerrar}>Cancelar</button>
-        <button className="riccati-button-primary" type="submit" disabled={guardando}>{guardando ? "Subiendo versión..." : "Cargar versión"}<Check size={17}/></button>
+        <button className="riccati-button-primary" type="submit" disabled={guardando}><Check size={17}/> {guardando ? "Subiendo versión..." : "Cargar versión"}</button>
       </div>
     </form>
   </Modal>;
@@ -205,12 +205,13 @@ function ModalHistorial({ documento, onCerrar, onAbrir, abriendo }) {
             <div className="documentos-version-numero">v{v.numero}</div>
             <div className="documentos-version-info">
               <strong>{v.nombre_original}{v.vigente && <span className="riccati-badge riccati-badge-green">Vigente</span>}</strong>
-              <small>{fechaTexto(v.creado_en)} · {v.usuario_carga} · {tamanoTexto(v.tamano_bytes)}</small>
+              <small>{fechaTexto(v.creado_en)} · {tamanoTexto(v.tamano_bytes)}</small>
               {v.comentario && <p>{v.comentario}</p>}
+              <div className="rp-historial-responsable">Cargado por <strong>{v.usuario_carga}</strong></div>
             </div>
             <div className="riccati-s2-actions">
-              {VISTA_PREVIA.includes(v.tipo_mime) && <button type="button" className="riccati-button-secondary" onClick={() => onAbrir(documento, "ver", v.numero, v.nombre_original)} disabled={Boolean(abriendo)} aria-label={`Abrir versión ${v.numero}`}><Eye size={16}/> Abrir</button>}
-              <button type="button" className="riccati-button-secondary" onClick={() => onAbrir(documento, "descarga", v.numero, v.nombre_original)} disabled={Boolean(abriendo)} aria-label={`Descargar versión ${v.numero}`}><Download size={16}/> Descargar</button>
+              {VISTA_PREVIA.includes(v.tipo_mime) && <button type="button" className="riccati-button-secondary rp-accion" onClick={() => onAbrir(documento, "ver", v.numero, v.nombre_original)} disabled={Boolean(abriendo)} aria-label={`Abrir versión ${v.numero}`}><Eye size={16}/> Abrir</button>}
+              <button type="button" className="riccati-button-secondary rp-accion" onClick={() => onAbrir(documento, "descarga", v.numero, v.nombre_original)} disabled={Boolean(abriendo)} aria-label={`Descargar versión ${v.numero}`}><Download size={16}/> Descargar</button>
             </div>
           </li>)}
         </ol>}
@@ -386,8 +387,8 @@ export default function Documentos() {
             {admin && <label className="bitacora-filtro"><span><Ban size={15}/> Estado</span><select className="riccati-select" name="estado" value={filtros.estado} onChange={cambiarFiltro}><option value="ACTIVO">Activos</option><option value="INACTIVO">Inactivos</option><option value="TODOS">Todos</option></select></label>}
           </div>
           <div className="bitacora-filtro-acciones">
-            <button type="button" className="bitacora-actualizar" onClick={limpiarFiltros} disabled={!hayFiltros}><FilterX size={17}/> Limpiar filtros</button>
-            <button type="button" className="bitacora-actualizar" onClick={() => setRecargar(n => n + 1)}><RefreshCcw size={17}/> Actualizar</button>
+            <button type="button" className="riccati-button-secondary rp-accion" onClick={limpiarFiltros} disabled={!hayFiltros}><FilterX size={17} aria-hidden="true"/> Limpiar filtros</button>
+            <button type="button" className="riccati-button-secondary rp-accion" onClick={() => setRecargar(n => n + 1)}><RefreshCcw size={17}/> Actualizar</button>
           </div>
         </div>
         {error && <div className="login-error bitacora-error" role="alert">{error}</div>}
@@ -408,18 +409,19 @@ export default function Documentos() {
                   {d.descripcion && <p>{d.descripcion}</p>}
                   {inactivo && <p className="documentos-motivo"><strong>Inactivado por {d.usuario_inactiva} · {fechaTexto(d.inactivado_en)}:</strong> {d.motivo_inactivacion}</p>}
                 </div></div></td>
-                <td><div className="documentos-tipo"><span className="riccati-badge riccati-badge-purple">{d.tipo}</span>{d.puede_reclasificar && <button type="button" className="riccati-s2-icon-action" title="Cambiar clasificación" aria-label={`Cambiar clasificación de ${d.nombre}`} onClick={() => abrirModal("clasificar", d)}><Pencil size={15}/></button>}</div>
+                <td><div className="documentos-tipo"><span className="riccati-badge riccati-badge-purple">{d.tipo}</span></div>
                   {d.usuario_actualiza && <small className="documentos-meta">Reclasificado por {d.usuario_actualiza}</small>}</td>
                 <td><span className="documentos-fecha">{fechaTexto(d.creado_en)}</span></td>
                 <td>{d.usuario_carga}</td>
                 <td><div className="riccati-s2-actions">
                   {esArchivo ? <>
-                    {VISTA_PREVIA.includes(d.tipo_mime) && <button type="button" className="riccati-button-secondary" onClick={() => abrirArchivo(d, "ver")} disabled={Boolean(abriendo)}><Eye size={16}/> {abriendo === `${clave}-ver` ? "Abriendo..." : "Abrir"}</button>}
-                    <button type="button" className="riccati-button-secondary" onClick={() => abrirArchivo(d, "descarga")} disabled={Boolean(abriendo)}><Download size={16}/> {abriendo === `${clave}-descarga` ? "Descargando..." : "Descargar"}</button>
-                    {d.puede_versionar && <button type="button" className="riccati-s2-icon-action" title="Cargar nueva versión" aria-label={`Cargar nueva versión de ${d.nombre}`} onClick={() => abrirModal("version", d)}><FileUp size={16}/></button>}
-                    <button type="button" className="riccati-s2-icon-action" title="Historial de versiones" aria-label={`Historial de versiones de ${d.nombre}`} onClick={() => abrirModal("historial", d)}><History size={16}/></button>
-                  </> : urlSegura(d.url_externa) && <a className="riccati-button-secondary documentos-enlace" href={d.url_externa} target="_blank" rel="noopener noreferrer"><ExternalLink size={16}/> Abrir vínculo</a>}
-                  {d.puede_inactivar && <button type="button" className="riccati-s2-icon-action documentos-accion-peligro" title="Inactivar documento" aria-label={`Inactivar ${d.nombre}`} onClick={() => abrirModal("inactivar", d)}><Ban size={16}/></button>}
+                    {VISTA_PREVIA.includes(d.tipo_mime) && <button type="button" className="riccati-button-secondary rp-accion" onClick={() => abrirArchivo(d, "ver")} disabled={Boolean(abriendo)}><Eye size={16}/> {abriendo === `${clave}-ver` ? "Abriendo..." : "Abrir"}</button>}
+                    <button type="button" className="riccati-button-secondary rp-accion" onClick={() => abrirArchivo(d, "descarga")} disabled={Boolean(abriendo)}><Download size={16}/> {abriendo === `${clave}-descarga` ? "Descargando..." : "Descargar"}</button>
+                    {d.puede_versionar && <button type="button" className="riccati-button-secondary rp-accion" title="Cargar nueva versión" aria-label={`Cargar nueva versión de ${d.nombre}`} onClick={() => abrirModal("version", d)}><FileUp size={16} aria-hidden="true"/> Nueva versión</button>}
+                    <button type="button" className="riccati-button-secondary rp-accion" title="Historial de versiones" aria-label={`Historial de versiones de ${d.nombre}`} onClick={() => abrirModal("historial", d)}><History size={16} aria-hidden="true"/> Historial</button>
+                  </> : urlSegura(d.url_externa) && <a className="riccati-button-secondary rp-accion documentos-enlace" href={d.url_externa} target="_blank" rel="noopener noreferrer"><ExternalLink size={16}/> Abrir vínculo</a>}
+                  {d.puede_reclasificar && <button type="button" className="riccati-button-secondary rp-accion" title="Cambiar clasificación" aria-label={`Cambiar clasificación de ${d.nombre}`} onClick={() => abrirModal("clasificar", d)}><Pencil size={15} aria-hidden="true"/> Clasificar</button>}
+                  {d.puede_inactivar && <button type="button" className="riccati-button-danger rp-accion" title="Inactivar documento" aria-label={`Inactivar ${d.nombre}`} onClick={() => abrirModal("inactivar", d)}><Ban size={16} aria-hidden="true"/> Inactivar</button>}
                 </div></td>
               </tr>;
             })}

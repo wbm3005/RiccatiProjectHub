@@ -279,3 +279,15 @@ input[type="date"]::-webkit-calendar-picker-indicator {filter:none;}
 .rp-session-user .rp-avatar {width:36px;height:36px;color:var(--rp-accent);}
 [data-bs-theme="dark"] .riccati-stat-card {box-shadow:none;}
 @media(max-width:680px){.riccati-stat-header {align-items:flex-start;}.riccati-stat-icon {width:34px;height:34px;flex-basis:34px;}.riccati-stat-icon svg {width:20px;height:20px;}.bitacora-kpi {flex-wrap:wrap;gap:10px;}}
+
+/* Acciones e historial del Sprint 3 */
+.rp-accion {min-height:36px;padding:7px 10px;white-space:nowrap;}
+.rp-historial-responsable {margin-top:12px;padding-top:9px;border-top:1px solid var(--rp-line);color:var(--rp-muted);font-size:12px;overflow-wrap:anywhere;}
+.rp-historial-responsable strong {color:var(--rp-ink);}
+.documentos-tabla .riccati-s2-actions, .finanzas-tabla .riccati-s2-actions {flex-wrap:wrap;min-width:175px;}
+.bitacora-evento.es-actividad {--evento-color:var(--rp-accent);--evento-fondo:var(--rp-active-bg);}
+.bitacora-evento.es-comentario {--evento-color:var(--ui-info);--evento-fondo:var(--ui-info-bg);}
+.bitacora-evento.es-correccion {--evento-color:var(--ui-warning);--evento-fondo:var(--ui-warning-bg);}
+.bitacora-evento .bitacora-evento-info {border-inline-start:3px solid var(--evento-color);}
+.bitacora-evento .bitacora-evento-simbolo,
+.bitacora-evento .bitacora-chip {color:var(--evento-color);background:var(--evento-fondo);}

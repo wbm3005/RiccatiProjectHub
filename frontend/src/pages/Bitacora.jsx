@@ -75,7 +75,7 @@ function ModalRegistro({ modo, entrada, usuario, ahora, error, guardando, onCerr
           </div>
           <div className="riccati-modal-footer">
             <button type="button" className="riccati-button-secondary" disabled={guardando} onClick={onCerrar}>Cancelar</button>
-            <button className="riccati-button-primary" type="submit" disabled={guardando}>{guardando ? "Guardando..." : editando ? "Guardar corrección" : comentario ? "Publicar comentario" : "Registrar actividad"}<Check size={17}/></button>
+            <button className="riccati-button-primary" type="submit" disabled={guardando}><Check size={17}/> {guardando ? "Guardando..." : editando ? "Guardar corrección" : comentario ? "Publicar comentario" : "Registrar actividad"}</button>
           </div>
         </form>
       </div>
@@ -100,9 +100,8 @@ function Entrada({ evento, usuario, ahora, corregir }) {
             <span className={`bitacora-chip ${correccion ? "chip-naranja" : comentario ? "chip-cyan" : "chip-violeta"}`}>{correccion ? "Corrección auditada" : comentario ? "Comentario" : "Actividad"}</span>
             <span className="bitacora-fecha"><CalendarClock size={14}/>{fechaTexto(evento.fecha_evento)}</span>
           </div>
-          {editable && <button type="button" className="bitacora-corregir" onClick={() => corregir(evento)} title="Corregir actividad"><Pencil size={15}/> Corregir</button>}
+          {editable && <button type="button" className="riccati-button-secondary rp-accion" onClick={() => corregir(evento)} title="Corregir actividad"><Pencil size={15}/> Corregir</button>}
         </div>
-        <div className="bitacora-evento-autor">Registrado por <strong>{evento.autor}</strong></div>
         {correccion ? <>
           <h3>Se corrigió la actividad #{evento.id_entrada}</h3>
           {evento.justificacion && <p className="bitacora-motivo"><strong>Motivo:</strong> {evento.justificacion}</p>}
@@ -119,6 +118,7 @@ function Entrada({ evento, usuario, ahora, corregir }) {
             {evento.actual && (evento.titulo !== evento.actual.titulo || evento.contenido !== evento.actual.contenido || String(evento.horas ?? "") !== String(evento.actual.horas ?? "")) && <span className="bitacora-etiqueta-cambio">Registro corregido posteriormente</span>}
           </div>}
         </>}
+        <footer className="rp-historial-responsable">{correccion ? "Corregido por" : "Registrado por"} <strong>{evento.autor}</strong></footer>
       </div>
     </article>
   );
@@ -268,8 +268,8 @@ export default function Bitacora() {
               <label className="bitacora-filtro"><span><UserRound size={15}/> Colaborador</span><select className="riccati-select" name="colaborador" value={filtros.colaborador} onChange={cambiarFiltro}><option value="">Todos</option>{colaboradores.map(c => <option key={c.id_usuario} value={c.id_usuario}>{c.nombre}</option>)}</select></label>
             </div>
             <div className="bitacora-filtro-acciones">
-              <button type="button" className="bitacora-actualizar" onClick={limpiarFiltros} disabled={!hayFiltros}><FilterX size={17}/> Limpiar filtros</button>
-              <button type="button" className="bitacora-actualizar" onClick={() => setRecargar(n=>n+1)}><RefreshCcw size={17}/> Actualizar</button>
+              <button type="button" className="riccati-button-secondary rp-accion" onClick={limpiarFiltros} disabled={!hayFiltros}><FilterX size={17} aria-hidden="true"/> Limpiar filtros</button>
+              <button type="button" className="riccati-button-secondary rp-accion" onClick={() => setRecargar(n=>n+1)}><RefreshCcw size={17}/> Actualizar</button>
             </div>
           </div>
           {error && <div className="login-error bitacora-error" role="alert">{error}</div>}
