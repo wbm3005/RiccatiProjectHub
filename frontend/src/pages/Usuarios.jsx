@@ -10,7 +10,7 @@ import PageHeader from "../components/PageHeader";
 import StatCard from "../components/StatCard";
 import UsuarioModal from "../components/UsuarioModal";
 import { createPortal } from "react-dom";
-import { Check, Copy, KeyRound, TriangleAlert, UserCheck, UserX } from "lucide-react";
+import { Check, Copy, KeyRound, Pencil, TriangleAlert, UserCheck, UserX } from "lucide-react";
 
 import {
   obtenerUsuarios,
@@ -623,10 +623,10 @@ function Usuarios() {
                       <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
                         <button
                           type="button"
-                          className="riccati-button-secondary"
+                          className="riccati-button-secondary rp-accion"
                           onClick={() => abrirEditarUsuario(usuario)}
                         >
-                          Editar
+                          <Pencil size={16} aria-hidden="true" /> Editar
                         </button>
                         {Number(usuario.id_usuario) !== miId && usuario.estado === "ACTIVO" && (
                           <button
