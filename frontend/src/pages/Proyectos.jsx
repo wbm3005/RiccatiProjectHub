@@ -1,3 +1,4 @@
+import { Eye } from "lucide-react";
 import Pagination from "../components/Pagination";
 import {
   useEffect,
@@ -1262,7 +1263,7 @@ function Proyectos() {
                         <td>
                           <button
                             type="button"
-                            className="riccati-button-secondary"
+                            className="riccati-button-secondary rp-accion"
                             onClick={() =>
                               abrirFicha(
                                 proyecto
@@ -1270,7 +1271,7 @@ function Proyectos() {
                               )
                             }
                           >
-                            Ver ficha
+                            <Eye size={16} aria-hidden="true" /> Ver ficha
                           </button>
                         </td>
 

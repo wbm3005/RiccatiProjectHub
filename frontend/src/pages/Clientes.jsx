@@ -1,6 +1,6 @@
 import FormField from "../components/FormField";
 import { useEffect, useMemo, useState } from "react";
-import { Building2, CheckCircle2, ChevronLeft, ChevronRight, CircleAlert, Pencil, Plus, Search, SlidersHorizontal, UserRoundCheck, Users, X } from "lucide-react";
+import { Building2, CheckCircle2, ChevronLeft, ChevronRight, CircleAlert, Eye, Pencil, Plus, Search, SlidersHorizontal, UserRoundCheck, Users, X } from "lucide-react";
 import { createPortal } from "react-dom";
 import RiccatiLayout from "../components/RiccatiLayout";
 import PageHeader from "../components/PageHeader";
@@ -166,7 +166,7 @@ function Clientes() {
                 <td><div className="riccati-s2-doble"><span>{c.correo_general || "Sin correo"}</span><small>{c.telefono_general || "Sin teléfono"}</small></div></td>
                 <td><span>{c.cantidad_contactos || 0} contacto(s)</span></td>
                 <td><span className={"riccati-badge " + (c.estado === "ACTIVO" ? "riccati-badge-green" : "riccati-badge-orange")}>{c.estado === "ACTIVO" ? "Activo" : "Inactivo"}</span></td>
-                <td><div className="riccati-s2-actions"><button type="button" className="riccati-button-secondary" onClick={() => abrirFicha(c.id_cliente)}>Ver ficha</button>{esAdministrador && <button type="button" className="riccati-s2-icon-action" aria-label={`Editar ${c.nombre_razon_social}`} title="Editar" onClick={() => abrirEditar(c)}><Pencil size={17}/></button>}</div></td>
+                <td><div className="riccati-s2-actions"><button type="button" className="riccati-button-secondary rp-accion" onClick={() => abrirFicha(c.id_cliente)}><Eye size={16} aria-hidden="true"/> Ver ficha</button>{esAdministrador && <button type="button" className="riccati-button-secondary rp-accion" aria-label={`Editar ${c.nombre_razon_social}`} title="Editar" onClick={() => abrirEditar(c)}><Pencil size={16} aria-hidden="true"/> Editar</button>}</div></td>
               </tr>)}</tbody></table></div>}
           <div className="riccati-s2-paginacion"><span>{filtrados.length === 0 ? "0 resultados" : `Mostrando ${(paginaActual - 1) * TAMANIO_PAGINA + 1}–${Math.min(paginaActual * TAMANIO_PAGINA, filtrados.length)} de ${filtrados.length} clientes`}</span><div><button type="button" className="riccati-button-secondary" disabled={paginaActual === 1} aria-label="Página anterior" onClick={() => setPagina(paginaActual - 1)}><ChevronLeft size={17}/></button><span>Página {paginaActual} de {totalPaginas}</span><button type="button" className="riccati-button-secondary" disabled={paginaActual >= totalPaginas} aria-label="Página siguiente" onClick={() => setPagina(paginaActual + 1)}><ChevronRight size={17}/></button></div></div>
         </section>
